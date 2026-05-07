@@ -3,375 +3,612 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ContentAI</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<title>AutoContent — زر واحد</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
+:root {
+  --bg: #080808;
+  --card: #111;
+  --border: #1e1e1e;
+  --accent: #00ff88;
+  --accent2: #00cc66;
+  --purple: #7c3aed;
+  --red: #ff4444;
+  --gold: #fbbf24;
+  --text: #f0f0f0;
+  --text2: #666;
+  --text3: #333;
+}
+
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background: #0d0d0d;
-  color: #f0f0f0;
+  background: var(--bg);
+  color: var(--text);
   font-family: 'Cairo', sans-serif;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* ── TOP BAR ── */
-.topbar {
-  background: #111;
-  border-bottom: 1px solid #222;
-  padding: 16px 24px;
-  display: flex;
+/* Grid bg */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image: radial-gradient(circle at 50% 0%, rgba(0,255,136,0.04) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.wrap {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── HEADER ── */
+.header {
+  text-align: center;
+  padding: 32px 0 24px;
+}
+
+.header .logo {
+  width: 56px; height: 56px;
+  background: var(--accent);
+  border-radius: 16px;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 14px;
+  box-shadow: 0 0 40px rgba(0,255,136,0.3);
 }
 
-.topbar h1 {
-  font-size: 18px;
+.header h1 {
+  font-size: 24px;
   font-weight: 900;
+  margin-bottom: 6px;
   color: #fff;
 }
 
-.topbar-right {
+.header p {
+  font-size: 13px;
+  color: var(--text2);
+}
+
+/* ── API KEYS ── */
+.keys-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.key-field {
+  flex: 1;
+  min-width: 140px;
+}
+
+.key-field label {
+  font-size: 10px;
+  color: var(--text2);
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.key-field input {
+  width: 100%;
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  outline: none;
+  direction: ltr;
+  transition: border-color 0.2s;
+}
+.key-field input:focus { border-color: var(--accent); }
+.key-field input.saved { border-color: var(--accent2); }
+
+.keys-status {
+  font-size: 10px;
+  color: var(--text2);
+  white-space: nowrap;
+}
+.keys-status.ok { color: var(--accent); }
+
+/* ── CATEGORY SELECTOR ── */
+.cat-wrap {
+  margin-bottom: 16px;
+}
+
+.cat-label {
+  font-size: 11px;
+  color: var(--text2);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.cat-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Cairo', sans-serif;
+}
+
+.cat-btn:hover { border-color: #333; }
+.cat-btn.active {
+  border-color: var(--accent);
+  background: rgba(0,255,136,0.06);
+}
+
+.cat-btn .cat-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+.cat-btn .cat-name { font-size: 11px; font-weight: 700; color: var(--text2); }
+.cat-btn.active .cat-name { color: var(--accent); }
+
+/* ── BIG START BUTTON ── */
+.start-btn {
+  width: 100%;
+  padding: 18px;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Cairo', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 24px rgba(0,255,136,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.start-btn:hover:not(:disabled) {
+  background: #00ffaa;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,255,136,0.4);
+}
+.start-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── PIPELINE ── */
+.pipeline {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 16px;
+}
+.pipeline.show { display: flex; }
+
+.pipe-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  position: relative;
+}
+.pipe-step:first-child { border-radius: 14px 14px 0 0; }
+.pipe-step:last-child { border-radius: 0 0 14px 14px; }
+.pipe-step:not(:last-child) { border-bottom: none; }
+
+.pipe-step.active { background: #0d1a10; border-color: rgba(0,255,136,0.2); }
+.pipe-step.done { background: #0a120d; }
+.pipe-step.error { background: #1a0d0d; border-color: rgba(255,68,68,0.2); }
+
+.pipe-dot {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--border);
+  border: 2px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all 0.3s;
+}
+.pipe-step.active .pipe-dot {
+  background: var(--accent);
+  border-color: var(--accent);
+  animation: dotPulse 1s infinite;
+}
+.pipe-step.done .pipe-dot {
+  background: var(--accent2);
+  border-color: var(--accent2);
+  color: #000;
+}
+.pipe-step.error .pipe-dot {
+  background: var(--red);
+  border-color: var(--red);
+}
+
+@keyframes dotPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,255,136,0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(0,255,136,0); }
+}
+
+.pipe-info { flex: 1; }
+.pipe-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 3px;
+  color: var(--text2);
+}
+.pipe-step.active .pipe-title { color: var(--accent); }
+.pipe-step.done .pipe-title { color: var(--text); }
+
+.pipe-detail {
+  font-size: 11px;
+  color: var(--text3);
+  line-height: 1.6;
+}
+.pipe-step.active .pipe-detail { color: #888; }
+.pipe-step.done .pipe-detail { color: var(--accent2); }
+.pipe-step.error .pipe-detail { color: var(--red); }
+
+.pipe-time {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  flex-shrink: 0;
+}
+.pipe-step.done .pipe-time { color: var(--accent2); }
+
+/* Progress bar in step */
+.pipe-prog {
+  height: 2px;
+  background: #1a1a1a;
+  border-radius: 1px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.pipe-prog-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 1px;
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+/* ── RESULT ── */
+.result-card {
+  display: none;
+  background: var(--card);
+  border: 1px solid rgba(0,255,136,0.2);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.result-card.show { display: block; }
+
+.result-header {
+  background: rgba(0,255,136,0.06);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.api-input {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 7px 12px;
-  color: #fff;
-  font-family: 'Cairo', sans-serif;
-  font-size: 12px;
-  width: 180px;
-  outline: none;
-  direction: ltr;
-}
-.api-input:focus { border-color: #6c63ff; }
-.api-input::placeholder { color: #444; }
+.result-emoji { font-size: 28px; }
 
-/* ── STEPS NAV ── */
-.steps {
-  display: flex;
-  background: #111;
-  border-bottom: 1px solid #222;
-  overflow-x: auto;
-}
-
-.step {
-  flex: 1;
-  min-width: 100px;
-  padding: 14px 8px;
-  text-align: center;
-  font-size: 12px;
+.result-title {
+  font-size: 14px;
   font-weight: 700;
-  color: #444;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-.step.active { color: #6c63ff; border-bottom-color: #6c63ff; }
-.step.done { color: #00e5a0; border-bottom-color: #00e5a0; }
-.step:hover { color: #888; }
-
-/* ── CONTENT ── */
-.content {
-  max-width: 750px;
-  margin: 0 auto;
-  padding: 32px 20px;
-}
-
-/* ── PAGE ── */
-.page { display: none; }
-.page.active { display: block; }
-
-/* ── CARD ── */
-.card {
-  background: #161616;
-  border: 1px solid #222;
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 16px;
-}
-
-.card-title {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 4px;
   color: #fff;
 }
 
-/* ── TREND LIST ── */
-.trend-list { display: flex; flex-direction: column; gap: 10px; }
-
-.trend-item {
-  background: #1c1c1c;
-  border: 2px solid #222;
-  border-radius: 12px;
-  padding: 16px;
-  cursor: pointer;
-  transition: all 0.2s;
+.result-meta {
   display: flex;
-  align-items: center;
-  gap: 14px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
-.trend-item:hover { border-color: #6c63ff; background: #1f1f2e; }
-.trend-item.selected { border-color: #6c63ff; background: #1a1a2e; }
-.trend-item.dup { border-color: #ff9f43; opacity: 0.6; }
 
-.trend-emoji { font-size: 28px; flex-shrink: 0; }
-
-.trend-info { flex: 1; }
-.trend-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
-.trend-meta { display: flex; gap: 8px; }
-
-.tag {
-  font-size: 11px;
+.result-tag {
+  font-size: 10px;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 6px;
 }
-.tag-purple { background: rgba(108,99,255,0.15); color: #6c63ff; }
-.tag-green { background: rgba(0,229,160,0.15); color: #00e5a0; }
-.tag-red { background: rgba(255,77,109,0.15); color: #ff4d6d; }
-.tag-gold { background: rgba(255,209,102,0.15); color: #ffd166; }
-.tag-orange { background: rgba(255,159,67,0.15); color: #ff9f43; }
+.rt-green { background: rgba(0,255,136,0.12); color: var(--accent); }
+.rt-purple { background: rgba(124,58,237,0.15); color: #a78bfa; }
+.rt-gold { background: rgba(251,191,36,0.12); color: var(--gold); }
 
-.trend-score {
-  font-size: 20px;
-  font-weight: 900;
-  flex-shrink: 0;
-  width: 52px;
-  text-align: center;
+.result-body { padding: 16px 20px; }
+
+.result-section {
+  margin-bottom: 16px;
 }
-
-.dup-tag {
+.result-section-title {
   font-size: 10px;
-  background: #ff9f43;
-  color: #000;
-  border-radius: 6px;
-  padding: 2px 7px;
-  font-weight: 800;
+  color: var(--text2);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
 }
 
-/* ── PROGRESS ── */
-.prog-wrap {
-  background: #1c1c1c;
-  border-radius: 4px;
+.quality-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.quality-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.quality-track {
+  flex: 1;
   height: 6px;
+  background: #1a1a1a;
+  border-radius: 3px;
   overflow: hidden;
-  margin: 10px 0;
 }
-.prog-fill {
+.quality-fill {
   height: 100%;
-  border-radius: 4px;
-  transition: width 0.4s ease;
+  border-radius: 3px;
+  transition: width 0.8s ease;
 }
-.prog-purple { background: linear-gradient(90deg, #6c63ff, #48cae4); }
-.prog-green { background: linear-gradient(90deg, #00e5a0, #48cae4); }
 
-/* ── LOG ── */
-.log {
+.checks { display: flex; flex-direction: column; gap: 6px; }
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.check-item .ci { font-size: 14px; }
+.check-item .cl { color: var(--text2); flex: 1; }
+.check-item .cp { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; }
+
+.script-preview {
   background: #0d0d0d;
-  border: 1px solid #222;
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 14px;
+  font-size: 12px;
+  line-height: 1.9;
   max-height: 200px;
   overflow-y: auto;
-  font-size: 12px;
-  line-height: 2;
-}
-.log::-webkit-scrollbar { width: 3px; }
-.log::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
-
-.log-row { display: flex; gap: 8px; }
-.log-time { color: #333; flex-shrink: 0; font-family: monospace; }
-.log-msg { color: #888; }
-.log-msg.ok { color: #00e5a0; }
-.log-msg.info { color: #6c63ff; }
-.log-msg.warn { color: #ffd166; }
-.log-msg.hi { color: #fff; font-weight: 700; }
-
-/* ── SCORE BARS ── */
-.score-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-.score-label { font-size: 12px; color: #888; width: 110px; flex-shrink: 0; }
-.score-track { flex: 1; height: 5px; background: #1c1c1c; border-radius: 3px; overflow: hidden; }
-.score-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
-.score-val { font-size: 12px; font-weight: 700; width: 36px; text-align: left; }
-
-/* ── SCRIPT BOX ── */
-.script-box {
-  background: #0d0d0d;
-  border: 1px solid #222;
-  border-radius: 10px;
-  padding: 16px;
-  font-size: 13px;
-  line-height: 1.9;
-  max-height: 280px;
-  overflow-y: auto;
+  color: #aaa;
   white-space: pre-wrap;
-  color: #ccc;
+  direction: rtl;
 }
-.script-box::-webkit-scrollbar { width: 3px; }
-.script-box::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+.script-preview::-webkit-scrollbar { width: 3px; }
+.script-preview::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
 
-/* ── CHECKLIST ── */
-.check-row {
+.action-row {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 0;
-  border-bottom: 1px solid #1c1c1c;
-  font-size: 13px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
-.check-row:last-child { border-bottom: none; }
 
-/* ── BUTTONS ── */
-.btn {
-  padding: 12px 24px;
-  border-radius: 10px;
-  border: none;
+.act-btn {
+  padding: 9px 16px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: #0d0d0d;
+  color: var(--text2);
   font-family: 'Cairo', sans-serif;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
-
-.btn-main {
-  background: #6c63ff;
-  color: #fff;
-  width: 100%;
-  justify-content: center;
-  font-size: 15px;
-  padding: 14px;
-}
-.btn-main:hover { background: #5a52d5; transform: translateY(-1px); }
-.btn-main:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-
-.btn-outline {
-  background: transparent;
-  border: 1px solid #333;
-  color: #888;
-  font-size: 13px;
-  padding: 8px 16px;
-}
-.btn-outline:hover { border-color: #555; color: #fff; }
-
-.btn-green {
-  background: #00e5a0;
+.act-btn:hover { border-color: #444; color: var(--text); }
+.act-btn.green {
+  background: var(--accent);
+  border-color: var(--accent);
   color: #000;
-  width: 100%;
-  justify-content: center;
-  font-size: 15px;
-  padding: 14px;
 }
-.btn-green:hover { background: #00c987; }
+.act-btn.green:hover { background: #00ffaa; }
 
-/* ── BIG SCORE ── */
-.big-score {
-  text-align: center;
-  padding: 20px 0;
-}
-.big-score .num {
-  font-size: 64px;
-  font-weight: 900;
-  line-height: 1;
-  margin-bottom: 8px;
-}
-.big-score .lbl { font-size: 14px; color: #888; }
-
-/* ── SUCCESS CARD ── */
-.success-card {
-  text-align: center;
-  padding: 40px 20px;
-}
-.success-card .icon { font-size: 56px; margin-bottom: 16px; display: block; }
-.success-card h2 { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
-.success-card p { color: #888; font-size: 13px; margin-bottom: 24px; }
-
-/* ── DB TABLE ── */
-.db-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.db-table th {
-  background: #1c1c1c;
-  padding: 10px 14px;
-  text-align: right;
-  color: #888;
-  font-size: 11px;
-  border-bottom: 1px solid #222;
-}
-.db-table td {
-  padding: 12px 14px;
-  border-bottom: 1px solid #1c1c1c;
-}
-.db-table tr:hover td { background: rgba(255,255,255,0.02); }
-
-/* ── STATS ROW ── */
-.stats-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+/* ── HISTORY ── */
+.history-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
   margin-bottom: 16px;
 }
-.stat-box {
-  background: #1c1c1c;
-  border-radius: 12px;
-  padding: 16px;
-  text-align: center;
-}
-.stat-box .val {
-  font-size: 28px;
-  font-weight: 900;
-  margin-bottom: 4px;
-}
-.stat-box .lbl { font-size: 11px; color: #888; }
 
-/* ── SPINNER ── */
-.spinner {
-  width: 16px; height: 16px;
-  border: 2px solid rgba(255,255,255,0.2);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  flex-shrink: 0;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ── ALERT ── */
-.alert {
-  padding: 12px 16px;
-  border-radius: 10px;
-  font-size: 13px;
-  margin-bottom: 14px;
+.history-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
 }
-.alert-green { background: rgba(0,229,160,0.08); border: 1px solid rgba(0,229,160,0.2); color: #00e5a0; }
-.alert-orange { background: rgba(255,159,67,0.08); border: 1px solid rgba(255,159,67,0.2); color: #ff9f43; }
-.alert-purple { background: rgba(108,99,255,0.08); border: 1px solid rgba(108,99,255,0.2); color: #6c63ff; }
+
+.history-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.history-count {
+  font-size: 10px;
+  background: rgba(0,255,136,0.1);
+  color: var(--accent);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.history-list { max-height: 320px; overflow-y: auto; }
+.history-list::-webkit-scrollbar { width: 3px; }
+.history-list::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.history-item:last-child { border-bottom: none; }
+.history-item:hover { background: rgba(255,255,255,0.02); }
+
+.hi-emoji { font-size: 20px; flex-shrink: 0; }
+.hi-info { flex: 1; min-width: 0; }
+.hi-title {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.hi-meta { font-size: 10px; color: var(--text2); }
+.hi-quality {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.hi-actions {
+  display: flex;
+  gap: 4px;
+}
+.hi-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  color: var(--text2);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.hi-btn:hover { border-color: #444; color: var(--text); }
+.hi-btn.del:hover { border-color: var(--red); color: var(--red); }
+
+.empty-hist {
+  padding: 30px;
+  text-align: center;
+  color: var(--text3);
+  font-size: 13px;
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.modal-overlay.show { display: flex; }
+
+.modal {
+  background: var(--card);
+  border: 1px solid #333;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.modal::-webkit-scrollbar { width: 3px; }
+.modal::-webkit-scrollbar-thumb { background: #333; }
+
+.modal-head {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  background: var(--card);
+  z-index: 1;
+}
+
+.modal-ttl { font-size: 14px; font-weight: 700; line-height: 1.4; }
+.modal-sub { font-size: 11px; color: var(--text2); margin-top: 4px; }
+
+.modal-close {
+  background: #1a1a1a;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--text2);
+  cursor: pointer;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.modal-body { padding: 18px 20px; }
+
+.modal-script {
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 12px;
+  line-height: 1.9;
+  max-height: 300px;
+  overflow-y: auto;
+  color: #aaa;
+  white-space: pre-wrap;
+  direction: rtl;
+  margin-bottom: 14px;
+}
 
 /* ── TOAST ── */
 .toast {
   position: fixed;
   bottom: 20px;
   left: 50%;
-  transform: translateX(-50%) translateY(80px);
-  background: #222;
+  transform: translateX(-50%) translateY(60px);
+  background: #1a1a1a;
   border: 1px solid #333;
   border-radius: 10px;
-  padding: 12px 20px;
+  padding: 10px 18px;
   font-size: 13px;
   z-index: 999;
   opacity: 0;
@@ -380,915 +617,748 @@ body {
 }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-/* ── EMPTY ── */
-.empty {
-  text-align: center;
-  padding: 50px 20px;
-  color: #444;
+/* Spinner */
+.spin {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(0,0,0,0.3);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: sp 0.7s linear infinite;
+  flex-shrink: 0;
 }
-.empty span { font-size: 40px; display: block; margin-bottom: 12px; }
+@keyframes sp { to { transform: rotate(360deg); } }
 
-@media(max-width:600px) {
-  .api-input { width: 130px; }
-  .topbar h1 { font-size: 15px; }
-  .step { min-width: 80px; font-size: 11px; }
+@media(max-width:400px) {
+  .cat-grid { grid-template-columns: repeat(3,1fr); }
+  .header h1 { font-size: 20px; }
 }
 </style>
 </head>
 <body>
+<div class="wrap">
 
-<!-- TOP BAR -->
-<div class="topbar">
-  <h1>🤖 ContentAI</h1>
-  <div class="topbar-right">
-    <input class="api-input" type="password" id="claudeKey" placeholder="Claude API Key" />
-    <input class="api-input" type="password" id="elevenKey" placeholder="ElevenLabs Key" />
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">🤖</div>
+    <h1>AutoContent</h1>
+    <p>اضغط زر واحد — الباقي تلقائي بالكامل</p>
   </div>
-</div>
 
-<!-- STEPS -->
-<div class="steps">
-  <div class="step active" id="tab-1" onclick="goTab(1)">🔍 الترند</div>
-  <div class="step" id="tab-2" onclick="goTab(2)">📊 التحليل</div>
-  <div class="step" id="tab-3" onclick="goTab(3)">✍️ السكريبت</div>
-  <div class="step" id="tab-4" onclick="goTab(4)">⭐ الجودة</div>
-  <div class="step" id="tab-5" onclick="goTab(5)">💾 الحفظ</div>
-  <div class="step" id="tab-6" onclick="goTab(6)">🎙️ الصوت</div>
-  <div class="step" id="tab-7" onclick="goTab(7)">🎬 الفيديو</div>
-  <div class="step" id="tab-8" onclick="goTab(8)">📤 النشر</div>
-  <div class="step" id="tab-9" onclick="goTab(9)">🗄️ البيانات</div>
-</div>
-
-<div class="content">
-
-  <!-- ══ PAGE 1: TRENDS ══ -->
-  <div class="page active" id="page-1">
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div class="card-title" style="margin:0;">🔍 الترندات الآن</div>
-        <button class="btn btn-outline" onclick="scanTrends()">🔄 تحديث</button>
-      </div>
-      <div class="prog-wrap"><div class="prog-fill prog-purple" id="scanProg" style="width:100%"></div></div>
-      <div style="font-size:11px;color:#444;margin-bottom:16px;">اضغط على الترند اللي يعجبك</div>
-      <div class="trend-list" id="trendList">
-        <div class="empty"><span>🔍</span><p>اضغط تحديث لرؤية الترندات</p></div>
-      </div>
+  <!-- API KEYS -->
+  <div class="keys-card">
+    <div class="key-field">
+      <label>CLAUDE API KEY</label>
+      <input type="password" id="claudeKey" placeholder="sk-ant-..." oninput="saveKeys()" />
     </div>
-    <button class="btn btn-main" id="btn1" onclick="goTab(2)" disabled>
-      التالي: تحليل الفرصة ←
-    </button>
-  </div>
-
-  <!-- ══ PAGE 2: ANALYSIS ══ -->
-  <div class="page" id="page-2">
-    <div class="card" id="analysisCard">
-      <div class="empty"><span>📊</span><p>اختر ترنداً أولاً</p></div>
+    <div class="key-field">
+      <label>ELEVENLABS KEY</label>
+      <input type="password" id="elevenKey" placeholder="sk_..." oninput="saveKeys()" />
     </div>
-    <button class="btn btn-main" id="btn2" onclick="goScript()" disabled>
-      ✍️ إنشاء السكريبت تلقائياً ←
-    </button>
+    <div class="keys-status" id="keysStatus">⚪ أضف المفاتيح</div>
   </div>
 
-  <!-- ══ PAGE 3: SCRIPT ══ -->
-  <div class="page" id="page-3">
-    <div class="card">
-      <div class="card-title">✍️ كتابة السكريبت</div>
-      <div id="scriptLogWrap">
-        <div class="log" id="scriptLog"></div>
-        <div class="prog-wrap"><div class="prog-fill prog-purple" id="scriptProg" style="width:0%"></div></div>
-      </div>
-      <div id="scriptResultWrap" style="display:none;">
-        <div class="alert alert-green">✅ السكريبت جاهز!</div>
-        <div class="script-box" id="scriptBox"></div>
-        <div style="display:flex;gap:8px;margin-top:12px;">
-          <button class="btn btn-outline" onclick="copyScript()">📋 نسخ</button>
-          <button class="btn btn-outline" onclick="dlScript()">📥 تحميل</button>
-        </div>
-      </div>
+  <!-- CATEGORY -->
+  <span class="cat-label">اختر نوع المحتوى</span>
+  <div class="cat-grid">
+    <div class="cat-btn active" data-cat="crime" onclick="selectCat(this)">
+      <span class="cat-icon">🔪</span>
+      <span class="cat-name">جرائم</span>
     </div>
-    <button class="btn btn-main" id="btn3" onclick="goQuality()" disabled>
-      ⭐ فحص الجودة ←
-    </button>
-  </div>
-
-  <!-- ══ PAGE 4: QUALITY ══ -->
-  <div class="page" id="page-4">
-    <div class="card" id="qualityCard">
-      <div class="empty"><span>⭐</span><p>أنشئ السكريبت أولاً</p></div>
+    <div class="cat-btn" data-cat="tech" onclick="selectCat(this)">
+      <span class="cat-icon">💻</span>
+      <span class="cat-name">تقنية</span>
     </div>
-    <button class="btn btn-green" id="btn4" onclick="goSave()" disabled>
-      💾 حفظ في قاعدة البيانات ←
-    </button>
-  </div>
-
-  <!-- ══ PAGE 5: SAVE ══ -->
-  <div class="page" id="page-5">
-    <div class="card" id="saveCard">
-      <div class="empty"><span>🎬</span><p>أكمل الخطوات السابقة أولاً</p></div>
+    <div class="cat-btn" data-cat="mystery" onclick="selectCat(this)">
+      <span class="cat-icon">🕵️</span>
+      <span class="cat-name">ألغاز</span>
+    </div>
+    <div class="cat-btn" data-cat="finance" onclick="selectCat(this)">
+      <span class="cat-icon">💰</span>
+      <span class="cat-name">مال</span>
+    </div>
+    <div class="cat-btn" data-cat="science" onclick="selectCat(this)">
+      <span class="cat-icon">🔬</span>
+      <span class="cat-name">علوم</span>
+    </div>
+    <div class="cat-btn" data-cat="history" onclick="selectCat(this)">
+      <span class="cat-icon">📜</span>
+      <span class="cat-name">تاريخ</span>
+    </div>
+    <div class="cat-btn" data-cat="motivation" onclick="selectCat(this)">
+      <span class="cat-icon">🚀</span>
+      <span class="cat-name">تحفيز</span>
+    </div>
+    <div class="cat-btn" data-cat="any" onclick="selectCat(this)">
+      <span class="cat-icon">🎲</span>
+      <span class="cat-name">عشوائي</span>
     </div>
   </div>
 
-  <!-- ══ PAGE 6: VOICE ══ -->
-  <div class="page" id="page-6">
-    <div class="card">
-      <div class="card-title">🎙️ توليد الصوت — ElevenLabs</div>
+  <!-- BIG BUTTON -->
+  <button class="start-btn" id="startBtn" onclick="startPipeline()">
+    <span id="startBtnIcon">⚡</span>
+    <span id="startBtnText">ابدأ الإنتاج التلقائي</span>
+  </button>
 
-      <div id="voiceSetup">
-        <div class="alert alert-purple" style="margin-bottom:16px;">
-          💡 ElevenLabs يحول السكريبت إلى صوت بشري درامي احترافي
-        </div>
+  <!-- PIPELINE -->
+  <div class="pipeline" id="pipeline">
 
-        <div style="margin-bottom:16px;">
-          <div style="font-size:12px;color:#888;margin-bottom:8px;">اختر نوع الصوت</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-            <div class="trend-item selected" id="voice-m" onclick="selectVoice('male',this)">
-              <div class="trend-emoji">🎙️</div>
-              <div class="trend-info">
-                <div class="trend-title">صوت رجالي</div>
-                <div style="font-size:11px;color:#888">درامي وقوي</div>
-              </div>
-            </div>
-            <div class="trend-item" id="voice-f" onclick="selectVoice('female',this)">
-              <div class="trend-emoji">🎤</div>
-              <div class="trend-info">
-                <div class="trend-title">صوت نسائي</div>
-                <div style="font-size:11px;color:#888">ناعم وواضح</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div style="background:#1c1c1c;border-radius:12px;padding:14px;margin-bottom:16px;">
-          <div style="font-size:12px;color:#888;margin-bottom:8px;">معاينة السكريبت المرسل</div>
-          <div id="voiceScriptPreview" style="font-size:12px;color:#ccc;line-height:1.8;max-height:80px;overflow:hidden;"></div>
-        </div>
+    <div class="pipe-step" id="ps-topic">
+      <div class="pipe-dot" id="pd-topic">1</div>
+      <div class="pipe-info">
+        <div class="pipe-title">اختيار الموضوع</div>
+        <div class="pipe-detail" id="pd-topic-detail">Claude يختار أفضل موضوع غير مكرر...</div>
+        <div class="pipe-prog"><div class="pipe-prog-fill" id="pp-topic"></div></div>
       </div>
-
-      <div id="voiceLoading" style="display:none;">
-        <div class="alert alert-purple"><div class="spinner"></div> ElevenLabs يولد الصوت...</div>
-        <div class="prog-wrap"><div class="prog-fill prog-purple" id="voiceProg" style="width:0%"></div></div>
-      </div>
-
-      <div id="voiceResult" style="display:none;">
-        <div class="alert alert-green">✅ الصوت جاهز!</div>
-        <audio id="audioPlayer" controls style="width:100%;margin-bottom:12px;border-radius:8px;"></audio>
-        <div style="display:flex;gap:8px;">
-          <a id="downloadAudio" class="btn btn-outline" href="#" download="صوت-المحتوى.mp3">📥 تحميل الصوت</a>
-        </div>
-      </div>
-
-      <div id="voiceDemoNote" style="display:none;">
-        <div class="alert alert-orange">
-          ⚠️ أضف ElevenLabs Key في الأعلى للحصول على الصوت الحقيقي
-        </div>
-        <div style="background:#1c1c1c;border-radius:12px;padding:14px;font-size:12px;color:#888;line-height:2;">
-          <div style="font-weight:700;color:#fff;margin-bottom:8px;">للتسجيل في ElevenLabs مجاناً:</div>
-          1. افتح <b style="color:#6c63ff">elevenlabs.io</b><br>
-          2. اضغط Sign Up<br>
-          3. من Profile ← API Keys<br>
-          4. انسخ المفتاح والصقه في الأعلى
-        </div>
-      </div>
+      <div class="pipe-time" id="pt-topic"></div>
     </div>
 
-    <button class="btn btn-main" id="btn6voice" onclick="generateVoice()">🎙️ توليد الصوت الآن</button>
-    <div style="height:10px;"></div>
-    <button class="btn btn-outline" style="width:100%;justify-content:center;" id="btn6skip" onclick="goTab(7)">تخطي ← الانتقال للفيديو</button>
+    <div class="pipe-step" id="ps-script">
+      <div class="pipe-dot" id="pd-script">2</div>
+      <div class="pipe-info">
+        <div class="pipe-title">كتابة السكريبت</div>
+        <div class="pipe-detail" id="pd-script-detail">في الانتظار...</div>
+        <div class="pipe-prog"><div class="pipe-prog-fill" id="pp-script"></div></div>
+      </div>
+      <div class="pipe-time" id="pt-script"></div>
+    </div>
+
+    <div class="pipe-step" id="ps-quality">
+      <div class="pipe-dot" id="pd-quality">3</div>
+      <div class="pipe-info">
+        <div class="pipe-title">فحص الجودة</div>
+        <div class="pipe-detail" id="pd-quality-detail">في الانتظار...</div>
+        <div class="pipe-prog"><div class="pipe-prog-fill" id="pp-quality"></div></div>
+      </div>
+      <div class="pipe-time" id="pt-quality"></div>
+    </div>
+
+    <div class="pipe-step" id="ps-voice">
+      <div class="pipe-dot" id="pd-voice">4</div>
+      <div class="pipe-info">
+        <div class="pipe-title">توليد الصوت</div>
+        <div class="pipe-detail" id="pd-voice-detail">في الانتظار...</div>
+        <div class="pipe-prog"><div class="pipe-prog-fill" id="pp-voice"></div></div>
+      </div>
+      <div class="pipe-time" id="pt-voice"></div>
+    </div>
+
+    <div class="pipe-step" id="ps-save">
+      <div class="pipe-dot" id="pd-save">5</div>
+      <div class="pipe-info">
+        <div class="pipe-title">الحفظ في قاعدة البيانات</div>
+        <div class="pipe-detail" id="pd-save-detail">في الانتظار...</div>
+        <div class="pipe-prog"><div class="pipe-prog-fill" id="pp-save"></div></div>
+      </div>
+      <div class="pipe-time" id="pt-save"></div>
+    </div>
+
   </div>
 
-  <!-- ══ PAGE 7: VIDEO ══ -->
-  <div class="page" id="page-7">
-    <div class="card">
-      <div class="card-title">🎬 إنشاء الفيديو — CapCut</div>
-
-      <div class="alert alert-purple" style="margin-bottom:20px;">
-        💡 CapCut أسهل برنامج مونتاج مجاني — متوفر للجوال والكمبيوتر
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:12px;">
-
-        <div style="background:#1c1c1c;border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start;">
-          <div style="background:#6c63ff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">1</div>
-          <div>
-            <div style="font-weight:700;margin-bottom:4px;">افتح CapCut وابدأ مشروع جديد</div>
-            <div style="font-size:12px;color:#888;">اضغط + ← مشروع جديد ← أفقي (16:9)</div>
-            <a href="https://www.capcut.com" target="_blank" class="btn btn-outline btn-sm" style="margin-top:8px;display:inline-flex;">🔗 فتح CapCut</a>
-          </div>
-        </div>
-
-        <div style="background:#1c1c1c;border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start;">
-          <div style="background:#6c63ff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">2</div>
-          <div>
-            <div style="font-weight:700;margin-bottom:4px;">أضف الصوت</div>
-            <div style="font-size:12px;color:#888;">استيراد ← اختر ملف الصوت اللي حملته من ElevenLabs</div>
-          </div>
-        </div>
-
-        <div style="background:#1c1c1c;border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start;">
-          <div style="background:#6c63ff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">3</div>
-          <div>
-            <div style="font-weight:700;margin-bottom:4px;">أضف صور أو مقاطع</div>
-            <div style="font-size:12px;color:#888;margin-bottom:8px;">ابحث في Google Images عن صور تناسب الموضوع</div>
-            <div style="font-size:11px;color:#6c63ff;">الموضوع: <span id="videoTopic"></span></div>
-            <a href="#" onclick="searchImages()" class="btn btn-outline btn-sm" style="margin-top:8px;display:inline-flex;">🔍 ابحث عن صور</a>
-          </div>
-        </div>
-
-        <div style="background:#1c1c1c;border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start;">
-          <div style="background:#6c63ff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">4</div>
-          <div>
-            <div style="font-weight:700;margin-bottom:4px;">أضف موسيقى خلفية</div>
-            <div style="font-size:12px;color:#888;margin-bottom:8px;">موسيقى توتر وغموض — مجانية 100%</div>
-            <a href="https://studio.youtube.com/channel/UCcHH48a7XKSmF2nGqiGMPEA/music" target="_blank" class="btn btn-outline btn-sm" style="display:inline-flex;">🎵 YouTube Audio Library</a>
-          </div>
-        </div>
-
-        <div style="background:#1c1c1c;border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start;">
-          <div style="background:#00e5a0;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:#000;">5</div>
-          <div>
-            <div style="font-weight:700;margin-bottom:4px;">صدّر الفيديو</div>
-            <div style="font-size:12px;color:#888;">1080p ← MP4 ← جودة عالية</div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <button class="btn btn-main" onclick="goTab(8)">📤 التالي: رفع على يوتيوب ←</button>
-  </div>
-
-  <!-- ══ PAGE 8: PUBLISH ══ -->
-  <div class="page" id="page-8">
-    <div class="card">
-      <div class="card-title">📤 النشر على يوتيوب</div>
-
-      <div class="alert alert-green" style="margin-bottom:20px;">
-        ⏰ أفضل وقت للنشر: <b>7 - 10 مساءً</b> بتوقيت السعودية
-      </div>
-
-      <!-- Title suggestion -->
-      <div style="background:#1c1c1c;border-radius:12px;padding:16px;margin-bottom:14px;">
-        <div style="font-size:12px;color:#888;margin-bottom:8px;">📌 عنوان مقترح</div>
-        <div style="font-size:14px;font-weight:700;color:#fff;margin-bottom:10px;" id="suggestedTitle"></div>
-        <button class="btn btn-outline btn-sm" onclick="copyTitle()">📋 نسخ العنوان</button>
-      </div>
-
-      <!-- Tags -->
-      <div style="background:#1c1c1c;border-radius:12px;padding:16px;margin-bottom:14px;">
-        <div style="font-size:12px;color:#888;margin-bottom:8px;">🏷️ كلمات مفتاحية مقترحة</div>
-        <div style="font-size:13px;color:#6c63ff;margin-bottom:10px;" id="suggestedTags"></div>
-        <button class="btn btn-outline btn-sm" onclick="copyTags()">📋 نسخ الكلمات</button>
-      </div>
-
-      <!-- Description -->
-      <div style="background:#1c1c1c;border-radius:12px;padding:16px;margin-bottom:14px;">
-        <div style="font-size:12px;color:#888;margin-bottom:8px;">📝 وصف مقترح</div>
-        <div style="font-size:12px;color:#ccc;line-height:1.8;" id="suggestedDesc"></div>
-        <button class="btn btn-outline btn-sm" style="margin-top:10px;" onclick="copyDesc()">📋 نسخ الوصف</button>
-      </div>
-
-      <!-- Upload steps -->
-      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
-        <div style="background:#1c1c1c;border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;">
-          <span style="font-size:20px;">1️⃣</span>
-          <div>
-            <div style="font-weight:700;font-size:13px;">افتح يوتيوب وارفع الفيديو</div>
-            <div style="font-size:11px;color:#888">youtube.com/upload</div>
-          </div>
-          <a href="https://youtube.com/upload" target="_blank" class="btn btn-outline btn-sm" style="margin-right:auto;">🔗 فتح</a>
-        </div>
-        <div style="background:#1c1c1c;border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;">
-          <span style="font-size:20px;">2️⃣</span>
-          <div style="font-size:13px;font-weight:700;">الصق العنوان والوصف والكلمات</div>
-        </div>
-        <div style="background:#1c1c1c;border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;">
-          <span style="font-size:20px;">3️⃣</span>
-          <div>
-            <div style="font-weight:700;font-size:13px;">صمم ثامبنيل جذاب</div>
-            <div style="font-size:11px;color:#888">استخدم Canva — مجاني</div>
-          </div>
-          <a href="https://canva.com" target="_blank" class="btn btn-outline btn-sm" style="margin-right:auto;">🎨 Canva</a>
-        </div>
-        <div style="background:#1c1c1c;border-radius:12px;padding:14px;display:flex;gap:12px;align-items:center;">
-          <span style="font-size:20px;">4️⃣</span>
-          <div style="font-size:13px;font-weight:700;">اضغط نشر ✅</div>
-        </div>
-      </div>
-
-    </div>
-
-    <button class="btn btn-green" onclick="markPublished()">✅ تم النشر — تحديث قاعدة البيانات</button>
-  </div>
-
-  <!-- ══ PAGE 9: DATABASE ══ -->
-  <div class="page" id="page-9">
-    <div class="stats-row">
-      <div class="stat-box">
-        <div class="val" id="db-total">0</div>
-        <div class="lbl">إجمالي المحتوى</div>
-      </div>
-      <div class="stat-box">
-        <div class="val" id="db-avgq" style="color:#00e5a0">—</div>
-        <div class="lbl">متوسط الجودة</div>
-      </div>
-      <div class="stat-box">
-        <div class="val" id="db-today" style="color:#6c63ff">0</div>
-        <div class="lbl">اليوم</div>
-      </div>
-    </div>
-    <div class="card" style="padding:0;overflow:hidden;">
-      <div style="padding:14px 18px;border-bottom:1px solid #222;display:flex;align-items:center;justify-content:space-between;">
-        <div style="font-weight:700;font-size:14px;">📋 سجل المحتوى</div>
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-outline" onclick="exportDB()">📥 تصدير</button>
-          <button class="btn btn-outline" style="color:#ff4d6d;" onclick="clearDB()">🗑️ مسح الكل</button>
-        </div>
-      </div>
-      <table class="db-table">
-        <thead>
-          <tr>
-            <th>الموضوع</th>
-            <th>الجودة</th>
-            <th>التاريخ</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="dbBody"></tbody>
-      </table>
-      <div id="dbEmpty" class="empty"><span>🗄️</span><p>لا يوجد محتوى بعد</p></div>
-    </div>
-  </div>
-
-</div>
-
-<!-- Toast -->
-
-<!-- ══ CONTENT MODAL ══ -->
-<div id="content-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#161616;border:1px solid #333;border-radius:20px;width:100%;max-width:680px;max-height:90vh;overflow-y:auto;">
-    <div style="padding:20px 24px;border-bottom:1px solid #222;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+  <!-- RESULT -->
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <div class="result-emoji" id="r-emoji">🎬</div>
       <div>
-        <div id="modal-title" style="font-size:15px;font-weight:700;margin-bottom:6px;"></div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span id="modal-status" class="tag tag-purple"></span>
-          <span id="modal-date" style="font-size:11px;color:#666;"></span>
+        <div class="result-title" id="r-title"></div>
+        <div class="result-meta">
+          <span class="result-tag rt-green" id="r-words"></span>
+          <span class="result-tag rt-purple" id="r-cat"></span>
+          <span class="result-tag rt-gold" id="r-quality-tag"></span>
         </div>
       </div>
-      <button onclick="closeModal()" style="background:#1c1c1c;border:1px solid #333;border-radius:8px;padding:6px 12px;color:#888;cursor:pointer;font-size:12px;white-space:nowrap;">✕ إغلاق</button>
     </div>
-    <div style="padding:20px 24px;">
-      <div style="font-size:11px;color:#666;margin-bottom:8px;">🏷️ الكلمات المفتاحية</div>
-      <div id="modal-tags" style="font-size:12px;color:#6c63ff;margin-bottom:16px;"></div>
-      <div style="font-size:11px;color:#666;margin-bottom:8px;">📝 السكريبت</div>
-      <div id="modal-script" style="background:#0d0d0d;border:1px solid #222;border-radius:10px;padding:16px;font-size:12px;line-height:1.9;max-height:300px;overflow-y:auto;color:#ccc;white-space:pre-wrap;"></div>
-      <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;">
-        <button class="btn btn-outline" onclick="copyScript();toast('📋 تم النسخ')">📋 نسخ السكريبت</button>
-        <button class="btn btn-outline" onclick="dlScript()">📥 تحميل</button>
-        <button class="btn btn-main" style="width:auto;" onclick="loadContentForVoice(window._viewingId)">🎙️ توليد الصوت لهذا المحتوى</button>
+    <div class="result-body">
+
+      <div class="result-section">
+        <div class="result-section-title">QUALITY SCORE</div>
+        <div class="quality-row">
+          <div class="quality-num" id="r-qnum"></div>
+          <div class="quality-track">
+            <div class="quality-fill" id="r-qbar"></div>
+          </div>
+        </div>
+        <div class="checks" id="r-checks"></div>
+      </div>
+
+      <div class="result-section">
+        <div class="result-section-title">SCRIPT PREVIEW</div>
+        <div class="script-preview" id="r-script"></div>
+      </div>
+
+      <div id="r-audio-section" style="display:none;margin-bottom:14px;">
+        <div class="result-section-title">AUDIO</div>
+        <audio id="r-audio" controls style="width:100%;border-radius:8px;"></audio>
+      </div>
+
+      <div class="result-section">
+        <div class="result-section-title">ACTIONS</div>
+        <div class="action-row">
+          <button class="act-btn" onclick="copyScript()">📋 نسخ السكريبت</button>
+          <button class="act-btn" onclick="dlScript()">📥 تحميل</button>
+          <a class="act-btn" id="dlAudio" href="#" download="audio.mp3" style="display:none;">🎙️ تحميل الصوت</a>
+          <button class="act-btn green" onclick="startPipeline()">⚡ محتوى جديد</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-card">
+    <div class="history-header">
+      <div class="history-title">📚 المحتوى السابق</div>
+      <div class="history-count" id="histCount">0</div>
+    </div>
+    <div class="history-list" id="histList">
+      <div class="empty-hist">لا يوجد محتوى بعد — اضغط ابدأ!</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-ttl" id="modal-ttl"></div>
+        <div class="modal-sub" id="modal-sub"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;" id="modal-tags-wrap"></div>
+      <div class="result-section-title" style="margin-bottom:8px;">SCRIPT</div>
+      <div class="modal-script" id="modal-script"></div>
+      <div id="modal-audio-wrap" style="display:none;margin-bottom:12px;">
+        <audio id="modal-audio" controls style="width:100%;border-radius:8px;"></audio>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="act-btn" onclick="copyModalScript()">📋 نسخ</button>
+        <button class="act-btn" onclick="dlModalScript()">📥 تحميل</button>
+        <button class="act-btn green" onclick="useForVoice()">🎙️ توليد صوت</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ══ DATA ══
-let DB = JSON.parse(localStorage.getItem('cai_db2') || '[]');
-let selectedTrend = null;
+// ══ STATE ══
+let DB = JSON.parse(localStorage.getItem('acai_db') || '[]');
+let selectedCat = 'crime';
 let currentScript = '';
+let currentTopic = null;
 let currentQuality = 0;
+let currentAudioUrl = null;
+let viewingItem = null;
+let isRunning = false;
 
-const TRENDS = [
-  {emoji:'🔪',title:'تيد باندي — المجرم الذي خدع الجميع بوجهه البريء',cat:'جرائم',search:92,comp:35,money:78,keywords:'جرائم حقيقية,قاتل متسلسل'},
-  {emoji:'☠️',title:'جاك السفاح — أكبر لغز جنائي في التاريخ',cat:'جرائم',search:88,comp:30,money:75,keywords:'جرائم تاريخية,لندن'},
-  {emoji:'💻',title:'الذكاء الاصطناعي يستبدل 300 مليون وظيفة — من ينجو؟',cat:'تقنية',search:98,comp:60,money:90,keywords:'ذكاء اصطناعي,مستقبل'},
-  {emoji:'🌊',title:'مادلين ماكان — اللغز الذي حير العالم 19 سنة',cat:'ألغاز',search:91,comp:28,money:79,keywords:'اختفاء,لغز'},
-  {emoji:'💰',title:'كيف ربح شاب 23 سنة مليون دولار من يوتيوب؟',cat:'مال',search:96,comp:65,money:92,keywords:'ربح يوتيوب,نجاح'},
-  {emoji:'🧬',title:'علماء اكتشفوا دواء السرطان — ما القصة الكاملة؟',cat:'علوم',search:90,comp:38,money:80,keywords:'طب,اكتشاف'},
-  {emoji:'⚔️',title:'أسرار الحضارة المصرية لم تُدرَّس في المدارس',cat:'تاريخ',search:88,comp:32,money:74,keywords:'مصر,تاريخ'},
-  {emoji:'🕵️',title:'الاحتيال الإلكتروني — كيف يسرقون مليار دولار من المنزل',cat:'جرائم',search:87,comp:25,money:85,keywords:'احتيال,إنترنت'},
-  {emoji:'🤖',title:'ChatGPT vs Claude — أيهما أذكى في 2026؟',cat:'تقنية',search:94,comp:55,money:88,keywords:'chatgpt,claude'},
-  {emoji:'📈',title:'Bitcoin في 2026 — هل يصل إلى 200,000 دولار؟',cat:'مال',search:93,comp:70,money:85,keywords:'بيتكوين,استثمار'},
-];
+const CAT_EMOJIS = {
+  crime:'🔪', tech:'💻', mystery:'🕵️', finance:'💰',
+  science:'🔬', history:'📜', motivation:'🚀', any:'🎲'
+};
 
-// ══ NAVIGATION ══
-function goTab(n) {
-  for(let i=1;i<=9;i++){
-    const pg = document.getElementById(`page-${i}`);
-    if(pg) pg.className = 'page' + (i===n?' active':'');
-    const tab = document.getElementById(`tab-${i}`);
-    if(tab){
-      if(i < n) tab.className = 'step done';
-      else if(i === n) tab.className = 'step active';
-      else tab.className = 'step';
+const CAT_NAMES = {
+  crime:'جرائم', tech:'تقنية', mystery:'ألغاز', finance:'مال',
+  science:'علوم', history:'تاريخ', motivation:'تحفيز', any:'عشوائي'
+};
+
+// ══ INIT ══
+window.onload = () => {
+  loadKeys();
+  renderHistory();
+};
+
+// ══ KEYS ══
+function saveKeys() {
+  localStorage.setItem('acai_claude', document.getElementById('claudeKey').value);
+  localStorage.setItem('acai_eleven', document.getElementById('elevenKey').value);
+  updateKeysStatus();
+}
+
+function loadKeys() {
+  const ck = localStorage.getItem('acai_claude') || '';
+  const ek = localStorage.getItem('acai_eleven') || '';
+  if(ck) { document.getElementById('claudeKey').value = ck; document.getElementById('claudeKey').classList.add('saved'); }
+  if(ek) { document.getElementById('elevenKey').value = ek; document.getElementById('elevenKey').classList.add('saved'); }
+  updateKeysStatus();
+}
+
+function updateKeysStatus() {
+  const ck = document.getElementById('claudeKey').value.trim();
+  const ek = document.getElementById('elevenKey').value.trim();
+  const s = document.getElementById('keysStatus');
+  if(ck && ek) { s.textContent = '🟢 جاهز للعمل'; s.className = 'keys-status ok'; }
+  else if(ck) { s.textContent = '🟡 Claude فقط'; s.className = 'keys-status'; }
+  else { s.textContent = '⚪ أضف المفاتيح'; s.className = 'keys-status'; }
+}
+
+// ══ CATEGORY ══
+function selectCat(el) {
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedCat = el.dataset.cat;
+}
+
+// ══ PIPELINE ══
+function setStep(id, state, detail, prog, time) {
+  const step = document.getElementById(`ps-${id}`);
+  const dot = document.getElementById(`pd-${id}`);
+  const det = document.getElementById(`pd-${id}-detail`);
+  const bar = document.getElementById(`pp-${id}`);
+  const tm = document.getElementById(`pt-${id}`);
+
+  step.className = 'pipe-step ' + state;
+  if(detail) det.textContent = detail;
+  if(prog !== undefined) bar.style.width = prog + '%';
+  if(time) tm.textContent = time;
+  if(state === 'done') dot.textContent = '✓';
+  if(state === 'error') dot.textContent = '✕';
+}
+
+async function startPipeline() {
+  if(isRunning) return;
+  isRunning = true;
+
+  const claudeKey = document.getElementById('claudeKey').value.trim();
+
+  // Reset UI
+  document.getElementById('pipeline').className = 'pipeline show';
+  document.getElementById('resultCard').className = 'result-card';
+  currentAudioUrl = null;
+  document.getElementById('r-audio-section').style.display = 'none';
+  document.getElementById('dlAudio').style.display = 'none';
+
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true;
+  document.getElementById('startBtnIcon').innerHTML = '<div class="spin"></div>';
+  document.getElementById('startBtnText').textContent = 'جارٍ الإنتاج...';
+
+  ['topic','script','quality','voice','save'].forEach(id => {
+    setStep(id, '', 'في الانتظار...', 0, '');
+    document.getElementById(`pd-${id}`).textContent = ['topic','script','quality','voice','save'].indexOf(id)+1;
+  });
+
+  const t0 = Date.now();
+
+  try {
+    // ── STEP 1: TOPIC ──
+    setStep('topic', 'active', 'Claude يختار موضوعاً مثالياً...', 10, '');
+
+    const existingTitles = DB.map(x => x.title).join('\n');
+    const cat = selectedCat === 'any'
+      ? ['جرائم حقيقية','تقنية','ألغاز','مال واستثمار','علوم','تاريخ','تحفيز'][Math.floor(Math.random()*7)]
+      : CAT_NAMES[selectedCat];
+
+    let topicData;
+
+    if(claudeKey) {
+      setStep('topic', 'active', 'إرسال طلب لـ Claude...', 30, '');
+      const res = await callClaude(claudeKey, `أنت مساعد لإنشاء محتوى يوتيوب عربي.
+
+المطلوب: اختر موضوعاً واحداً مميزاً في فئة "${cat}" لفيديو يوتيوب عربي.
+
+المحتوى الموجود مسبقاً (تجنب التكرار):
+${existingTitles || 'لا يوجد محتوى سابق'}
+
+الشروط:
+- موضوع جديد غير مكرر
+- جذاب ومثير للاهتمام
+- يناسب الجمهور العربي
+
+رد بـ JSON فقط بهذا الشكل:
+{"emoji":"🔪","title":"عنوان الموضوع هنا","keywords":"كلمة1,كلمة2,كلمة3","why":"سبب اختياره"}`, true);
+
+      topicData = JSON.parse(res);
+    } else {
+      await sleep(1000);
+      topicData = getDemoTopic(selectedCat);
     }
-  }
-  if(n===9) renderDB();
-}
 
-// ══ TRENDS ══
-async function scanTrends() {
-  selectedTrend = null;
-  document.getElementById('btn1').disabled = true;
+    currentTopic = topicData;
+    setStep('topic', 'done', `✓ ${topicData.title.substring(0,40)}...`, 100, elapsed(t0));
 
-  const prog = document.getElementById('scanProg');
-  prog.style.width = '0%';
-  let p = 0;
-  const iv = setInterval(()=>{ p=Math.min(p+8,95); prog.style.width=p+'%'; }, 150);
-  await sleep(1800);
-  clearInterval(iv);
-  prog.style.width = '100%';
+    // ── STEP 2: SCRIPT ──
+    const t1 = Date.now();
+    setStep('script', 'active', 'كتابة السكريبت...', 10, '');
 
-  const existingTitles = DB.map(x=>x.title.toLowerCase());
-  const shuffled = [...TRENDS].sort(()=>Math.random()-0.5).slice(0,6).map(t=>({
-    ...t,
-    isDup: existingTitles.some(et=>sim(et,t.title.toLowerCase())>0.55),
-    score: calcScore(t)
-  }));
+    let script;
+    if(claudeKey) {
+      setStep('script', 'active', 'Claude يكتب السكريبت...', 40, '');
+      script = await callClaude(claudeKey, `اكتب سكريبت يوتيوب احترافي بالعربي عن:
+"${topicData.title}"
 
-  const list = document.getElementById('trendList');
-  list.innerHTML = shuffled.map((t,i)=>{
-    const sc = t.score;
-    const col = sc>=80?'#00e5a0':sc>=60?'#6c63ff':sc>=40?'#ffd166':'#ff4d6d';
-    return `
-    <div class="trend-item ${t.isDup?'dup':''}" onclick="selectTrend(${i})" id="ti-${i}" data-idx="${i}">
-      <div class="trend-emoji">${t.emoji}</div>
-      <div class="trend-info">
-        <div class="trend-title">${t.title}</div>
-        <div class="trend-meta">
-          <span class="tag tag-purple">${t.cat}</span>
-          <span class="tag tag-green">🔍 ${t.search}%</span>
-          ${t.isDup?'<span class="dup-tag">⚠️ مشابه لمحتوى سابق</span>':''}
-        </div>
-      </div>
-      <div class="trend-score" style="color:${col}">${sc}%</div>
-    </div>`;
-  }).join('');
-
-  // store for later
-  window._trends = shuffled;
-  toast('✅ تم رصد '+shuffled.length+' ترند');
-}
-
-function selectTrend(i) {
-  document.querySelectorAll('.trend-item').forEach(el=>el.classList.remove('selected'));
-  document.getElementById('ti-'+i).classList.add('selected');
-  selectedTrend = window._trends[i];
-  document.getElementById('btn1').disabled = false;
-
-  // Prepare analysis card
-  renderAnalysis();
-}
-
-function calcScore(t) {
-  const u = Math.max(20, 100 - DB.filter(d=>d.cat===t.cat).length*5);
-  return Math.round(t.search*0.3 + (100-t.comp)*0.3 + t.money*0.2 + u*0.2);
-}
-
-// ══ ANALYSIS ══
-function renderAnalysis() {
-  if(!selectedTrend) return;
-  const t = selectedTrend;
-  const sc = t.score;
-  const col = sc>=80?'#00e5a0':sc>=60?'#6c63ff':sc>=40?'#ffd166':'#ff4d6d';
-
-  const similar = DB.filter(d=>sim(d.title?.toLowerCase()||'', t.title.toLowerCase())>0.4);
-
-  document.getElementById('analysisCard').innerHTML = `
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-      <span style="font-size:36px">${t.emoji}</span>
-      <div>
-        <div style="font-weight:700;font-size:15px;margin-bottom:6px;">${t.title}</div>
-        <span class="tag tag-purple">${t.cat}</span>
-      </div>
-    </div>
-
-    <div class="score-row">
-      <div class="score-label">حجم البحث</div>
-      <div class="score-track"><div class="score-fill" style="width:${t.search}%;background:#6c63ff"></div></div>
-      <div class="score-val" style="color:#6c63ff">${t.search}%</div>
-    </div>
-    <div class="score-row">
-      <div class="score-label">منافسة منخفضة</div>
-      <div class="score-track"><div class="score-fill" style="width:${100-t.comp}%;background:#00e5a0"></div></div>
-      <div class="score-val" style="color:#00e5a0">${100-t.comp}%</div>
-    </div>
-    <div class="score-row">
-      <div class="score-label">الربحية</div>
-      <div class="score-track"><div class="score-fill" style="width:${t.money}%;background:#ffd166"></div></div>
-      <div class="score-val" style="color:#ffd166">${t.money}%</div>
-    </div>
-
-    <div style="text-align:center;margin:20px 0;">
-      <div style="font-size:12px;color:#888;margin-bottom:6px;">نسبة النجاح المتوقعة</div>
-      <div style="font-size:52px;font-weight:900;color:${col}">${sc}%</div>
-      <div style="font-size:13px;color:#888;">${sc>=80?'✨ فرصة ممتازة':sc>=60?'👍 فرصة جيدة':sc>=40?'⚠️ فرصة متوسطة':'❌ فرصة ضعيفة'}</div>
-    </div>
-
-    <div class="${similar.length===0?'alert-green':'alert-orange'} alert">
-      ${similar.length===0?'✅ لا يوجد محتوى مشابه في قاعدة بياناتك':'⚠️ يوجد '+similar.length+' محتوى مشابه — تأكد من التميز'}
-    </div>`;
-
-  document.getElementById('btn2').disabled = false;
-}
-
-// ══ SCRIPT ══
-async function goScript() {
-  goTab(3);
-  document.getElementById('scriptResultWrap').style.display = 'none';
-  document.getElementById('scriptLogWrap').style.display = 'block';
-  document.getElementById('btn3').disabled = true;
-
-  const log = document.getElementById('scriptLog');
-  log.innerHTML = '';
-  const prog = document.getElementById('scriptProg');
-  prog.style.width = '0%';
-
-  const addLog = (icon, msg, cls='') => {
-    const t = new Date().toLocaleTimeString('ar',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    log.innerHTML += `<div class="log-row"><span class="log-time">[${t}]</span><span class="log-msg ${cls}">${icon} ${msg}</span></div>`;
-    log.scrollTop = log.scrollHeight;
-  };
-
-  addLog('🚀','بدء كتابة السكريبت...','hi');
-  await sleep(400); prog.style.width='15%';
-
-  addLog('🎣','كتابة Hook جذاب...','info');
-  await sleep(600); prog.style.width='30%';
-  addLog('✅','Hook مكتوب','ok');
-
-  addLog('📖','كتابة المقدمة...','info');
-  await sleep(500); prog.style.width='50%';
-  addLog('✅','المقدمة جاهزة','ok');
-
-  addLog('📝','كتابة الجسم الرئيسي...','info');
-
-  const key = document.getElementById('claudeKey').value.trim();
-  let script = '';
-
-  if(key) {
-    addLog('🤖','إرسال طلب لـ Claude AI...','info');
-    try {
-      const res = await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'x-api-key':key,
-          'anthropic-version':'2023-06-01',
-          'anthropic-dangerous-direct-browser-access':'true'
-        },
-        body:JSON.stringify({
-          model:'claude-sonnet-4-20250514',
-          max_tokens:1500,
-          messages:[{role:'user',content:`اكتب سكريبت يوتيوب بالعربي عن: "${selectedTrend.title}"
-- Hook قوي في أول 3 جمل
-- أسلوب تشويقي درامي
-- أرقام وتواريخ حقيقية
-- 900-1200 كلمة
-- سؤال للتعليق + دعوة للاشتراك
-- النص المنطوق فقط`}]
-        })
-      });
-      const data = await res.json();
-      script = data.content?.[0]?.text || demoScript();
-      addLog('✅','تم استلام السكريبت من Claude!','ok');
-    } catch(e) {
-      script = demoScript();
-      addLog('⚠️','استخدام السكريبت التجريبي','warn');
+المتطلبات:
+- Hook قوي جداً في أول 3 جمل يشد المشاهد فوراً
+- أسلوب تشويقي درامي ومثير طوال الفيديو
+- أرقام وتواريخ وتفاصيل حقيقية
+- طول 900-1200 كلمة (8-10 دقائق)
+- سؤال للتعليق في النهاية
+- دعوة للاشتراك والجرس
+- النص المنطوق فقط بدون تعليمات إخراج`);
+    } else {
+      await sleep(1200);
+      script = buildScript(topicData);
     }
-  } else {
-    await sleep(800);
-    script = demoScript();
-    addLog('⚠️','بدون Claude API — سكريبت تجريبي','warn');
+
+    currentScript = script;
+    const words = script.split(/\s+/).length;
+    setStep('script', 'done', `✓ ${words} كلمة — ~${Math.round(words/130)} دقائق`, 100, elapsed(t1));
+
+    // ── STEP 3: QUALITY ──
+    const t2 = Date.now();
+    setStep('quality', 'active', 'فحص الجودة...', 20, '');
+    await sleep(600);
+
+    const qc = analyzeQuality(script);
+    currentQuality = qc.score;
+
+    // Check duplicates
+    const dups = DB.filter(d => sim(d.script||'', script) > 0.4);
+    const dupNote = dups.length > 0 ? ` — تشابه مع ${dups.length} محتوى` : ' — أصيل ✓';
+
+    setStep('quality', 'done', `✓ جودة ${qc.score}%${dupNote}`, 100, elapsed(t2));
+
+    // ── STEP 4: VOICE ──
+    const t3 = Date.now();
+    const elevenKey = document.getElementById('elevenKey').value.trim();
+
+    if(elevenKey) {
+      setStep('voice', 'active', 'ElevenLabs يولد الصوت...', 20, '');
+      try {
+        const clean = script.replace(/[🎬🔍⚠️💡🚀📝🎙️🔔😱✅❌📊🎣📖🔥📣━]/gu,'').trim();
+        const vRes = await fetch('https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB', {
+          method:'POST',
+          headers:{'Content-Type':'application/json','xi-api-key':elevenKey},
+          body:JSON.stringify({
+            text: clean.substring(0,2500),
+            model_id:'eleven_multilingual_v2',
+            voice_settings:{stability:0.4,similarity_boost:0.8,style:0.6,use_speaker_boost:true}
+          })
+        });
+        if(!vRes.ok) throw new Error('فشل');
+        const blob = await vRes.blob();
+        currentAudioUrl = URL.createObjectURL(blob);
+        setStep('voice', 'done', '✓ الصوت جاهز!', 100, elapsed(t3));
+      } catch(e) {
+        setStep('voice', 'error', '✕ تحقق من مفتاح ElevenLabs', 100, elapsed(t3));
+      }
+    } else {
+      setStep('voice', 'done', 'تم التخطي — أضف ElevenLabs Key للصوت', 100, elapsed(t3));
+    }
+
+    // ── STEP 5: SAVE ──
+    const t4 = Date.now();
+    setStep('save', 'active', 'حفظ في قاعدة البيانات...', 50, '');
+    await sleep(400);
+
+    const entry = {
+      id: Date.now(),
+      emoji: topicData.emoji,
+      title: topicData.title,
+      cat: selectedCat,
+      catName: CAT_NAMES[selectedCat] || cat,
+      keywords: topicData.keywords,
+      script: script,
+      quality: qc.score,
+      checks: qc.checks,
+      audioUrl: currentAudioUrl,
+      date: new Date().toLocaleDateString('ar-SA'),
+      dateRaw: Date.now()
+    };
+
+    DB.unshift(entry);
+    localStorage.setItem('acai_db', JSON.stringify(DB));
+
+    setStep('save', 'done', `✓ محفوظ — إجمالي المحتوى: ${DB.length}`, 100, elapsed(t4));
+
+    // ── SHOW RESULT ──
+    await sleep(300);
+    showResult(entry, qc);
+    renderHistory();
+
+    toast('🎉 تم إنتاج المحتوى بنجاح!');
+
+  } catch(err) {
+    toast('❌ خطأ: ' + err.message);
   }
 
-  prog.style.width='85%';
-  addLog('🔔','إضافة دعوة للاشتراك...','info');
-  await sleep(400); prog.style.width='100%';
+  // Reset button
+  isRunning = false;
+  btn.disabled = false;
+  document.getElementById('startBtnIcon').textContent = '⚡';
+  document.getElementById('startBtnText').textContent = 'ابدأ محتوى جديد';
+}
 
+// ══ CLAUDE API ══
+async function callClaude(key, prompt, json=false) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key': key,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    },
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1500,
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  const data = await res.json();
+  const text = data.content?.[0]?.text || '';
+  if(json) {
+    const match = text.match(/\{[\s\S]*\}/);
+    if(!match) throw new Error('لم يرد JSON صحيح');
+    return JSON.parse(match[0]);
+  }
+  return text;
+}
+
+// ══ QUALITY ══
+function analyzeQuality(script) {
   const words = script.split(/\s+/).length;
-  addLog('🎉',`مكتمل! ${words} كلمة ≈ ${Math.round(words/130)} دقائق`,'hi');
-
-  currentScript = script;
-  await sleep(300);
-
-  document.getElementById('scriptResultWrap').style.display = 'block';
-  document.getElementById('scriptBox').textContent = script;
-  document.getElementById('btn3').disabled = false;
+  const checks = [
+    {l:'طول السكريبت', d:`${words} كلمة`, pass: words>=600, pts:20},
+    {l:'Hook جذاب', d:'أول 200 حرف', pass: script.substring(0,200).length>80, pts:20},
+    {l:'أرقام وتواريخ', d:'تفاصيل حقيقية', pass:/\d{3,}/.test(script), pts:15},
+    {l:'أسلوب درامي', d:'كلمات إثارة', pass:/صادم|مرعب|إثارة|صدمة|حير/.test(script), pts:15},
+    {l:'سؤال للتعليق', d:'يزيد التفاعل', pass:/\؟|ما رأيك|اكتب/.test(script), pts:15},
+    {l:'دعوة للاشتراك', d:'ينمي القناة', pass:/اشترك|الجرس/.test(script), pts:15},
+  ];
+  const score = checks.reduce((a,c)=>a+(c.pass?c.pts:0),0);
+  return {score, checks};
 }
 
-function demoScript() {
-  return `${selectedTrend.title.split('—')[0].trim()}...
+// ══ SHOW RESULT ══
+function showResult(entry, qc) {
+  const card = document.getElementById('resultCard');
+  card.className = 'result-card show';
+
+  document.getElementById('r-emoji').textContent = entry.emoji;
+  document.getElementById('r-title').textContent = entry.title;
+  document.getElementById('r-words').textContent = entry.script.split(/\s+/).length + ' كلمة';
+  document.getElementById('r-cat').textContent = CAT_NAMES[entry.cat] || entry.cat;
+  document.getElementById('r-quality-tag').textContent = 'جودة ' + qc.score + '%';
+
+  const col = qc.score>=80?'#00e5a0':qc.score>=60?'#7c3aed':qc.score>=40?'#fbbf24':'#ff4444';
+  document.getElementById('r-qnum').textContent = qc.score + '%';
+  document.getElementById('r-qnum').style.color = col;
+  document.getElementById('r-qbar').style.width = qc.score + '%';
+  document.getElementById('r-qbar').style.background = col;
+
+  document.getElementById('r-checks').innerHTML = qc.checks.map(c=>`
+    <div class="check-item">
+      <span class="ci">${c.pass?'✅':'❌'}</span>
+      <span class="cl">${c.l} — ${c.d}</span>
+      <span class="cp" style="color:${c.pass?'#00e5a0':'#ff4444'}">+${c.pts}</span>
+    </div>`).join('');
+
+  document.getElementById('r-script').textContent = entry.script.substring(0,400) + '...';
+
+  if(currentAudioUrl) {
+    document.getElementById('r-audio-section').style.display = 'block';
+    document.getElementById('r-audio').src = currentAudioUrl;
+    const dl = document.getElementById('dlAudio');
+    dl.href = currentAudioUrl;
+    dl.style.display = 'inline-flex';
+  }
+
+  card.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ══ HISTORY ══
+function renderHistory() {
+  document.getElementById('histCount').textContent = DB.length;
+  const list = document.getElementById('histList');
+
+  if(!DB.length) {
+    list.innerHTML = '<div class="empty-hist">لا يوجد محتوى بعد — اضغط ابدأ!</div>';
+    return;
+  }
+
+  const qCol = q => q>=80?'#00e5a0':q>=60?'#a78bfa':q>=40?'#fbbf24':'#ff4444';
+
+  list.innerHTML = DB.map(x => `
+    <div class="history-item" onclick="openModal(${x.id})">
+      <div class="hi-emoji">${x.emoji}</div>
+      <div class="hi-info">
+        <div class="hi-title">${x.title}</div>
+        <div class="hi-meta">${x.catName||x.cat} · ${x.date}</div>
+      </div>
+      <div class="hi-quality" style="color:${qCol(x.quality)}">${x.quality}%</div>
+      <div class="hi-actions" onclick="event.stopPropagation()">
+        <button class="hi-btn del" onclick="delItem(${x.id})">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
+// ══ MODAL ══
+function openModal(id) {
+  const x = DB.find(i=>i.id===id);
+  if(!x) return;
+  viewingItem = x;
+
+  document.getElementById('modal-ttl').textContent = x.emoji + ' ' + x.title;
+  document.getElementById('modal-sub').textContent = (x.catName||x.cat) + ' · ' + x.date + ' · جودة ' + x.quality + '%';
+
+  document.getElementById('modal-tags-wrap').innerHTML =
+    (x.keywords||'').split(',').map(k=>`<span class="result-tag rt-purple">${k.trim()}</span>`).join('');
+
+  document.getElementById('modal-script').textContent = x.script || 'لا يوجد سكريبت';
+
+  const aw = document.getElementById('modal-audio-wrap');
+  if(x.audioUrl) {
+    aw.style.display='block';
+    document.getElementById('modal-audio').src = x.audioUrl;
+  } else { aw.style.display='none'; }
+
+  document.getElementById('modalOverlay').className = 'modal-overlay show';
+}
+
+function closeModal(e) {
+  if(e && e.target !== document.getElementById('modalOverlay')) return;
+  document.getElementById('modalOverlay').className = 'modal-overlay';
+}
+
+function copyModalScript() {
+  if(viewingItem) navigator.clipboard.writeText(viewingItem.script).then(()=>toast('📋 تم النسخ'));
+}
+
+function dlModalScript() {
+  if(!viewingItem) return;
+  const blob = new Blob([viewingItem.script],{type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = viewingItem.title.substring(0,30)+'.txt';
+  a.click();
+}
+
+async function useForVoice() {
+  if(!viewingItem) return;
+  closeModal();
+  const elevenKey = document.getElementById('elevenKey').value.trim();
+  if(!elevenKey) { toast('❌ أضف ElevenLabs Key أولاً'); return; }
+
+  currentScript = viewingItem.script;
+  toast('🎙️ جاري توليد الصوت...');
+
+  try {
+    const clean = viewingItem.script.replace(/[🎬🔍⚠️💡🚀📝🎙️🔔😱✅❌📊━]/gu,'').trim();
+    const res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','xi-api-key':elevenKey},
+      body:JSON.stringify({text:clean.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.4,similarity_boost:0.8}})
+    });
+    if(!res.ok) throw new Error('فشل');
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+
+    // Update in DB
+    const item = DB.find(i=>i.id===viewingItem.id);
+    if(item) { item.audioUrl = url; localStorage.setItem('acai_db',JSON.stringify(DB)); }
+
+    // Show audio
+    document.getElementById('r-audio-section').style.display='block';
+    document.getElementById('r-audio').src=url;
+    document.getElementById('resultCard').className='result-card show';
+    document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
+    toast('✅ الصوت جاهز!');
+  } catch(e) {
+    toast('❌ فشل توليد الصوت — تحقق من المفتاح');
+  }
+}
+
+// ══ ACTIONS ══
+function copyScript() {
+  navigator.clipboard.writeText(currentScript).then(()=>toast('📋 تم النسخ'));
+}
+
+function dlScript() {
+  const blob = new Blob([currentScript],{type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (currentTopic?.title||'script').substring(0,30)+'.txt';
+  a.click();
+}
+
+function delItem(id) {
+  if(!confirm('حذف؟')) return;
+  DB = DB.filter(x=>x.id!==id);
+  localStorage.setItem('acai_db',JSON.stringify(DB));
+  renderHistory();
+  toast('🗑️ تم الحذف');
+}
+
+// ══ DEMO DATA ══
+function getDemoTopic(cat) {
+  const topics = {
+    crime: {emoji:'🔪',title:'تيد باندي — المجرم الذي خدع الجميع بوجهه البريء',keywords:'جرائم حقيقية,قاتل متسلسل,أمريكا'},
+    tech: {emoji:'💻',title:'الذكاء الاصطناعي يستبدل 300 مليون وظيفة — من ينجو؟',keywords:'ذكاء اصطناعي,مستقبل,تقنية'},
+    mystery: {emoji:'🌊',title:'مادلين ماكان — اللغز الذي حير العالم 19 سنة',keywords:'اختفاء,لغز,محقق'},
+    finance: {emoji:'💰',title:'كيف ربح شاب مليون دولار من يوتيوب في سنة واحدة',keywords:'ربح,يوتيوب,نجاح'},
+    science: {emoji:'🧬',title:'العلماء اكتشفوا سبب الشيخوخة — ويمكن إيقافها!',keywords:'علوم,طب,اكتشاف'},
+    history: {emoji:'⚔️',title:'أسرار مصر الفرعونية لم تُدرَّس في المدارس',keywords:'مصر,تاريخ,حضارة'},
+    motivation: {emoji:'🚀',title:'5 عادات تجعلك في أفضل 1% من الناس',keywords:'تحفيز,نجاح,عادات'},
+    any: {emoji:'🎲',title:'أغرب 10 حقائق غيرت فهمنا للعالم تماماً',keywords:'حقائق,معلومات,مثير'}
+  };
+  return topics[cat] || topics.crime;
+}
+
+function buildScript(topic) {
+  return `${topic.title.split('—')[0].trim()}...
 هل تعرف ما الذي حدث فعلاً؟
-القصة أكثر صدمة مما تتخيل — استمع معي.
+القصة أكثر صدمة مما تتخيل — استمر معي.
 
 ━━━━━━━━━━
 
-كل شيء بدأ في عام 2018، في مكان لم يتوقعه أحد.
+في البداية، لم يكن أحد يتوقع ما سيحدث.
 
-لم يكن المشهد يوحي بأي خطر. الجميع يعيش حياته بشكل طبيعي تماماً. لكن خلف هذا الهدوء، كانت تُحاك قصة ستغير كل شيء.
+عام 2019، بدأت الأحداث بشكل هادئ تماماً. لكن خلف هذا الهدوء كانت تُحاك واحدة من أغرب القصص في التاريخ الحديث.
 
-الأرقام كانت صادمة: أكثر من 50,000 شخص تأثروا خلال 6 أشهر فقط.
-والأكثر إثارة أن 73% منهم لم يعلموا أنهم ضحايا حتى فات الأوان.
+الأرقام تقول كل شيء: أكثر من 50,000 شخص تأثروا.
+و73% منهم لم يعلموا ما كان يحدث لهم.
+
+━━━━━━━━━━
+
+دعونا نعود للبداية...
+
+كل شيء بدأ في مكان لم يتوقعه أحد. الشخص الرئيسي في هذه القصة كان يبدو للجميع طبيعياً تماماً — يذهب لعمله، يتكلم مع جيرانه، يبتسم لكل من يقابله.
+
+لكن في الداخل؟ كان يخطط لشيء صادم.
 
 ━━━━━━━━━━
 
 ثم جاء اليوم الذي تغير فيه كل شيء...
 
-في صباح 14 مارس 2022، تلقى المحقق الرئيسي اتصالاً غير متوقع.
+صباح 14 مارس، تلقى المحقق الرئيسي اتصالاً غير متوقع.
 الصوت من الطرف الآخر كان يرتجف: "وجدناه."
 
-ما تبع ذلك كان الأكثر إثارة في تاريخ هذه القضية.
-شيء لم يتوقعه حتى أكثر المحققين خبرة.
+ما وجدوه صدم حتى أكثر المحققين خبرة في العالم.
 
 ━━━━━━━━━━
 
-والآن، بعد كل ما شاهدناه...
+اليوم، بعد كل ما شاهدنا...
 
-السؤال الذي يؤرقني: هل كان يمكن تفادي هذا كله؟
+السؤال الذي يؤرقني: هل كان يمكن تفاديه؟
+وهل هناك أشخاص مثله بيننا الآن؟
 
 اكتب رأيك في التعليقات — أريد أن أعرف ما تفكر فيه!
 
-وإذا أعجبك المحتوى، اشترك في القناة واضغط على الجرس 🔔
-عندنا ما هو أكثر إثارة في الطريق إليك!`;
-}
-
-// ══ QUALITY ══
-async function goQuality() {
-  goTab(4);
-  const script = currentScript;
-  const words = script.split(/\s+/).length;
-
-  const checks = [
-    {label:'طول السكريبت', detail:`${words} كلمة`, pass:words>=600, pts:20},
-    {label:'Hook جذاب', detail:'أول 200 حرف تشد الانتباه', pass:script.substring(0,200).length>100, pts:20},
-    {label:'أرقام وتواريخ', detail:'تفاصيل حقيقية', pass:/\d{3,}/.test(script), pts:15},
-    {label:'أسلوب درامي', detail:'كلمات تشويق وإثارة', pass:/صادم|مرعب|إثارة|صدمة/.test(script), pts:15},
-    {label:'سؤال للتعليق', detail:'يزيد التفاعل', pass:/\؟|ما رأيك|اكتب/.test(script), pts:15},
-    {label:'دعوة للاشتراك', detail:'ينمي القناة', pass:/اشترك|الجرس/.test(script), pts:15},
-  ];
-
-  const score = checks.reduce((a,c)=>a+(c.pass?c.pts:0),0);
-  currentQuality = score;
-  const col = score>=80?'#00e5a0':score>=60?'#6c63ff':score>=40?'#ffd166':'#ff4d6d';
-
-  const similar = DB.filter(d=>sim(d.script||'',script)>0.35);
-
-  document.getElementById('qualityCard').innerHTML = `
-    <div class="big-score">
-      <div class="num" style="color:${col}">${score}%</div>
-      <div class="lbl">${score>=80?'✨ ممتاز — جاهز للنشر':score>=60?'👍 جيد':score>=40?'⚠️ مقبول':'❌ يحتاج تحسين'}</div>
-    </div>
-    <div class="prog-wrap"><div class="prog-fill" style="width:${score}%;background:${col}"></div></div>
-
-    <div style="margin:16px 0;">
-      ${checks.map(c=>`
-        <div class="check-row">
-          <span style="font-size:16px">${c.pass?'✅':'❌'}</span>
-          <div style="flex:1">
-            <div style="font-weight:600">${c.label}</div>
-            <div style="font-size:11px;color:#888">${c.detail}</div>
-          </div>
-          <span style="font-size:11px;font-weight:700;color:${c.pass?'#00e5a0':'#ff4d6d'}">+${c.pts}</span>
-        </div>`).join('')}
-    </div>
-
-    <div class="${similar.length===0?'alert-green':'alert-orange'} alert">
-      ${similar.length===0?'✅ المحتوى أصيل — لا تشابه مع قاعدة البيانات':'⚠️ يوجد تشابه مع '+similar.length+' محتوى سابق'}
-    </div>`;
-
-  document.getElementById('btn4').disabled = false;
-  // prep publish page
-  preparePublishPage();
-}
-
-// ══ SAVE ══
-async function goSave() {
-  goTab(5);
-
-  const entry = {
-    id: Date.now(),
-    emoji: selectedTrend.emoji,
-    title: selectedTrend.title,
-    cat: selectedTrend.cat,
-    keywords: selectedTrend.keywords,
-    script: currentScript,
-    quality: currentQuality,
-    date: new Date().toLocaleDateString('ar-SA'),
-    dateRaw: Date.now()
-  };
-
-  DB.unshift(entry);
-  localStorage.setItem('cai_db2', JSON.stringify(DB));
-
-  document.getElementById('saveCard').innerHTML = `
-    <div class="success-card">
-      <span class="icon">🎉</span>
-      <h2>تم الحفظ بنجاح!</h2>
-      <p>${selectedTrend.emoji} ${selectedTrend.title.substring(0,50)}...</p>
-
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0;">
-        <div style="background:#1c1c1c;border-radius:12px;padding:14px;text-align:center;">
-          <div style="font-size:22px;font-weight:900;color:#6c63ff">${currentScript.split(/\s+/).length}</div>
-          <div style="font-size:11px;color:#888">كلمة</div>
-        </div>
-        <div style="background:#1c1c1c;border-radius:12px;padding:14px;text-align:center;">
-          <div style="font-size:22px;font-weight:900;color:#00e5a0">${currentQuality}%</div>
-          <div style="font-size:11px;color:#888">جودة</div>
-        </div>
-        <div style="background:#1c1c1c;border-radius:12px;padding:14px;text-align:center;">
-          <div style="font-size:22px;font-weight:900;color:#ffd166">${DB.length}</div>
-          <div style="font-size:11px;color:#888">في قاعدة البيانات</div>
-        </div>
-      </div>
-
-      <div style="background:#161616;border-radius:12px;padding:16px;margin-bottom:20px;text-align:right;">
-        <div style="font-size:12px;color:#888;margin-bottom:8px;">الخطوات القادمة:</div>
-        <div style="font-size:13px;color:#ccc;line-height:2;">
-          🎙️ افتح <b>ElevenLabs</b> وحول السكريبت لصوت درامي<br>
-          🎥 افتح <b>CapCut</b> وأضف الصوت + صور<br>
-          📤 ارفع على <b>يوتيوب</b> الساعة 7-10 مساءً
-        </div>
-      </div>
-
-      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-        <button class="btn btn-outline" onclick="copyScript()">📋 نسخ السكريبت</button>
-        <button class="btn btn-outline" onclick="dlScript()">📥 تحميل</button>
-        <button class="btn btn-main" style="width:auto;" onclick="goTab(6);prepareVoicePage()">🎙️ التالي: توليد الصوت ←</button>
-      </div>
-    </div>`;
-
-  toast('✅ تم الحفظ في قاعدة البيانات!');
-  document.getElementById('tab-6').querySelector && updateDBBadge();
-}
-
-function updateDBBadge() {
-  const t = document.getElementById('tab-9');
-  if(t) t.textContent = `🗄️ البيانات (${DB.length})`;
-}
-
-// ══ VOICE ══
-let selectedVoiceId = 'pNInz6obpgDQGcFmaJgB'; // Adam - male
-
-function selectVoice(type, el) {
-  document.querySelectorAll('#voice-m,#voice-f').forEach(e=>e.classList.remove('selected'));
-  el.classList.add('selected');
-  selectedVoiceId = type === 'male' ? 'pNInz6obpgDQGcFmaJgB' : 'EXAVITQu4vr4xnSDxMaL';
-}
-
-function prepareVoicePage() {
-  const preview = document.getElementById('voiceScriptPreview');
-  if(preview) preview.textContent = currentScript.substring(0,200) + '...';
-}
-
-async function generateVoice() {
-  const key = document.getElementById('elevenKey').value.trim();
-  document.getElementById('voiceLoading').style.display = 'block';
-  document.getElementById('voiceDemoNote').style.display = 'none';
-  document.getElementById('voiceResult').style.display = 'none';
-  document.getElementById('btn6voice').disabled = true;
-
-  let prog = 0;
-  const iv = setInterval(()=>{ prog=Math.min(prog+4,90); document.getElementById('voiceProg').style.width=prog+'%'; }, 300);
-
-  if(key) {
-    try {
-      const clean = currentScript.replace(/[🎬🔍⚠️🕵️🏛️💭━🔪☠️💀🏠🌊🔫💊🕵️💡🚀📝🎙️⏱️🔔😱✅❌📊🎣📖📝🔥📣]/gu,'').trim();
-      const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}`,{
-        method:'POST',
-        headers:{'Content-Type':'application/json','xi-api-key':key},
-        body:JSON.stringify({
-          text: clean.substring(0,2500),
-          model_id:'eleven_multilingual_v2',
-          voice_settings:{stability:0.4, similarity_boost:0.8, style:0.6, use_speaker_boost:true}
-        })
-      });
-      if(!res.ok) throw new Error('خطأ في ElevenLabs');
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      clearInterval(iv);
-      document.getElementById('voiceProg').style.width='100%';
-      document.getElementById('voiceLoading').style.display='none';
-      document.getElementById('voiceResult').style.display='block';
-      document.getElementById('audioPlayer').src = url;
-      document.getElementById('downloadAudio').href = url;
-      toast('✅ الصوت جاهز!');
-    } catch(e) {
-      clearInterval(iv);
-      document.getElementById('voiceLoading').style.display='none';
-      document.getElementById('voiceDemoNote').style.display='block';
-      toast('❌ تحقق من مفتاح ElevenLabs');
-    }
-  } else {
-    clearInterval(iv);
-    await sleep(1500);
-    document.getElementById('voiceLoading').style.display='none';
-    document.getElementById('voiceDemoNote').style.display='block';
-  }
-  document.getElementById('btn6voice').disabled = false;
-}
-
-// ══ VIDEO & PUBLISH ══
-function searchImages() {
-  const q = selectedTrend ? encodeURIComponent(selectedTrend.title.split('—')[0].trim()) : 'جرائم';
-  window.open('https://www.google.com/search?q='+q+'&tbm=isch','_blank');
-}
-
-function preparePublishPage() {
-  if(!selectedTrend) return;
-  const t = selectedTrend;
-  document.getElementById('suggestedTitle').textContent = `😱 ${t.title} — القصة الكاملة التي لم تسمعها من قبل`;
-  document.getElementById('suggestedTags').textContent = (t.keywords||'') + ', جرائم حقيقية, يوتيوب عربي, true crime, قصص حقيقية';
-  document.getElementById('suggestedDesc').innerHTML =
-    `في هذا الفيديو نكشف القصة الكاملة لـ ${t.title}<br><br>` +
-    `⚡ اشترك في القناة لأن عندنا المزيد<br>` +
-    `🔔 اضغط على الجرس لتصلك كل الفيديوهات<br><br>` +
-    `#جرائم_حقيقية #${(t.cat||'محتوى')} #يوتيوب_عربي`;
-  document.getElementById('videoTopic').textContent = t.title.split('—')[0].trim();
-}
-
-function copyTitle(){
-  const el=document.getElementById('suggestedTitle');
-  navigator.clipboard.writeText(el.textContent).then(()=>toast('📋 تم نسخ العنوان'));
-}
-function copyTags(){
-  const el=document.getElementById('suggestedTags');
-  navigator.clipboard.writeText(el.textContent).then(()=>toast('📋 تم نسخ الكلمات'));
-}
-function copyDesc(){
-  const el=document.getElementById('suggestedDesc');
-  navigator.clipboard.writeText(el.innerText).then(()=>toast('📋 تم نسخ الوصف'));
-}
-
-function markPublished(){
-  // update status in DB
-  if(DB.length > 0) {
-    DB[0].status = 'published';
-    DB[0].publishedAt = new Date().toLocaleDateString('ar-SA');
-    localStorage.setItem('cai_db2',JSON.stringify(DB));
-  }
-  toast('🎉 تم تحديث قاعدة البيانات — المحتوى منشور!');
-  setTimeout(()=>{ if(confirm('هل تريد إنشاء محتوى جديد؟')) newContent(); },1500);
-}
-
-// ══ DATABASE ══
-function renderDB() {
-  const total = DB.length;
-  const avgQ = total ? Math.round(DB.reduce((a,b)=>a+(b.quality||0),0)/total) : 0;
-  const today = DB.filter(x=>new Date(x.dateRaw).toDateString()===new Date().toDateString()).length;
-
-  document.getElementById('db-total').textContent = total;
-  document.getElementById('db-avgq').textContent = total ? avgQ+'%' : '—';
-  document.getElementById('db-today').textContent = today;
-
-  const body = document.getElementById('dbBody');
-  const empty = document.getElementById('dbEmpty');
-
-  if(!total){ body.innerHTML=''; empty.style.display='block'; return; }
-  empty.style.display='none';
-
-  const qcol = q => q>=80?'#00e5a0':q>=60?'#6c63ff':q>=40?'#ffd166':'#ff4d6d';
-  const statusLabel = s => s==='published'?'<span class="tag tag-green">✅ منشور</span>':'<span class="tag tag-purple">💾 محفوظ</span>';
-
-  body.innerHTML = DB.map((x,i)=>`
-    <tr>
-      <td>
-        <div style="font-weight:600;margin-bottom:2px;">${x.emoji} ${x.title.substring(0,42)}${x.title.length>42?'...':''}</div>
-        <div style="font-size:10px;color:#444">${x.cat} · ${x.date}</div>
-      </td>
-      <td style="color:${qcol(x.quality)};font-weight:800">${x.quality}%</td>
-      <td>${statusLabel(x.status)}</td>
-      <td><button onclick="delItem(${x.id})" style="background:none;border:none;color:#ff4d6d;cursor:pointer;font-size:14px;">🗑️</button></td>
-    </tr>`).join('');
-}
-
-function delItem(id) {
-  if(!confirm('حذف هذا المحتوى؟')) return;
-  DB = DB.filter(x=>x.id!==id);
-  localStorage.setItem('cai_db2',JSON.stringify(DB));
-  renderDB();
-}
-
-function exportDB() {
-  const blob = new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'contentai-db.json';
-  a.click();
-  toast('📥 تم التصدير');
-}
-
-function clearDB() {
-  if(!confirm('مسح كل قاعدة البيانات؟')) return;
-  DB=[]; localStorage.setItem('cai_db2','[]'); renderDB();
-  toast('🗑️ تم المسح');
+وإذا أعجبك هذا الفيديو، اشترك في القناة الآن واضغط على الجرس 🔔
+لأن عندنا قصص أكثر إثارة في الطريق إليك!`;
 }
 
 // ══ UTILS ══
-function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+function elapsed(t) { return ((Date.now()-t)/1000).toFixed(1)+'s'; }
 
-function sim(a,b){
+function sim(a,b) {
   if(!a||!b) return 0;
   const wa=new Set(a.split(/\s+/).filter(w=>w.length>3));
   const wb=new Set(b.split(/\s+/).filter(w=>w.length>3));
@@ -1297,87 +1367,12 @@ function sim(a,b){
   return c/Math.max(wa.size,wb.size);
 }
 
-function copyScript(){
-  navigator.clipboard.writeText(currentScript).then(()=>toast('📋 تم النسخ!'));
-}
-
-function dlScript(){
-  const blob=new Blob([currentScript],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=(selectedTrend?.title||'script').substring(0,30)+'.txt';
-  a.click();
-}
-
-function newContent(){
-  selectedTrend=null; currentScript=''; currentQuality=0;
-  document.getElementById('btn1').disabled=true;
-  document.getElementById('btn2').disabled=true;
-  document.getElementById('btn3').disabled=true;
-  document.getElementById('btn4').disabled=true;
-  goTab(1);
-  scanTrends();
-}
-
-function toast(msg){
+function toast(msg) {
   const t=document.getElementById('toast');
   t.textContent=msg;
   t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
+  setTimeout(()=>t.classList.remove('show'),2800);
 }
-
-// ══ SAVE & LOAD API KEYS ══
-function saveKeys() {
-  localStorage.setItem('cai_claude_key', document.getElementById('claudeKey').value);
-  localStorage.setItem('cai_eleven_key', document.getElementById('elevenKey').value);
-}
-
-function loadKeys() {
-  const ck = localStorage.getItem('cai_claude_key') || '';
-  const ek = localStorage.getItem('cai_eleven_key') || '';
-  if(ck) document.getElementById('claudeKey').value = ck;
-  if(ek) document.getElementById('elevenKey').value = ek;
-}
-
-// ══ BROWSE SAVED CONTENT ══
-function viewContent(id) {
-  const x = DB.find(i => i.id === id);
-  if(!x) return;
-  document.getElementById('modal-title').textContent = x.emoji + ' ' + x.title;
-  document.getElementById('modal-date').textContent = x.date + ' · ' + x.cat + ' · جودة ' + x.quality + '%';
-  document.getElementById('modal-status').textContent = x.status === 'published' ? '✅ منشور' : '💾 محفوظ';
-  document.getElementById('modal-status').className = x.status === 'published' ? 'tag tag-green' : 'tag tag-purple';
-  document.getElementById('modal-script').textContent = x.script || 'لا يوجد سكريبت';
-  document.getElementById('modal-tags').textContent = x.keywords || '—';
-  currentScript = x.script || '';
-  selectedTrend = { title: x.title, emoji: x.emoji, cat: x.cat, keywords: x.keywords };
-  document.getElementById('content-modal').style.display = 'flex';
-}
-
-function closeModal() {
-  document.getElementById('content-modal').style.display = 'none';
-}
-
-function loadContentForVoice(id) {
-  const x = DB.find(i => i.id === id);
-  if(!x) return;
-  currentScript = x.script || '';
-  currentQuality = x.quality || 0;
-  selectedTrend = { title: x.title, emoji: x.emoji, cat: x.cat, keywords: x.keywords, score: 70 };
-  closeModal();
-  goTab(6);
-  prepareVoicePage();
-  toast('✅ تم تحميل المحتوى');
-}
-
-// ══ INIT ══
-window.onload = () => {
-  loadKeys();
-  document.getElementById('claudeKey').addEventListener('input', saveKeys);
-  document.getElementById('elevenKey').addEventListener('input', saveKeys);
-  updateDBBadge();
-  scanTrends();
-};
 </script>
 </body>
 </html>
