@@ -947,32 +947,12 @@ async function startPipeline() {
 
   try {
     // ── STEP 1: TOPIC ──
-    setStep('topic', 'active', 'Claude يختار موضوعاً مثالياً...', 10, '');
+    setStep('topic', 'active', 'يتم اختيار أفضل موضوع...', 30, '');
+    await sleep(700);
 
-    const existingTitles = DB.map(x => x.title).join('\n');
-    const cat = selectedCat === 'any'
-      ? ['جرائم حقيقية','تقنية','ألغاز','مال واستثمار','علوم','تاريخ','تحفيز'][Math.floor(Math.random()*7)]
-      : CAT_NAMES[selectedCat];
-
-    let topicData;
-
-    if(claudeKey) {
-      setStep('topic', 'active', 'إرسال طلب لـ Claude...', 30, '');
-      const res = await callClaude(claudeKey, `You are a YouTube content assistant. Return ONLY a JSON object, no other text.
-
-Task: Choose one topic in the category "${cat}" for an Arabic YouTube video.
-
-Already covered topics (avoid repetition):
-${existingTitles || 'none'}
-
-Return ONLY this JSON format (no markdown, no explanation):
-{"emoji":"🔪","title":"topic title in Arabic","keywords":"keyword1,keyword2,keyword3","why":"reason"}`, true);
-
-      topicData = res;
-    } else {
-      await sleep(1000);
-      topicData = getDemoTopic(selectedCat);
-    }
+    const existingTitles = DB.map(x => x.title.toLowerCase());
+    let topicData = getSmartTopic(selectedCat, existingTitles);
+    setStep('topic', 'active', `✓ تم اختيار: ${topicData.title.substring(0,30)}...`, 80, '');
 
     currentTopic = topicData;
     setStep('topic', 'done', `✓ ${topicData.title.substring(0,40)}...`, 100, elapsed(t0));
@@ -1296,6 +1276,74 @@ function delItem(id) {
   localStorage.setItem('acai_db',JSON.stringify(DB));
   renderHistory();
   toast('🗑️ تم الحذف');
+}
+
+// ══ SMART TOPIC DATABASE ══
+function getSmartTopic(cat, existingTitles) {
+  const pools = {
+    crime:[
+      {emoji:'🔪',title:'تيد باندي — المجرم الذي خدع الجميع بوجهه البريء',keywords:'جرائم حقيقية,قاتل متسلسل'},
+      {emoji:'☠️',title:'جاك السفاح — أكبر لغز جنائي في التاريخ لم يُحل',keywords:'جرائم تاريخية,لندن,لغز'},
+      {emoji:'💀',title:'جيفري داهمر — الوحش الذي كان يعيش بيننا',keywords:'داهمر,قاتل متسلسل,أمريكا'},
+      {emoji:'🕵️',title:'الاحتيال الإلكتروني — كيف يسرقون مليار دولار من المنزل',keywords:'احتيال,جرائم مالية'},
+      {emoji:'🔫',title:'مافيا الصقلية — أخطر منظمة إجرامية في التاريخ',keywords:'مافيا,جريمة منظمة'},
+      {emoji:'🏦',title:'سطو القرن — أكبر عملية سرقة بنك في التاريخ',keywords:'سطو,بنك,سرقة'},
+      {emoji:'👻',title:'القاتل الصامت — 10 سنوات يقتل ولا أحد يعلم',keywords:'قاتل,جريمة,صامت'},
+      {emoji:'🧪',title:'السم الكامل — جرائم التسميم الأغرب في التاريخ',keywords:'تسميم,جريمة,غريب'},
+    ],
+    tech:[
+      {emoji:'💻',title:'الذكاء الاصطناعي يستبدل 300 مليون وظيفة — من ينجو؟',keywords:'ذكاء اصطناعي,وظائف,مستقبل'},
+      {emoji:'📱',title:'هاتفك يتجسس عليك — الحقيقة الصادمة',keywords:'خصوصية,هاتف,تجسس'},
+      {emoji:'🔐',title:'أقوى هجوم إلكتروني في التاريخ — كيف اخترقوا حكومات',keywords:'هاكر,أمن إلكتروني'},
+      {emoji:'🌐',title:'الإنترنت المظلم — ما الذي يحدث هناك فعلاً؟',keywords:'dark web,إنترنت مظلم'},
+      {emoji:'🤖',title:'روبوتات 2026 — هل ستسيطر على حياتنا؟',keywords:'روبوت,مستقبل,تقنية'},
+      {emoji:'🚀',title:'SpaceX — كيف غيّر ماسك مستقبل الفضاء',keywords:'spacex,فضاء,ماسك'},
+    ],
+    mystery:[
+      {emoji:'🌊',title:'مادلين ماكان — اللغز الذي حير العالم 19 سنة',keywords:'اختفاء,لغز,محقق'},
+      {emoji:'👽',title:'منطقة 51 — ماذا تخفي أمريكا عن الكائنات الفضائية؟',keywords:'منطقة 51,فضاء,مؤامرة'},
+      {emoji:'🔺',title:'مثلث برمودا — الحقيقة التي لا يريدونك أن تعرفها',keywords:'برمودا,لغز,اختفاء'},
+      {emoji:'🗿',title:'تمثال الغاز — من بناه ولماذا لا يعرف أحد؟',keywords:'لغز,تاريخ,غامض'},
+    ],
+    finance:[
+      {emoji:'💰',title:'كيف ربح شاب 23 سنة مليون دولار من يوتيوب؟',keywords:'ربح,يوتيوب,نجاح'},
+      {emoji:'📈',title:'Bitcoin 2026 — هل يصل لـ 200,000 دولار؟',keywords:'بيتكوين,استثمار,عملات'},
+      {emoji:'💎',title:'5 عادات الأثرياء التي لا يعلمها الفقراء',keywords:'ثروة,عادات,نجاح مالي'},
+      {emoji:'🏦',title:'كيف تصنع أول 100,000 دولار من الصفر',keywords:'استثمار,مال,بداية'},
+    ],
+    science:[
+      {emoji:'🧬',title:'العلماء اكتشفوا كيف يوقفون الشيخوخة — التفاصيل الكاملة',keywords:'علوم,طب,شيخوخة'},
+      {emoji:'🌍',title:'الاحترار العالمي — 10 سنوات قبل الكارثة',keywords:'تغير مناخي,بيئة,مستقبل'},
+      {emoji:'🧠',title:'90% من الدماغ لا نستخدمه — حقيقة أم خرافة؟',keywords:'دماغ,علم,حقائق'},
+      {emoji:'🔭',title:'ثقب أسود يبتلع مجرة كاملة — ماذا حدث؟',keywords:'فضاء,ثقب أسود,كون'},
+    ],
+    history:[
+      {emoji:'⚔️',title:'أسرار الحضارة المصرية لم تُدرَّس في المدارس',keywords:'مصر,تاريخ,حضارة'},
+      {emoji:'🏰',title:'سقوط روما — الدرس الذي يتجاهله الجميع',keywords:'روما,تاريخ,إمبراطورية'},
+      {emoji:'👑',title:'صلاح الدين الأيوبي — القصة الكاملة',keywords:'صلاح الدين,تاريخ,إسلام'},
+      {emoji:'🗡️',title:'المغول — أكثر غزو دموي في تاريخ البشرية',keywords:'مغول,غزو,تاريخ'},
+    ],
+    motivation:[
+      {emoji:'🚀',title:'5 عادات تجعلك في أفضل 1% من الناس',keywords:'تحفيز,نجاح,عادات'},
+      {emoji:'💪',title:'كيف غيّر شاب حياته من الصفر في 12 شهراً',keywords:'تغيير,نجاح,تحفيز'},
+      {emoji:'🧘',title:'سر الإنتاجية الذي يخفيه الناجحون',keywords:'إنتاجية,نجاح,تطوير'},
+      {emoji:'🌟',title:'قانون الجذب — الحقيقة العلمية وراءه',keywords:'قانون الجذب,تحفيز,علم'},
+    ],
+    any:[
+      {emoji:'🎲',title:'أغرب 10 حقائق غيرت فهمنا للعالم تماماً',keywords:'حقائق,معلومات,مثير'},
+      {emoji:'🌀',title:'10 أشياء تحدث في جسمك الآن ولا تعلم عنها',keywords:'جسم,علوم,حقائق'},
+      {emoji:'🔮',title:'تنبؤات العلماء لعام 2050 — ستصدم عقلك',keywords:'مستقبل,علوم,تنبؤات'},
+    ]
+  };
+
+  const catKey = cat === 'any'
+    ? ['crime','tech','mystery','finance','science','history','motivation'][Math.floor(Math.random()*7)]
+    : cat;
+
+  const pool = pools[catKey] || pools.crime;
+  const unused = pool.filter(t => !existingTitles.some(e => e.includes(t.title.substring(0,10).toLowerCase())));
+  const available = unused.length > 0 ? unused : pool;
+  return available[Math.floor(Math.random() * available.length)];
 }
 
 // ══ DEMO DATA ══
