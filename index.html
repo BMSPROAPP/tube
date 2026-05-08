@@ -958,22 +958,17 @@ async function startPipeline() {
 
     if(claudeKey) {
       setStep('topic', 'active', 'إرسال طلب لـ Claude...', 30, '');
-      const res = await callClaude(claudeKey, `أنت مساعد لإنشاء محتوى يوتيوب عربي.
+      const res = await callClaude(claudeKey, `You are a YouTube content assistant. Return ONLY a JSON object, no other text.
 
-المطلوب: اختر موضوعاً واحداً مميزاً في فئة "${cat}" لفيديو يوتيوب عربي.
+Task: Choose one topic in the category "${cat}" for an Arabic YouTube video.
 
-المحتوى الموجود مسبقاً (تجنب التكرار):
-${existingTitles || 'لا يوجد محتوى سابق'}
+Already covered topics (avoid repetition):
+${existingTitles || 'none'}
 
-الشروط:
-- موضوع جديد غير مكرر
-- جذاب ومثير للاهتمام
-- يناسب الجمهور العربي
+Return ONLY this JSON format (no markdown, no explanation):
+{"emoji":"🔪","title":"topic title in Arabic","keywords":"keyword1,keyword2,keyword3","why":"reason"}`, true);
 
-رد بـ JSON فقط بهذا الشكل:
-{"emoji":"🔪","title":"عنوان الموضوع هنا","keywords":"كلمة1,كلمة2,كلمة3","why":"سبب اختياره"}`, true);
-
-      topicData = JSON.parse(res);
+      topicData = res;
     } else {
       await sleep(1000);
       topicData = getDemoTopic(selectedCat);
@@ -1110,12 +1105,20 @@ async function callClaude(key, prompt, json=false) {
       messages:[{role:'user',content:prompt}]
     })
   });
+  if(!res.ok) {
+    const err = await res.json().catch(()=>({}));
+    throw new Error(err.error?.message || 'Claude API error');
+  }
   const data = await res.json();
-  const text = data.content?.[0]?.text || '';
+  const text = (data.content?.[0]?.text || '').trim();
   if(json) {
-    const match = text.match(/\{[\s\S]*\}/);
-    if(!match) throw new Error('لم يرد JSON صحيح');
-    return JSON.parse(match[0]);
+    // Try multiple JSON extraction methods
+    try { return JSON.parse(text); } catch(e) {}
+    const match = text.match(/\{[\s\S]*?\}/);
+    if(match) { try { return JSON.parse(match[0]); } catch(e) {} }
+    // Build fallback from text
+    console.warn('Claude JSON fallback:', text);
+    return getDemoTopic(selectedCat);
   }
   return text;
 }
