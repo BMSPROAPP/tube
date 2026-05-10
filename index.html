@@ -683,9 +683,9 @@ let imgQuery = '';
 let busy = false;
 
 const LEN = {
-  short:  {words:'400-500',  mins:'4-5',  tokens:800},
-  medium: {words:'700-900',  mins:'6-8',  tokens:1300},
-  long:   {words:'1000-1300',mins:'9-12', tokens:2000},
+  short:  {words:'500-600',  mins:'4-5',  tokens:1200},
+  medium: {words:'800-1000', mins:'7-9',  tokens:2000},
+  long:   {words:'1200-1500',mins:'10-13',tokens:3000},
 };
 
 const CAT_NAMES = {crime:'جرائم',tech:'تقنية',mystery:'ألغاز',finance:'مال',science:'علوم',history:'تاريخ',motivation:'تحفيز'};
@@ -902,19 +902,24 @@ async function startProduction(topic) {
           'anthropic-dangerous-direct-browser-access':'true'
         },
         body:JSON.stringify({
-          model:'claude-haiku-4-5-20251001',
+          model:'claude-sonnet-4-20250514',
           max_tokens:ls.tokens,
-          messages:[{role:'user',content:`اكتب سكريبت يوتيوب بالعربي عن: "${topic.title}"
+          messages:[{role:'user',content:`أنت كاتب محتوى يوتيوب عربي محترف ومتخصص في المحتوى الدرامي التشويقي.
 
-الشروط المهمة جداً:
-- ابدأ بـ Hook صادم ومثير في أول 3 جمل يجعل المشاهد لا يستطيع الإغلاق
-- أسلوب تشويقي درامي طوال السكريبت
-- أرقام وتواريخ حقيقية (مثل: عام 2015، 50 ضحية، 3 دول)
-- الطول المطلوب: ${ls.words} كلمة بالضبط — لا تتوقف قبل ذلك
-- في النهاية: اطرح سؤالاً للتعليق
-- في النهاية: اطلب الاشتراك وضغط الجرس 🔔
-- اكتب النص المنطوق فقط بدون عناوين أو تعليمات إخراج
-- استمر في الكتابة حتى تصل للطول المطلوب`}]
+اكتب سكريبت كامل ومفصل عن:
+"${topic.title}"
+
+**القواعد الإلزامية:**
+١. ابدأ بجملة صادمة لا يستطيع المشاهد بعدها الإغلاق
+٢. الطول: ${ls.words} كلمة — هذا إلزامي، استمر في الكتابة حتى تصل لهذا الطول
+٣. أسلوب درامي تشويقي يبني التشويق تدريجياً
+٤. أرقام وأسماء وتواريخ حقيقية ودقيقة
+٥. قسّم القصة: مقدمة صادمة، خلفية، الأحداث، الذروة، الكشف، الخاتمة
+٦. قبل النهاية بقليل: سؤال يحفز التعليق مثل "ما رأيك؟ هل كان يمكن تفادي هذا؟"
+٧. آخر جملة حرفياً: "اشترك في القناة الآن واضغط على جرس الإشعارات 🔔 لأن عندنا المزيد من القصص المثيرة"
+٨. النص المنطوق فقط بدون أي عناوين أو تعليمات إخراجية
+
+ابدأ الكتابة مباشرة:`}]
         })
       });
       clearInterval(iv);
@@ -1008,7 +1013,12 @@ async function startProduction(topic) {
       // Voice already failed - show error
       document.getElementById('r-audio-placeholder').textContent = '❌ فشل توليد الصوت — تحقق من مفتاح ElevenLabs';
     } else {
-      document.getElementById('r-audio-placeholder').innerHTML = '⚠️ أضف ElevenLabs Key في الإعدادات للحصول على الصوت<br><br><button onclick="retryVoice()" style="background:#00ff88;border:none;border-radius:8px;padding:8px 16px;font-family:Cairo,sans-serif;font-weight:700;cursor:pointer;font-size:13px;">🎙️ أضف المفتاح وجرب الآن</button>';
+      document.getElementById('r-audio-placeholder').innerHTML = `
+        <div style="text-align:center;padding:10px;">
+          <div style="font-size:13px;color:#555;margin-bottom:12px;">🎙️ أضف مفتاح ElevenLabs للحصول على الصوت</div>
+          <input type="password" id="elevenKeyRetry" placeholder="sk_..." style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:9px 12px;color:#fff;font-family:monospace;font-size:12px;outline:none;direction:ltr;margin-bottom:10px;" />
+          <button onclick="retryVoiceInline()" style="width:100%;padding:11px;background:#00ff88;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;color:#000;">🎙️ توليد الصوت</button>
+        </div>`;
     }
 
   } catch(err) {
@@ -1064,7 +1074,42 @@ function showAudio(url) {
   dl.style.display = 'inline-flex';
 }
 
-async function retryVoice() {
+async function retryVoiceInline() {
+  const keyInput = document.getElementById('elevenKeyRetry');
+  const ek = keyInput ? keyInput.value.trim() : document.getElementById('elevenKey').value.trim();
+  if(!ek) { toast('❌ أدخل المفتاح أولاً'); return; }
+
+  // Save key for future use
+  document.getElementById('elevenKey').value = ek;
+  localStorage.setItem('acai_v4_ek', ek);
+
+  document.getElementById('r-audio-placeholder').textContent = '⏳ جاري توليد الصوت...';
+  try {
+    const clean = currentScript.replace(/[🎬🔍⚠️💡📝🔔😱✅❌━]/gu,'').trim();
+    const vr = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','xi-api-key':ek},
+      body:JSON.stringify({
+        text:clean.substring(0,2500),
+        model_id:'eleven_multilingual_v2',
+        voice_settings:{stability:0.4,similarity_boost:0.8,style:0.6}
+      })
+    });
+    if(!vr.ok) {
+      const err = await vr.json().catch(()=>({}));
+      throw new Error(err.detail?.message || 'ElevenLabs error ' + vr.status);
+    }
+    const blob = await vr.blob();
+    const url = URL.createObjectURL(blob);
+    currentAudioUrl = url;
+    showAudio(url);
+    if(DB.length > 0) { DB[0].audioUrl = url; localStorage.setItem('acai_v4', JSON.stringify(DB)); }
+    toast('✅ الصوت جاهز!');
+  } catch(e) {
+    document.getElementById('r-audio-placeholder').textContent = '❌ ' + e.message;
+    toast('❌ فشل: ' + e.message);
+  }
+}
   const ek = document.getElementById('elevenKey').value.trim();
   if(!ek) {
     toggleSettings();
