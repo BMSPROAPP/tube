@@ -3,1703 +3,1130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AutoContent — زر واحد</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>AutoContent</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg: #080808;
-  --card: #111;
-  --border: #1e1e1e;
-  --accent: #00ff88;
-  --accent2: #00cc66;
-  --purple: #7c3aed;
-  --red: #ff4444;
-  --gold: #fbbf24;
-  --text: #f0f0f0;
-  --text2: #666;
-  --text3: #333;
-}
-
 * { margin:0; padding:0; box-sizing:border-box; }
+body { background:#080808; color:#f0f0f0; font-family:'Cairo',sans-serif; min-height:100vh; }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Cairo', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
+/* SCREENS */
+.screen { display:none; min-height:100vh; flex-direction:column; }
+.screen.active { display:flex; }
+
+/* TOP BAR */
+.topbar {
+  background:#111;
+  border-bottom:1px solid #1e1e1e;
+  padding:14px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-shrink:0;
 }
+.topbar-title { font-size:16px; font-weight:900; color:#fff; }
+.topbar-sub { font-size:11px; color:#555; margin-top:2px; }
+.topbar-right { display:flex; gap:8px; align-items:center; }
 
-/* Grid bg */
-body::before {
-  content:'';
-  position:fixed;
-  inset:0;
-  background-image: radial-gradient(circle at 50% 0%, rgba(0,255,136,0.04) 0%, transparent 60%);
-  pointer-events:none;
-  z-index:0;
+/* KEY INPUT */
+.key-input {
+  background:#1a1a1a;
+  border:1px solid #2a2a2a;
+  border-radius:8px;
+  padding:7px 12px;
+  color:#fff;
+  font-family:monospace;
+  font-size:11px;
+  width:140px;
+  outline:none;
+  direction:ltr;
 }
+.key-input:focus { border-color:#00ff88; }
+.key-input.ok { border-color:#1a3a1a; }
 
-.wrap {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px 16px 40px;
-  position: relative;
-  z-index: 1;
+.key-dot {
+  width:8px; height:8px;
+  border-radius:50%;
+  background:#333;
+  flex-shrink:0;
 }
+.key-dot.ok { background:#00ff88; box-shadow:0 0 6px #00ff88; }
 
-/* ── HEADER ── */
-.header {
-  text-align: center;
-  padding: 32px 0 24px;
+/* FILTER TABS */
+.filter-bar {
+  background:#0d0d0d;
+  border-bottom:1px solid #1e1e1e;
+  padding:10px 16px;
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  flex-shrink:0;
 }
+.filter-bar::-webkit-scrollbar { display:none; }
 
-.header .logo {
-  width: 56px; height: 56px;
-  background: var(--accent);
-  border-radius: 16px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  margin-bottom: 14px;
-  box-shadow: 0 0 40px rgba(0,255,136,0.3);
+.ftab {
+  background:#1a1a1a;
+  border:1px solid #222;
+  border-radius:20px;
+  padding:6px 14px;
+  font-family:'Cairo',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  color:#555;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:all 0.2s;
+  flex-shrink:0;
 }
+.ftab:hover { color:#aaa; border-color:#333; }
+.ftab.active { background:rgba(0,255,136,0.08); border-color:#00ff88; color:#00ff88; }
 
-.header h1 {
-  font-size: 24px;
-  font-weight: 900;
-  margin-bottom: 6px;
-  color: #fff;
-}
-
-.header p {
-  font-size: 13px;
-  color: var(--text2);
-}
-
-/* ── API KEYS ── */
-.keys-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 16px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.key-field {
-  flex: 1;
-  min-width: 140px;
-}
-
-.key-field label {
-  font-size: 10px;
-  color: var(--text2);
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 700;
-  letter-spacing: 1px;
+/* TRENDS LIST */
+.trends-list {
+  flex:1;
+  overflow-y:auto;
+  padding:12px 16px;
 }
 
-.key-field input {
-  width: 100%;
-  background: #0d0d0d;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 12px;
-  color: var(--text);
-  font-family: 'Space Mono', monospace;
-  font-size: 11px;
-  outline: none;
-  direction: ltr;
-  transition: border-color 0.2s;
+.trend-card {
+  background:#111;
+  border:1px solid #1e1e1e;
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:10px;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  position:relative;
 }
-.key-field input:focus { border-color: var(--accent); }
-.key-field input.saved { border-color: var(--accent2); }
+.trend-card:hover { border-color:#00ff88; background:#0d1a0d; transform:translateX(-2px); }
+.trend-card.used { opacity:0.4; cursor:not-allowed; }
+.trend-card.used:hover { border-color:#1e1e1e; background:#111; transform:none; }
 
-.keys-status {
-  font-size: 10px;
-  color: var(--text2);
-  white-space: nowrap;
+.tc-emoji { font-size:30px; flex-shrink:0; margin-top:2px; }
+.tc-body { flex:1; min-width:0; }
+.tc-title { font-size:14px; font-weight:700; color:#fff; margin-bottom:8px; line-height:1.4; }
+.tc-meta { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+
+.tag {
+  font-size:10px; font-weight:700;
+  padding:2px 8px; border-radius:6px;
 }
-.keys-status.ok { color: var(--accent); }
+.tag-green { background:rgba(0,255,136,0.1); color:#00ff88; }
+.tag-red { background:rgba(255,68,68,0.1); color:#ff4444; }
+.tag-gold { background:rgba(251,191,36,0.1); color:#fbbf24; }
+.tag-gray { background:#1a1a1a; color:#555; }
+.tag-blue { background:rgba(66,133,244,0.1); color:#4285f4; }
 
-/* ── CATEGORY SELECTOR ── */
-.cat-wrap {
-  margin-bottom: 16px;
+.tc-arrow {
+  font-size:18px;
+  color:#333;
+  flex-shrink:0;
+  margin-top:4px;
+  transition:all 0.2s;
 }
+.trend-card:hover .tc-arrow { color:#00ff88; transform:translateX(-4px); }
 
-.cat-label {
-  font-size: 11px;
-  color: var(--text2);
-  font-weight: 700;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
-  display: block;
-}
-
-.cat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-
-.cat-btn {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 6px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: 'Cairo', sans-serif;
-}
-
-.cat-btn:hover { border-color: #333; }
-.cat-btn.active {
-  border-color: var(--accent);
-  background: rgba(0,255,136,0.06);
+.used-badge {
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:#2a1a1a;
+  color:#ff4444;
+  font-size:10px;
+  font-weight:700;
+  padding:2px 8px;
+  border-radius:6px;
 }
 
-.cat-btn .cat-icon { font-size: 20px; display: block; margin-bottom: 4px; }
-.cat-btn .cat-name { font-size: 11px; font-weight: 700; color: var(--text2); }
-.cat-btn.active .cat-name { color: var(--accent); }
+/* SCORE BAR */
+.score-row { display:flex; align-items:center; gap:8px; margin-top:8px; }
+.score-label { font-size:10px; color:#444; width:50px; flex-shrink:0; }
+.score-track { flex:1; height:3px; background:#1a1a1a; border-radius:2px; overflow:hidden; }
+.score-fill { height:100%; border-radius:2px; }
+.score-val { font-size:10px; font-weight:700; width:28px; }
 
-/* ── BIG START BUTTON ── */
-.start-btn {
-  width: 100%;
-  padding: 18px;
-  background: var(--accent);
-  color: #000;
-  border: none;
-  border-radius: 14px;
-  font-family: 'Cairo', sans-serif;
-  font-size: 18px;
-  font-weight: 900;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 16px;
-  box-shadow: 0 4px 24px rgba(0,255,136,0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-.start-btn:hover:not(:disabled) {
-  background: #00ffaa;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0,255,136,0.4);
-}
-.start-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
+/* BOTTOM BAR */
+.bottom-bar {
+  background:#111;
+  border-top:1px solid #1e1e1e;
+  padding:12px 16px;
+  flex-shrink:0;
+  text-align:center;
+  font-size:11px;
+  color:#444;
 }
 
-/* ── PIPELINE ── */
-.pipeline {
-  display: none;
-  flex-direction: column;
-  gap: 0;
-  margin-bottom: 16px;
-}
-.pipeline.show { display: flex; }
-
-.pipe-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 14px 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  position: relative;
-}
-.pipe-step:first-child { border-radius: 14px 14px 0 0; }
-.pipe-step:last-child { border-radius: 0 0 14px 14px; }
-.pipe-step:not(:last-child) { border-bottom: none; }
-
-.pipe-step.active { background: #0d1a10; border-color: rgba(0,255,136,0.2); }
-.pipe-step.done { background: #0a120d; }
-.pipe-step.error { background: #1a0d0d; border-color: rgba(255,68,68,0.2); }
-
-.pipe-dot {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: var(--border);
-  border: 2px solid #333;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  flex-shrink: 0;
-  margin-top: 2px;
-  transition: all 0.3s;
-}
-.pipe-step.active .pipe-dot {
-  background: var(--accent);
-  border-color: var(--accent);
-  animation: dotPulse 1s infinite;
-}
-.pipe-step.done .pipe-dot {
-  background: var(--accent2);
-  border-color: var(--accent2);
-  color: #000;
-}
-.pipe-step.error .pipe-dot {
-  background: var(--red);
-  border-color: var(--red);
+/* PIPELINE SCREEN */
+.pipe-wrap {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:24px 20px;
 }
 
-@keyframes dotPulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(0,255,136,0.4); }
-  50% { box-shadow: 0 0 0 8px rgba(0,255,136,0); }
+.pipe-topic-preview {
+  background:#111;
+  border:1px solid #1e1e1e;
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:24px;
+  width:100%;
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.ptp-emoji { font-size:28px; }
+.ptp-title { font-size:13px; font-weight:700; color:#fff; line-height:1.4; }
+.ptp-cat { font-size:11px; color:#555; margin-top:3px; }
+
+.steps-list { width:100%; margin-bottom:24px; }
+
+.step-item {
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  padding:14px 16px;
+  background:#111;
+  border:1px solid #1e1e1e;
+  position:relative;
+}
+.step-item:first-child { border-radius:14px 14px 0 0; }
+.step-item:last-child { border-radius:0 0 14px 14px; }
+.step-item:not(:last-child) { border-bottom:none; }
+.step-item.active { background:#0a1a0a; border-color:rgba(0,255,136,0.2); }
+.step-item.done { background:#080d08; }
+.step-item.error { background:#1a0808; border-color:rgba(255,68,68,0.2); }
+
+.step-dot {
+  width:30px; height:30px;
+  border-radius:50%;
+  background:#1a1a1a;
+  border:2px solid #2a2a2a;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:800;
+  color:#444; flex-shrink:0;
+  transition:all 0.3s;
+}
+.step-item.active .step-dot { background:#00ff88; border-color:#00ff88; color:#000; animation:glow 1.2s infinite; }
+.step-item.done .step-dot { background:#00cc66; border-color:#00cc66; color:#000; }
+.step-item.error .step-dot { background:#ff4444; border-color:#ff4444; color:#fff; }
+@keyframes glow { 0%,100%{box-shadow:0 0 0 0 rgba(0,255,136,0.4)} 50%{box-shadow:0 0 0 8px rgba(0,255,136,0)} }
+
+.step-info { flex:1; }
+.step-title { font-size:13px; font-weight:700; color:#444; margin-bottom:3px; }
+.step-item.active .step-title { color:#00ff88; }
+.step-item.done .step-title { color:#fff; }
+.step-detail { font-size:11px; color:#333; line-height:1.6; }
+.step-item.active .step-detail { color:#888; }
+.step-item.done .step-detail { color:#00cc66; }
+.step-item.error .step-detail { color:#ff4444; }
+
+.step-bar { height:2px; background:#1a1a1a; border-radius:1px; margin-top:8px; overflow:hidden; }
+.step-bar-fill { height:100%; border-radius:1px; background:#00ff88; transition:width 0.4s; width:0%; }
+
+.step-time { font-size:10px; color:#333; flex-shrink:0; font-family:monospace; }
+.step-item.done .step-time { color:#1a4a1a; }
+
+/* RESULT SCREEN */
+.result-scroll { flex:1; overflow-y:auto; padding:16px; }
+.result-scroll::-webkit-scrollbar { width:3px; }
+.result-scroll::-webkit-scrollbar-thumb { background:#1a1a1a; border-radius:2px; }
+
+.result-hero {
+  background:linear-gradient(135deg, rgba(0,255,136,0.06), rgba(0,204,102,0.03));
+  border:1px solid rgba(0,255,136,0.15);
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:14px;
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+}
+.rh-emoji { font-size:36px; flex-shrink:0; }
+.rh-title { font-size:15px; font-weight:700; color:#fff; margin-bottom:8px; line-height:1.4; }
+.rh-tags { display:flex; gap:6px; flex-wrap:wrap; }
+
+.section-card {
+  background:#111;
+  border:1px solid #1e1e1e;
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:12px;
+}
+.section-label {
+  font-size:10px; color:#555;
+  font-weight:700; letter-spacing:1px;
+  margin-bottom:12px;
 }
 
-.pipe-info { flex: 1; }
-.pipe-title {
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 3px;
-  color: var(--text2);
-}
-.pipe-step.active .pipe-title { color: var(--accent); }
-.pipe-step.done .pipe-title { color: var(--text); }
+.quality-big { display:flex; align-items:center; gap:16px; margin-bottom:12px; }
+.q-num { font-size:48px; font-weight:900; font-family:monospace; line-height:1; }
+.q-track { flex:1; height:6px; background:#1a1a1a; border-radius:3px; overflow:hidden; }
+.q-fill { height:100%; border-radius:3px; transition:width 0.8s; }
 
-.pipe-detail {
-  font-size: 11px;
-  color: var(--text3);
-  line-height: 1.6;
-}
-.pipe-step.active .pipe-detail { color: #888; }
-.pipe-step.done .pipe-detail { color: var(--accent2); }
-.pipe-step.error .pipe-detail { color: var(--red); }
-
-.pipe-time {
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  color: var(--text3);
-  flex-shrink: 0;
-}
-.pipe-step.done .pipe-time { color: var(--accent2); }
-
-/* Progress bar in step */
-.pipe-prog {
-  height: 2px;
-  background: #1a1a1a;
-  border-radius: 1px;
-  margin-top: 8px;
-  overflow: hidden;
-}
-.pipe-prog-fill {
-  height: 100%;
-  background: var(--accent);
-  border-radius: 1px;
-  transition: width 0.4s ease;
-  width: 0%;
-}
-
-/* ── RESULT ── */
-.result-card {
-  display: none;
-  background: var(--card);
-  border: 1px solid rgba(0,255,136,0.2);
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 16px;
-}
-.result-card.show { display: block; }
-
-.result-header {
-  background: rgba(0,255,136,0.06);
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.result-emoji { font-size: 28px; }
-
-.result-title {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 4px;
-  color: #fff;
-}
-
-.result-meta {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.result-tag {
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 6px;
-}
-.rt-green { background: rgba(0,255,136,0.12); color: var(--accent); }
-.rt-purple { background: rgba(124,58,237,0.15); color: #a78bfa; }
-.rt-gold { background: rgba(251,191,36,0.12); color: var(--gold); }
-
-.result-body { padding: 16px 20px; }
-
-.result-section {
-  margin-bottom: 16px;
-}
-.result-section-title {
-  font-size: 10px;
-  color: var(--text2);
-  font-weight: 700;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
-}
-
-.quality-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 8px;
-}
-.quality-num {
-  font-family: 'Space Mono', monospace;
-  font-size: 28px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-.quality-track {
-  flex: 1;
-  height: 6px;
-  background: #1a1a1a;
-  border-radius: 3px;
-  overflow: hidden;
-}
-.quality-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.8s ease;
-}
-
-.checks { display: flex; flex-direction: column; gap: 6px; }
-.check-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-}
-.check-item .ci { font-size: 14px; }
-.check-item .cl { color: var(--text2); flex: 1; }
-.check-item .cp { font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700; }
+.check-list { display:flex; flex-direction:column; gap:8px; }
+.check-row { display:flex; align-items:center; gap:10px; font-size:12px; }
+.check-icon { font-size:14px; }
+.check-label { flex:1; color:#888; }
+.check-pts { font-family:monospace; font-size:11px; font-weight:700; }
 
 .script-preview {
-  background: #0d0d0d;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px;
-  font-size: 12px;
-  line-height: 1.9;
-  max-height: 200px;
-  overflow-y: auto;
-  color: #aaa;
-  white-space: pre-wrap;
-  direction: rtl;
+  background:#0d0d0d;
+  border:1px solid #1a1a1a;
+  border-radius:10px;
+  padding:14px;
+  font-size:12px;
+  line-height:1.9;
+  max-height:200px;
+  overflow-y:auto;
+  color:#aaa;
+  white-space:pre-wrap;
+  direction:rtl;
 }
-.script-preview::-webkit-scrollbar { width: 3px; }
-.script-preview::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+.script-preview::-webkit-scrollbar { width:3px; }
+.script-preview::-webkit-scrollbar-thumb { background:#222; border-radius:2px; }
 
-.action-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
+audio { width:100%; border-radius:8px; }
 
-.act-btn {
-  padding: 9px 16px;
-  border-radius: 9px;
-  border: 1px solid var(--border);
-  background: #0d0d0d;
-  color: var(--text2);
-  font-family: 'Cairo', sans-serif;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.img-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px; }
+.img-item {
+  border-radius:8px; overflow:hidden;
+  aspect-ratio:16/9; background:#1a1a1a;
+  position:relative;
 }
-.act-btn:hover { border-color: #444; color: var(--text); }
-.act-btn.green {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #000;
-}
-.act-btn.green:hover { background: #00ffaa; }
-
-/* ── HISTORY ── */
-.history-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  overflow: hidden;
-  margin-bottom: 16px;
-}
-
-.history-header {
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.history-title {
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.history-count {
-  font-size: 10px;
-  background: rgba(0,255,136,0.1);
-  color: var(--accent);
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-weight: 700;
-}
-
-.history-list { max-height: 320px; overflow-y: auto; }
-.history-list::-webkit-scrollbar { width: 3px; }
-.history-list::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
-
-.history-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 18px;
-  border-bottom: 1px solid var(--border);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.history-item:last-child { border-bottom: none; }
-.history-item:hover { background: rgba(255,255,255,0.02); }
-
-.hi-emoji { font-size: 20px; flex-shrink: 0; }
-.hi-info { flex: 1; min-width: 0; }
-.hi-title {
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  margin-bottom: 3px;
-}
-.hi-meta { font-size: 10px; color: var(--text2); }
-.hi-quality {
-  font-family: 'Space Mono', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.hi-actions {
-  display: flex;
-  gap: 4px;
-}
-.hi-btn {
-  background: none;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 4px 8px;
-  color: var(--text2);
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.hi-btn:hover { border-color: #444; color: var(--text); }
-.hi-btn.del:hover { border-color: var(--red); color: var(--red); }
-
-.empty-hist {
-  padding: 30px;
-  text-align: center;
-  color: var(--text3);
-  font-size: 13px;
-}
-
-/* ── IMAGES ── */
-.img-thumb {
-  border-radius: 8px;
-  overflow: hidden;
-  aspect-ratio: 16/9;
-  position: relative;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: all 0.2s;
-  background: #1a1a1a;
-}
-.img-thumb:hover { border-color: var(--accent); }
-.img-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
-.img-thumb .dl-btn {
-  position:absolute; bottom:4px; left:4px;
+.img-item img { width:100%; height:100%; object-fit:cover; }
+.img-dl {
+  position:absolute; bottom:3px; left:3px;
   background:rgba(0,0,0,0.8);
-  border:none; border-radius:6px;
-  padding:4px 8px; font-size:11px;
-  color:#fff; cursor:pointer;
-  opacity:0; transition:opacity 0.2s;
+  border:none; border-radius:5px;
+  padding:3px 7px; font-size:10px;
+  color:#fff; cursor:pointer; opacity:0;
+  transition:opacity 0.2s;
+  text-decoration:none;
 }
-.img-thumb:hover .dl-btn { opacity:1; }
-.img-thumb .src-badge {
-  position:absolute; top:4px; right:4px;
-  background:rgba(0,0,0,0.7);
-  border-radius:4px; padding:2px 5px;
-  font-size:9px; color:#aaa;
+.img-item:hover .img-dl { opacity:1; }
+
+.action-row { display:flex; gap:8px; flex-wrap:wrap; }
+.act {
+  padding:10px 16px;
+  border-radius:10px;
+  border:1px solid #2a2a2a;
+  background:#0d0d0d;
+  color:#888;
+  font-family:'Cairo',sans-serif;
+  font-size:12px; font-weight:700;
+  cursor:pointer; transition:all 0.2s;
+  display:inline-flex; align-items:center; gap:6px;
+  text-decoration:none;
 }
+.act:hover { border-color:#444; color:#fff; }
+.act.green { background:#00ff88; border-color:#00ff88; color:#000; }
+.act.green:hover { background:#00ffaa; }
 
-/* ── MODAL ── */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.9);
-  z-index: 100;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
+/* BOTTOM NAV */
+.bottom-nav {
+  background:#111;
+  border-top:1px solid #1e1e1e;
+  padding:12px 16px;
+  flex-shrink:0;
 }
-.modal-overlay.show { display: flex; }
-
-.modal {
-  background: var(--card);
-  border: 1px solid #333;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 560px;
-  max-height: 90vh;
-  overflow-y: auto;
+.main-btn {
+  width:100%;
+  padding:15px;
+  background:#00ff88;
+  color:#000;
+  border:none;
+  border-radius:12px;
+  font-family:'Cairo',sans-serif;
+  font-size:16px;
+  font-weight:900;
+  cursor:pointer;
+  transition:all 0.2s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
 }
-.modal::-webkit-scrollbar { width: 3px; }
-.modal::-webkit-scrollbar-thumb { background: #333; }
+.main-btn:hover { background:#00ffaa; transform:translateY(-1px); }
+.main-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+.main-btn.gray { background:#1a1a1a; color:#888; border:1px solid #2a2a2a; }
+.main-btn.gray:hover { background:#222; color:#fff; transform:none; }
 
-.modal-head {
-  padding: 18px 20px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  position: sticky;
-  top: 0;
-  background: var(--card);
-  z-index: 1;
-}
+/* SPINNER */
+.spin { width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:sp 0.7s linear infinite; }
+@keyframes sp{to{transform:rotate(360deg)}}
 
-.modal-ttl { font-size: 14px; font-weight: 700; line-height: 1.4; }
-.modal-sub { font-size: 11px; color: var(--text2); margin-top: 4px; }
-
-.modal-close {
-  background: #1a1a1a;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 6px 12px;
-  color: var(--text2);
-  cursor: pointer;
-  font-size: 12px;
-  flex-shrink: 0;
-}
-
-.modal-body { padding: 18px 20px; }
-
-.modal-script {
-  background: #0d0d0d;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px;
-  font-size: 12px;
-  line-height: 1.9;
-  max-height: 300px;
-  overflow-y: auto;
-  color: #aaa;
-  white-space: pre-wrap;
-  direction: rtl;
-  margin-bottom: 14px;
-}
-
-/* ── VIDEO STEPS ── */
-.video-step {
-  display: flex;
-  gap: 14px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border);
-}
-.video-step:last-child { border-bottom: none; }
-
-.vs-num {
-  width: 28px; height: 28px;
-  border-radius: 50%;
-  background: #1a1a1a;
-  border: 2px solid #333;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 800;
-  flex-shrink: 0; color: #666;
-}
-
-.vs-body { flex: 1; }
-.vs-title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
-.vs-desc { font-size: 11px; color: var(--text2); margin-bottom: 8px; }
-
-.vs-links { display: flex; gap: 6px; flex-wrap: wrap; }
-.vs-link {
-  font-size: 11px; font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 7px;
-  background: rgba(0,255,136,0.06);
-  border: 1px solid rgba(0,255,136,0.15);
-  color: var(--accent);
-  text-decoration: none;
-  transition: all 0.2s;
-  display: inline-flex; align-items: center; gap: 4px;
-}
-.vs-link:hover { background: rgba(0,255,136,0.12); }
+/* TOAST */
 .toast {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%) translateY(60px);
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 10px;
-  padding: 10px 18px;
-  font-size: 13px;
-  z-index: 999;
-  opacity: 0;
-  transition: all 0.3s;
-  white-space: nowrap;
+  position:fixed; bottom:80px; left:50%;
+  transform:translateX(-50%) translateY(40px);
+  background:#1a1a1a; border:1px solid #333;
+  border-radius:10px; padding:10px 18px;
+  font-size:13px; z-index:999; opacity:0;
+  transition:all 0.3s; white-space:nowrap; pointer-events:none;
 }
-.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
 
-/* Spinner */
-.spin {
-  width: 14px; height: 14px;
-  border: 2px solid rgba(0,0,0,0.3);
-  border-top-color: #000;
-  border-radius: 50%;
-  animation: sp 0.7s linear infinite;
-  flex-shrink: 0;
+/* Settings drawer */
+.settings-btn {
+  background:#1a1a1a; border:1px solid #2a2a2a;
+  border-radius:8px; padding:7px 12px;
+  color:#888; font-family:'Cairo',sans-serif;
+  font-size:12px; font-weight:700;
+  cursor:pointer; transition:all 0.2s;
 }
-@keyframes sp { to { transform: rotate(360deg); } }
+.settings-btn:hover { border-color:#444; color:#fff; }
 
-@media(max-width:400px) {
-  .cat-grid { grid-template-columns: repeat(3,1fr); }
-  .header h1 { font-size: 20px; }
+.settings-panel {
+  display:none;
+  background:#111;
+  border-bottom:1px solid #1e1e1e;
+  padding:16px;
+  flex-shrink:0;
 }
+.settings-panel.open { display:block; }
+
+.settings-row { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-bottom:12px; }
+.settings-row:last-child { margin-bottom:0; }
+.sf { flex:1; min-width:120px; }
+.sf label { font-size:10px; color:#555; display:block; margin-bottom:5px; font-weight:700; letter-spacing:1px; }
+.sf input, .sf select {
+  width:100%; background:#0d0d0d;
+  border:1px solid #2a2a2a; border-radius:8px;
+  padding:8px 12px; color:#fff;
+  font-family:'Cairo',sans-serif; font-size:12px; outline:none;
+  transition:border-color 0.2s;
+}
+.sf input { direction:ltr; font-family:monospace; font-size:11px; }
+.sf input:focus, .sf select:focus { border-color:#00ff88; }
+
+.len-grid { display:flex; gap:8px; }
+.len-btn {
+  flex:1; padding:8px; text-align:center;
+  background:#0d0d0d; border:1px solid #2a2a2a;
+  border-radius:8px; cursor:pointer; transition:all 0.2s;
+  font-family:'Cairo',sans-serif;
+}
+.len-btn:hover { border-color:#333; }
+.len-btn.active { border-color:#00ff88; background:rgba(0,255,136,0.06); }
+.len-btn .lb-icon { font-size:16px; display:block; margin-bottom:3px; }
+.len-btn .lb-title { font-size:11px; font-weight:700; color:#888; }
+.len-btn.active .lb-title { color:#00ff88; }
+.len-btn .lb-time { font-size:10px; color:#444; }
+.len-btn.active .lb-time { color:#00cc66; }
+
+.voice-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.voice-btn {
+  padding:10px 12px;
+  background:#0d0d0d; border:1px solid #2a2a2a;
+  border-radius:8px; cursor:pointer; transition:all 0.2s;
+  display:flex; align-items:center; gap:8px;
+  font-family:'Cairo',sans-serif;
+}
+.voice-btn:hover { border-color:#333; }
+.voice-btn.active { border-color:#00ff88; background:rgba(0,255,136,0.06); }
+.voice-btn .vi { font-size:18px; }
+.voice-btn .vn { font-size:12px; font-weight:700; color:#888; }
+.voice-btn.active .vn { color:#00ff88; }
+.voice-btn .vd { font-size:10px; color:#444; }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="logo">🤖</div>
-    <h1>AutoContent</h1>
-    <p>اضغط زر واحد — الباقي تلقائي بالكامل</p>
-  </div>
+<!-- ══ SCREEN 1: TRENDS ══ -->
+<div class="screen active" id="screen-trends">
 
-  <!-- API KEYS -->
-  <div class="keys-card">
-    <div class="key-field">
-      <label>CLAUDE API KEY</label>
-      <input type="password" id="claudeKey" placeholder="sk-ant-..." oninput="saveKeys()" />
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">🔥 AutoContent</div>
+      <div class="topbar-sub">اختر موضوع للبدء</div>
     </div>
-    <div class="key-field">
-      <label>ELEVENLABS KEY</label>
-      <input type="password" id="elevenKey" placeholder="sk_..." oninput="saveKeys()" />
-    </div>
-    <div class="keys-status" id="keysStatus">⚪ أضف المفاتيح</div>
-  </div>
-
-  <!-- CATEGORY -->
-  <span class="cat-label">اختر نوع المحتوى</span>
-  <div class="cat-grid">
-    <div class="cat-btn active" data-cat="crime" onclick="selectCat(this)">
-      <span class="cat-icon">🔪</span>
-      <span class="cat-name">جرائم</span>
-    </div>
-    <div class="cat-btn" data-cat="tech" onclick="selectCat(this)">
-      <span class="cat-icon">💻</span>
-      <span class="cat-name">تقنية</span>
-    </div>
-    <div class="cat-btn" data-cat="mystery" onclick="selectCat(this)">
-      <span class="cat-icon">🕵️</span>
-      <span class="cat-name">ألغاز</span>
-    </div>
-    <div class="cat-btn" data-cat="finance" onclick="selectCat(this)">
-      <span class="cat-icon">💰</span>
-      <span class="cat-name">مال</span>
-    </div>
-    <div class="cat-btn" data-cat="science" onclick="selectCat(this)">
-      <span class="cat-icon">🔬</span>
-      <span class="cat-name">علوم</span>
-    </div>
-    <div class="cat-btn" data-cat="history" onclick="selectCat(this)">
-      <span class="cat-icon">📜</span>
-      <span class="cat-name">تاريخ</span>
-    </div>
-    <div class="cat-btn" data-cat="motivation" onclick="selectCat(this)">
-      <span class="cat-icon">🚀</span>
-      <span class="cat-name">تحفيز</span>
-    </div>
-    <div class="cat-btn" data-cat="any" onclick="selectCat(this)">
-      <span class="cat-icon">🎲</span>
-      <span class="cat-name">عشوائي</span>
+    <div class="topbar-right">
+      <button class="settings-btn" onclick="toggleSettings()">⚙️ الإعدادات</button>
     </div>
   </div>
 
-  <!-- VOICE SELECTOR -->
-  <span class="cat-label" style="margin-top:4px;">اختر الصوت</span>
-  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;" id="voiceGrid">
-    <div class="cat-btn active" data-vid="pNInz6obpgDQGcFmaJgB" onclick="selVoice(this)" style="display:flex;align-items:center;gap:10px;padding:12px 14px;text-align:right;">
-      <span style="font-size:22px;">🎙️</span>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--accent);">Adam</div>
-        <div style="font-size:10px;color:var(--text2);">رجالي — قوي ودرامي</div>
+  <!-- Settings Panel -->
+  <div class="settings-panel" id="settingsPanel">
+    <div class="settings-row">
+      <div class="sf">
+        <label>CLAUDE API KEY</label>
+        <input type="password" id="claudeKey" placeholder="sk-ant-..." oninput="saveKeys()" />
+      </div>
+      <div class="sf">
+        <label>ELEVENLABS KEY</label>
+        <input type="password" id="elevenKey" placeholder="sk_..." oninput="saveKeys()" />
       </div>
     </div>
-    <div class="cat-btn" data-vid="EXAVITQu4vr4xnSDxMaL" onclick="selVoice(this)" style="display:flex;align-items:center;gap:10px;padding:12px 14px;text-align:right;">
-      <span style="font-size:22px;">🎤</span>
-      <div>
-        <div style="font-size:12px;font-weight:700;">Sarah</div>
-        <div style="font-size:10px;color:var(--text2);">نسائي — واضح وناعم</div>
+
+    <div style="margin-bottom:10px;">
+      <div style="font-size:10px;color:#555;font-weight:700;letter-spacing:1px;margin-bottom:8px;">طول السكريبت</div>
+      <div class="len-grid">
+        <div class="len-btn" data-len="short" onclick="selLen(this)">
+          <span class="lb-icon">⚡</span>
+          <span class="lb-title">قصير</span>
+          <span class="lb-time">~10 ث</span>
+        </div>
+        <div class="len-btn active" data-len="medium" onclick="selLen(this)">
+          <span class="lb-icon">⚖️</span>
+          <span class="lb-title">متوسط</span>
+          <span class="lb-time">~20 ث</span>
+        </div>
+        <div class="len-btn" data-len="long" onclick="selLen(this)">
+          <span class="lb-icon">📜</span>
+          <span class="lb-title">طويل</span>
+          <span class="lb-time">~45 ث</span>
+        </div>
       </div>
     </div>
-    <div class="cat-btn" data-vid="ErXwobaYiN019PkySvjV" onclick="selVoice(this)" style="display:flex;align-items:center;gap:10px;padding:12px 14px;text-align:right;">
-      <span style="font-size:22px;">🎧</span>
-      <div>
-        <div style="font-size:12px;font-weight:700;">Antoni</div>
-        <div style="font-size:10px;color:var(--text2);">رجالي — هادئ ومهني</div>
-      </div>
-    </div>
-    <div class="cat-btn" data-vid="AZnzlk1XvdvUeBnXmlld" onclick="selVoice(this)" style="display:flex;align-items:center;gap:10px;padding:12px 14px;text-align:right;">
-      <span style="font-size:22px;">🌸</span>
-      <div>
-        <div style="font-size:12px;font-weight:700;">Domi</div>
-        <div style="font-size:10px;color:var(--text2);">نسائي — دافئ وطبيعي</div>
+
+    <div>
+      <div style="font-size:10px;color:#555;font-weight:700;letter-spacing:1px;margin-bottom:8px;">الصوت</div>
+      <div class="voice-grid">
+        <div class="voice-btn active" data-vid="pNInz6obpgDQGcFmaJgB" onclick="selVoice(this)">
+          <span class="vi">🎙️</span><div><div class="vn">Adam</div><div class="vd">رجالي درامي</div></div>
+        </div>
+        <div class="voice-btn" data-vid="EXAVITQu4vr4xnSDxMaL" onclick="selVoice(this)">
+          <span class="vi">🎤</span><div><div class="vn">Sarah</div><div class="vd">نسائي ناعم</div></div>
+        </div>
+        <div class="voice-btn" data-vid="ErXwobaYiN019PkySvjV" onclick="selVoice(this)">
+          <span class="vi">🎧</span><div><div class="vn">Antoni</div><div class="vd">رجالي مهني</div></div>
+        </div>
+        <div class="voice-btn" data-vid="AZnzlk1XvdvUeBnXmlld" onclick="selVoice(this)">
+          <span class="vi">🌸</span><div><div class="vn">Domi</div><div class="vd">نسائي طبيعي</div></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- BIG BUTTON -->
-  <button class="start-btn" id="startBtn" onclick="startPipeline()">
-    <span id="startBtnIcon">⚡</span>
-    <span id="startBtnText">ابدأ الإنتاج التلقائي</span>
-  </button>
-
-  <!-- PIPELINE -->
-  <div class="pipeline" id="pipeline">
-
-    <div class="pipe-step" id="ps-topic">
-      <div class="pipe-dot" id="pd-topic">1</div>
-      <div class="pipe-info">
-        <div class="pipe-title">اختيار الموضوع</div>
-        <div class="pipe-detail" id="pd-topic-detail">Claude يختار أفضل موضوع غير مكرر...</div>
-        <div class="pipe-prog"><div class="pipe-prog-fill" id="pp-topic"></div></div>
-      </div>
-      <div class="pipe-time" id="pt-topic"></div>
-    </div>
-
-    <div class="pipe-step" id="ps-script">
-      <div class="pipe-dot" id="pd-script">2</div>
-      <div class="pipe-info">
-        <div class="pipe-title">كتابة السكريبت</div>
-        <div class="pipe-detail" id="pd-script-detail">في الانتظار...</div>
-        <div class="pipe-prog"><div class="pipe-prog-fill" id="pp-script"></div></div>
-      </div>
-      <div class="pipe-time" id="pt-script"></div>
-    </div>
-
-    <div class="pipe-step" id="ps-quality">
-      <div class="pipe-dot" id="pd-quality">3</div>
-      <div class="pipe-info">
-        <div class="pipe-title">فحص الجودة</div>
-        <div class="pipe-detail" id="pd-quality-detail">في الانتظار...</div>
-        <div class="pipe-prog"><div class="pipe-prog-fill" id="pp-quality"></div></div>
-      </div>
-      <div class="pipe-time" id="pt-quality"></div>
-    </div>
-
-    <div class="pipe-step" id="ps-voice">
-      <div class="pipe-dot" id="pd-voice">4</div>
-      <div class="pipe-info">
-        <div class="pipe-title">توليد الصوت</div>
-        <div class="pipe-detail" id="pd-voice-detail">في الانتظار...</div>
-        <div class="pipe-prog"><div class="pipe-prog-fill" id="pp-voice"></div></div>
-      </div>
-      <div class="pipe-time" id="pt-voice"></div>
-    </div>
-
-    <div class="pipe-step" id="ps-save">
-      <div class="pipe-dot" id="pd-save">5</div>
-      <div class="pipe-info">
-        <div class="pipe-title">الحفظ في قاعدة البيانات</div>
-        <div class="pipe-detail" id="pd-save-detail">في الانتظار...</div>
-        <div class="pipe-prog"><div class="pipe-prog-fill" id="pp-save"></div></div>
-      </div>
-      <div class="pipe-time" id="pt-save"></div>
-    </div>
-
+  <!-- Filter tabs -->
+  <div class="filter-bar">
+    <button class="ftab active" data-cat="all" onclick="filterTrends('all',this)">🔥 الكل</button>
+    <button class="ftab" data-cat="crime" onclick="filterTrends('crime',this)">🔪 جرائم</button>
+    <button class="ftab" data-cat="tech" onclick="filterTrends('tech',this)">💻 تقنية</button>
+    <button class="ftab" data-cat="mystery" onclick="filterTrends('mystery',this)">🕵️ ألغاز</button>
+    <button class="ftab" data-cat="finance" onclick="filterTrends('finance',this)">💰 مال</button>
+    <button class="ftab" data-cat="science" onclick="filterTrends('science',this)">🔬 علوم</button>
+    <button class="ftab" data-cat="history" onclick="filterTrends('history',this)">📜 تاريخ</button>
+    <button class="ftab" data-cat="motivation" onclick="filterTrends('motivation',this)">🚀 تحفيز</button>
   </div>
 
-  <!-- RESULT -->
-  <div class="result-card" id="resultCard">
-    <div class="result-header">
-      <div class="result-emoji" id="r-emoji">🎬</div>
-      <div>
-        <div class="result-title" id="r-title"></div>
-        <div class="result-meta">
-          <span class="result-tag rt-green" id="r-words"></span>
-          <span class="result-tag rt-purple" id="r-cat"></span>
-          <span class="result-tag rt-gold" id="r-quality-tag"></span>
-        </div>
-      </div>
-    </div>
-    <div class="result-body">
+  <!-- Trends list -->
+  <div class="trends-list" id="trendsList"></div>
 
-      <div class="result-section">
-        <div class="result-section-title">QUALITY SCORE</div>
-        <div class="quality-row">
-          <div class="quality-num" id="r-qnum"></div>
-          <div class="quality-track">
-            <div class="quality-fill" id="r-qbar"></div>
-          </div>
-        </div>
-        <div class="checks" id="r-checks"></div>
-      </div>
-
-      <div class="result-section">
-        <div class="result-section-title">SCRIPT PREVIEW</div>
-        <div class="script-preview" id="r-script"></div>
-      </div>
-
-      <div id="r-audio-section" style="display:none;margin-bottom:14px;">
-        <div class="result-section-title">AUDIO</div>
-        <audio id="r-audio" controls style="width:100%;border-radius:8px;"></audio>
-      </div>
-
-      <!-- IMAGES SECTION -->
-      <div class="result-section" id="r-images-section" style="display:none;">
-        <div class="result-section-title">📸 صور مقترحة للفيديو</div>
-        <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">اضغط على الصورة لتحميلها — كلها مجانية ✅</div>
-        <div id="imagesGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button class="act-btn" onclick="loadMoreImages()">🔄 صور أخرى</button>
-          <a class="act-btn" id="pexelsLink" href="#" target="_blank">🔍 المزيد على Pexels</a>
-        </div>
-      </div>
-
-      <div class="result-section">
-        <div class="result-section-title">ACTIONS</div>
-        <div class="action-row">
-          <button class="act-btn" onclick="copyScript()">📋 نسخ السكريبت</button>
-          <button class="act-btn" onclick="dlScript()">📥 تحميل</button>
-          <a class="act-btn" id="dlAudio" href="#" download="audio.mp3" style="display:none;">🎙️ تحميل الصوت</a>
-          <button class="act-btn green" onclick="startPipeline()">⚡ محتوى جديد</button>
-        </div>
-      </div>
-
-      <!-- VIDEO PRODUCTION GUIDE -->
-      <div class="result-section" id="videoGuide" style="display:none;">
-        <div class="result-section-title">🎬 خطوات إنشاء الفيديو</div>
-
-        <!-- Step 1: Images -->
-        <div class="video-step">
-          <div class="vs-num">1</div>
-          <div class="vs-body">
-            <div class="vs-title">ابحث عن صور مناسبة</div>
-            <div class="vs-desc">صور عالية الجودة مجانية للاستخدام التجاري</div>
-            <div class="vs-links">
-              <a class="vs-link" id="link-google" href="#" target="_blank">🔍 Google Images</a>
-              <a class="vs-link" href="https://www.pexels.com" target="_blank">📸 Pexels مجاني</a>
-              <a class="vs-link" href="https://unsplash.com" target="_blank">🖼️ Unsplash مجاني</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 2: CapCut -->
-        <div class="video-step">
-          <div class="vs-num">2</div>
-          <div class="vs-body">
-            <div class="vs-title">افتح CapCut وابدأ الفيديو</div>
-            <div class="vs-desc">أضف الصور + الصوت + موسيقى خلفية</div>
-            <div class="vs-links">
-              <a class="vs-link" href="https://www.capcut.com" target="_blank">✂️ CapCut</a>
-              <a class="vs-link" href="https://studio.youtube.com/channel/music" target="_blank">🎵 موسيقى مجانية</a>
-            </div>
-            <div style="background:#0d0d0d;border-radius:8px;padding:10px;margin-top:8px;font-size:11px;color:#888;line-height:1.8;">
-              1. افتح CapCut ← مشروع جديد ← 16:9<br>
-              2. أضف الصوت الذي حملته<br>
-              3. أضف الصور بالترتيب<br>
-              4. أضف موسيقى خلفية هادئة<br>
-              5. صدّر بجودة 1080p
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 3: Thumbnail -->
-        <div class="video-step">
-          <div class="vs-num">3</div>
-          <div class="vs-body">
-            <div class="vs-title">صمم ثامبنيل جذاب</div>
-            <div class="vs-desc">الثامبنيل = 70% من قرار المشاهدة</div>
-            <div class="vs-links">
-              <a class="vs-link" href="https://canva.com" target="_blank">🎨 Canva مجاني</a>
-            </div>
-            <div style="background:#0d0d0d;border-radius:8px;padding:10px;margin-top:8px;font-size:11px;color:#888;line-height:1.8;">
-              ✅ صورة مثيرة في الخلفية<br>
-              ✅ نص كبير وجريء باللون الأصفر أو الأحمر<br>
-              ✅ وجه مصدوم أو سؤال<br>
-              ✅ حجم 1280×720 بكسل
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 4: Upload -->
-        <div class="video-step">
-          <div class="vs-num" style="background:var(--accent);color:#000;">4</div>
-          <div class="vs-body">
-            <div class="vs-title" style="color:var(--accent);">ارفع على يوتيوب ✅</div>
-            <div class="vs-desc">أفضل وقت: 7-10 مساءً بتوقيت السعودية</div>
-            <div class="vs-links">
-              <a class="vs-link" href="https://youtube.com/upload" target="_blank" style="background:rgba(255,0,0,0.15);color:#ff4444;border-color:rgba(255,0,0,0.2);">📤 رفع على يوتيوب</a>
-            </div>
-            <div style="background:#0d0d0d;border-radius:8px;padding:10px;margin-top:8px;">
-              <div style="font-size:10px;color:#888;margin-bottom:6px;">العنوان المقترح:</div>
-              <div style="font-size:12px;color:#ccc;font-weight:600;" id="suggestedTitle"></div>
-              <button onclick="copyTitle()" style="margin-top:6px;background:none;border:1px solid #333;border-radius:6px;padding:4px 10px;color:#888;font-size:11px;cursor:pointer;font-family:Cairo,sans-serif;">📋 نسخ العنوان</button>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-    </div>
-  </div>
-
-  <!-- HISTORY -->
-  <div class="history-card">
-    <div class="history-header">
-      <div class="history-title">📚 المحتوى السابق</div>
-      <div class="history-count" id="histCount">0</div>
-    </div>
-    <div class="history-list" id="histList">
-      <div class="empty-hist">لا يوجد محتوى بعد — اضغط ابدأ!</div>
-    </div>
-  </div>
-
+  <div class="bottom-bar" id="dbCount">📚 المحتوى المنتج: 0 فيديو</div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-  <div class="modal">
-    <div class="modal-head">
-      <div>
-        <div class="modal-ttl" id="modal-ttl"></div>
-        <div class="modal-sub" id="modal-sub"></div>
-      </div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+<!-- ══ SCREEN 2: PIPELINE ══ -->
+<div class="screen" id="screen-pipeline">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">⚡ جاري الإنتاج</div>
+      <div class="topbar-sub" id="pipe-subtitle">يتم معالجة المحتوى...</div>
     </div>
-    <div class="modal-body">
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;" id="modal-tags-wrap"></div>
-      <div class="result-section-title" style="margin-bottom:8px;">SCRIPT</div>
-      <div class="modal-script" id="modal-script"></div>
-      <div id="modal-audio-wrap" style="display:none;margin-bottom:12px;">
-        <audio id="modal-audio" controls style="width:100%;border-radius:8px;"></audio>
+    <button onclick="goBack()" style="background:none;border:1px solid #2a2a2a;border-radius:8px;padding:6px 12px;color:#666;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;">✕ إلغاء</button>
+  </div>
+
+  <div class="pipe-wrap">
+    <div class="pipe-topic-preview" id="pipeTopicPreview">
+      <div class="ptp-emoji" id="pipe-emoji">🎬</div>
+      <div>
+        <div class="ptp-title" id="pipe-title">—</div>
+        <div class="ptp-cat" id="pipe-cat">—</div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="act-btn" onclick="copyModalScript()">📋 نسخ</button>
-        <button class="act-btn" onclick="dlModalScript()">📥 تحميل</button>
-        <button class="act-btn green" onclick="useForVoice()">🎙️ توليد صوت</button>
+    </div>
+
+    <div class="steps-list">
+      <div class="step-item" id="si-script">
+        <div class="step-dot" id="sd-script">1</div>
+        <div class="step-info">
+          <div class="step-title">كتابة السكريبت</div>
+          <div class="step-detail" id="dd-script">في الانتظار...</div>
+          <div class="step-bar"><div class="step-bar-fill" id="sb-script"></div></div>
+        </div>
+        <div class="step-time" id="st-script"></div>
+      </div>
+      <div class="step-item" id="si-quality">
+        <div class="step-dot" id="sd-quality">2</div>
+        <div class="step-info">
+          <div class="step-title">فحص الجودة</div>
+          <div class="step-detail" id="dd-quality">في الانتظار...</div>
+          <div class="step-bar"><div class="step-bar-fill" id="sb-quality"></div></div>
+        </div>
+        <div class="step-time" id="st-quality"></div>
+      </div>
+      <div class="step-item" id="si-voice">
+        <div class="step-dot" id="sd-voice">3</div>
+        <div class="step-info">
+          <div class="step-title">توليد الصوت</div>
+          <div class="step-detail" id="dd-voice">في الانتظار...</div>
+          <div class="step-bar"><div class="step-bar-fill" id="sb-voice"></div></div>
+        </div>
+        <div class="step-time" id="st-voice"></div>
+      </div>
+      <div class="step-item" id="si-save">
+        <div class="step-dot" id="sd-save">4</div>
+        <div class="step-info">
+          <div class="step-title">الحفظ</div>
+          <div class="step-detail" id="dd-save">في الانتظار...</div>
+          <div class="step-bar"><div class="step-bar-fill" id="sb-save"></div></div>
+        </div>
+        <div class="step-time" id="st-save"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
+<!-- ══ SCREEN 3: RESULT ══ -->
+<div class="screen" id="screen-result">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">🎉 المحتوى جاهز!</div>
+      <div class="topbar-sub">راجع وحمّل</div>
+    </div>
+    <button onclick="goBack()" style="background:none;border:1px solid #2a2a2a;border-radius:8px;padding:6px 12px;color:#666;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;">← رجوع</button>
+  </div>
+
+  <div class="result-scroll">
+
+    <div class="result-hero">
+      <div class="rh-emoji" id="r-emoji">🎬</div>
+      <div>
+        <div class="rh-title" id="r-title"></div>
+        <div class="rh-tags" id="r-tags"></div>
+      </div>
+    </div>
+
+    <!-- Quality -->
+    <div class="section-card">
+      <div class="section-label">QUALITY SCORE</div>
+      <div class="quality-big">
+        <div class="q-num" id="r-qnum"></div>
+        <div class="q-track"><div class="q-fill" id="r-qfill"></div></div>
+      </div>
+      <div class="check-list" id="r-checks"></div>
+    </div>
+
+    <!-- Script -->
+    <div class="section-card">
+      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>SCRIPT</span>
+        <div style="display:flex;gap:6px;">
+          <button class="act" onclick="copyScript()" style="padding:5px 10px;font-size:11px;">📋 نسخ</button>
+          <button class="act" onclick="dlScript()" style="padding:5px 10px;font-size:11px;">📥 تحميل</button>
+        </div>
+      </div>
+      <div class="script-preview" id="r-script"></div>
+      <div style="font-size:11px;color:#444;margin-top:8px;" id="r-stats"></div>
+    </div>
+
+    <!-- Audio -->
+    <div class="section-card" id="r-audio-card" style="display:none;">
+      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>AUDIO</span>
+        <a class="act" id="r-dl-audio" href="#" download="audio.mp3" style="padding:5px 10px;font-size:11px;">📥 تحميل</a>
+      </div>
+      <audio id="r-audio" controls></audio>
+    </div>
+
+    <!-- Images -->
+    <div class="section-card" id="r-img-card" style="display:none;">
+      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center;">
+        <span>📸 صور مقترحة</span>
+        <button class="act" onclick="loadMoreImgs()" style="padding:5px 10px;font-size:11px;">🔄 المزيد</button>
+      </div>
+      <div class="img-grid" id="r-img-grid"></div>
+    </div>
+
+    <!-- Next steps -->
+    <div class="section-card">
+      <div class="section-label">NEXT STEPS</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <a href="https://www.capcut.com" target="_blank" class="act" style="justify-content:flex-start;">✂️ افتح CapCut للمونتاج</a>
+        <a href="https://canva.com" target="_blank" class="act" style="justify-content:flex-start;">🎨 صمم ثامبنيل في Canva</a>
+        <a href="https://youtube.com/upload" target="_blank" class="act" style="justify-content:flex-start;">📤 ارفع على يوتيوب</a>
+      </div>
+      <div style="background:#0d0d0d;border-radius:8px;padding:10px;margin-top:10px;font-size:11px;color:#555;line-height:2;">
+        ⏰ أفضل وقت للنشر: <b style="color:#00ff88;">7 - 10 مساءً</b> بتوقيت السعودية
+      </div>
+    </div>
+
+    <div style="height:80px;"></div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="main-btn green" onclick="goBack()">⚡ إنتاج محتوى جديد</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// ══ STATE ══
-let DB = JSON.parse(localStorage.getItem('acai_db') || '[]');
-let selectedCat = 'crime';
-let selectedVoiceId = 'pNInz6obpgDQGcFmaJgB'; // Adam default
+// ══ DATA ══
+let DB = JSON.parse(localStorage.getItem('acai_v4') || '[]');
+let selectedVoiceId = 'pNInz6obpgDQGcFmaJgB';
+let selectedLen = 'medium';
+let currentCat = 'all';
 let currentScript = '';
 let currentTopic = null;
-let currentQuality = 0;
 let currentAudioUrl = null;
-let viewingItem = null;
-let isRunning = false;
+let imgPage = 1;
+let imgQuery = '';
+let busy = false;
 
-const CAT_EMOJIS = {
-  crime:'🔪', tech:'💻', mystery:'🕵️', finance:'💰',
-  science:'🔬', history:'📜', motivation:'🚀', any:'🎲'
+const LEN = {
+  short:  {words:'200-350', mins:'3-4',  tokens:500},
+  medium: {words:'500-650', mins:'5-7',  tokens:900},
+  long:   {words:'900-1100',mins:'8-10', tokens:1500},
 };
 
-const CAT_NAMES = {
-  crime:'جرائم', tech:'تقنية', mystery:'ألغاز', finance:'مال',
-  science:'علوم', history:'تاريخ', motivation:'تحفيز', any:'عشوائي'
+const CAT_NAMES = {crime:'جرائم',tech:'تقنية',mystery:'ألغاز',finance:'مال',science:'علوم',history:'تاريخ',motivation:'تحفيز'};
+
+const TOPICS = {
+  crime:[
+    {emoji:'🔪',title:'تيد باندي — المجرم الذي خدع الجميع بوجهه البريء',kw:'جرائم حقيقية,قاتل متسلسل',score:92},
+    {emoji:'☠️',title:'جاك السفاح — أكبر لغز جنائي لم يُحل حتى اليوم',kw:'جرائم تاريخية,لندن',score:88},
+    {emoji:'💀',title:'جيفري داهمر — الوحش الذي كان يعيش بيننا',kw:'داهمر,قاتل متسلسل',score:95},
+    {emoji:'🕵️',title:'الاحتيال الإلكتروني — كيف يسرقون مليار دولار من المنزل',kw:'احتيال,جرائم مالية',score:87},
+    {emoji:'🔫',title:'مافيا الصقلية — أخطر منظمة إجرامية في التاريخ',kw:'مافيا,جريمة منظمة',score:84},
+    {emoji:'🏦',title:'سطو القرن — أكبر عملية سرقة بنك في التاريخ',kw:'سطو,بنك,سرقة',score:90},
+    {emoji:'👻',title:'القاتل الصامت — 10 سنوات يقتل ولا أحد يعلم',kw:'قاتل,جريمة',score:86},
+    {emoji:'🧪',title:'جرائم التسميم — أغرب قضايا القتل في التاريخ',kw:'تسميم,جريمة,غريب',score:82},
+  ],
+  tech:[
+    {emoji:'🤖',title:'الذكاء الاصطناعي يستبدل 300 مليون وظيفة — من ينجو؟',kw:'ذكاء اصطناعي,وظائف',score:98},
+    {emoji:'📱',title:'هاتفك يتجسس عليك — الحقيقة الصادمة',kw:'خصوصية,هاتف,تجسس',score:91},
+    {emoji:'🔐',title:'أقوى هجوم إلكتروني في التاريخ — اخترقوا حكومات',kw:'هاكر,أمن إلكتروني',score:89},
+    {emoji:'🌐',title:'الإنترنت المظلم — ما الذي يحدث هناك فعلاً؟',kw:'dark web,إنترنت مظلم',score:86},
+    {emoji:'🚀',title:'SpaceX — كيف غيّر ماسك مستقبل الفضاء للأبد',kw:'spacex,فضاء,ماسك',score:88},
+    {emoji:'⚡',title:'ChatGPT vs Claude — أيهما أذكى في 2026؟',kw:'chatgpt,claude,ذكاء اصطناعي',score:94},
+  ],
+  mystery:[
+    {emoji:'🌊',title:'مادلين ماكان — اللغز الذي حير العالم 19 سنة',kw:'اختفاء,لغز',score:91},
+    {emoji:'👽',title:'منطقة 51 — ماذا تخفي أمريكا عن الكائنات الفضائية؟',kw:'منطقة 51,مؤامرة',score:86},
+    {emoji:'🔺',title:'مثلث برمودا — الحقيقة التي لا يريدونك أن تعرفها',kw:'برمودا,لغز,اختفاء',score:84},
+    {emoji:'🗿',title:'أسرار الأهرامات التي حيرت العلماء لآلاف السنين',kw:'أهرامات,لغز,مصر',score:89},
+    {emoji:'👁️',title:'الماسونية — الحقيقة الكاملة عن الجمعية السرية',kw:'ماسونية,سرية,مؤامرة',score:82},
+  ],
+  finance:[
+    {emoji:'💰',title:'كيف ربح شاب 23 سنة مليون دولار من يوتيوب؟',kw:'ربح,يوتيوب,نجاح',score:96},
+    {emoji:'📈',title:'Bitcoin 2026 — هل يصل لـ 200,000 دولار؟',kw:'بيتكوين,استثمار',score:93},
+    {emoji:'💎',title:'5 عادات الأثرياء التي لا يعلمها الفقراء',kw:'ثروة,عادات,نجاح مالي',score:90},
+    {emoji:'🏦',title:'كيف تصنع أول 100,000 دولار من الصفر',kw:'استثمار,مال,بداية',score:88},
+    {emoji:'📉',title:'انهيار 2008 — كيف خسر الملايين كل شيء في يوم',kw:'أزمة مالية,2008',score:85},
+  ],
+  science:[
+    {emoji:'🧬',title:'العلماء اكتشفوا كيف يوقفون الشيخوخة — التفاصيل',kw:'علوم,طب,شيخوخة',score:90},
+    {emoji:'🌍',title:'الاحترار العالمي — 10 سنوات قبل الكارثة',kw:'تغير مناخي,بيئة',score:87},
+    {emoji:'🧠',title:'90% من الدماغ لا نستخدمه — حقيقة أم خرافة؟',kw:'دماغ,علم,حقائق',score:85},
+    {emoji:'🔭',title:'ثقب أسود يبتلع مجرة كاملة — ماذا حدث؟',kw:'فضاء,ثقب أسود,كون',score:83},
+    {emoji:'💊',title:'دواء الخلود — هل وجده العلماء فعلاً؟',kw:'طب,علم,اكتشاف',score:88},
+  ],
+  history:[
+    {emoji:'⚔️',title:'أسرار الحضارة المصرية لم تُدرَّس في المدارس',kw:'مصر,تاريخ,حضارة',score:88},
+    {emoji:'🏰',title:'سقوط روما — الدرس الذي يتجاهله الجميع',kw:'روما,تاريخ',score:85},
+    {emoji:'👑',title:'صلاح الدين الأيوبي — القصة الكاملة',kw:'صلاح الدين,تاريخ',score:87},
+    {emoji:'🗡️',title:'المغول — أكثر غزو دموي في تاريخ البشرية',kw:'مغول,غزو,تاريخ',score:84},
+    {emoji:'🌙',title:'الدولة العثمانية — كيف حكمت العالم 600 سنة',kw:'عثماني,تاريخ,إسلام',score:86},
+  ],
+  motivation:[
+    {emoji:'🚀',title:'5 عادات تجعلك في أفضل 1% من الناس',kw:'تحفيز,نجاح,عادات',score:96},
+    {emoji:'💪',title:'كيف غيّر شاب حياته من الصفر في 12 شهراً',kw:'تغيير,نجاح',score:92},
+    {emoji:'🧘',title:'سر الإنتاجية الذي يخفيه الناجحون',kw:'إنتاجية,نجاح',score:90},
+    {emoji:'🌟',title:'قانون الجذب — الحقيقة العلمية وراءه',kw:'قانون الجذب,تحفيز',score:88},
+    {emoji:'🏆',title:'من لا شيء إلى مليونير — قصص حقيقية مُلهِمة',kw:'نجاح,أموال,تحفيز',score:94},
+  ],
 };
 
 // ══ INIT ══
 window.onload = () => {
   loadKeys();
-  renderHistory();
+  renderTrends('all');
+  updateDbCount();
 };
 
-// ══ VOICE ══
-function selVoice(el) {
-  document.querySelectorAll('#voiceGrid .cat-btn').forEach(b => {
-    b.classList.remove('active');
-    b.querySelector('div div:first-child').style.color = '';
-  });
-  el.classList.add('active');
-  el.querySelector('div div:first-child').style.color = 'var(--accent)';
-  selectedVoiceId = el.dataset.vid;
-}
+// ══ KEYS ══
 function saveKeys() {
-  localStorage.setItem('acai_claude', document.getElementById('claudeKey').value);
-  localStorage.setItem('acai_eleven', document.getElementById('elevenKey').value);
-  updateKeysStatus();
+  localStorage.setItem('acai_v4_ck', document.getElementById('claudeKey').value);
+  localStorage.setItem('acai_v4_ek', document.getElementById('elevenKey').value);
+  updateKeyDots();
 }
 
 function loadKeys() {
-  const ck = localStorage.getItem('acai_claude') || '';
-  const ek = localStorage.getItem('acai_eleven') || '';
-  if(ck) { document.getElementById('claudeKey').value = ck; document.getElementById('claudeKey').classList.add('saved'); }
-  if(ek) { document.getElementById('elevenKey').value = ek; document.getElementById('elevenKey').classList.add('saved'); }
-  updateKeysStatus();
+  const ck = localStorage.getItem('acai_v4_ck') || '';
+  const ek = localStorage.getItem('acai_v4_ek') || '';
+  if(ck) document.getElementById('claudeKey').value = ck;
+  if(ek) document.getElementById('elevenKey').value = ek;
+  updateKeyDots();
 }
 
-function updateKeysStatus() {
-  const ck = document.getElementById('claudeKey').value.trim();
-  const ek = document.getElementById('elevenKey').value.trim();
-  const s = document.getElementById('keysStatus');
-  if(ck && ek) { s.textContent = '🟢 جاهز للعمل'; s.className = 'keys-status ok'; }
-  else if(ck) { s.textContent = '🟡 Claude فقط'; s.className = 'keys-status'; }
-  else { s.textContent = '⚪ أضف المفاتيح'; s.className = 'keys-status'; }
+function updateKeyDots() {
+  // no dots in new design - handled by settings panel
 }
 
-// ══ CATEGORY ══
-function selectCat(el) {
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+function toggleSettings() {
+  const p = document.getElementById('settingsPanel');
+  p.classList.toggle('open');
+}
+
+// ══ SETTINGS ══
+function selLen(el) {
+  document.querySelectorAll('.len-btn').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
-  selectedCat = el.dataset.cat;
+  selectedLen = el.dataset.len;
+}
+
+function selVoice(el) {
+  document.querySelectorAll('.voice-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  selectedVoiceId = el.dataset.vid;
+}
+
+// ══ TRENDS ══
+function filterTrends(cat, el) {
+  document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  currentCat = cat;
+  renderTrends(cat);
+}
+
+function renderTrends(cat) {
+  const list = document.getElementById('trendsList');
+  const existing = DB.map(x=>x.title.toLowerCase());
+
+  let items = [];
+  if(cat === 'all') {
+    Object.entries(TOPICS).forEach(([c,arr]) => arr.forEach(t=>items.push({...t,cat:c})));
+  } else {
+    items = (TOPICS[cat]||[]).map(t=>({...t,cat}));
+  }
+
+  // Sort: unused first, then by score
+  items.sort((a,b)=>{
+    const au = existing.some(e=>e.includes(a.title.substring(0,12).toLowerCase()));
+    const bu = existing.some(e=>e.includes(b.title.substring(0,12).toLowerCase()));
+    if(au !== bu) return au ? 1 : -1;
+    return b.score - a.score;
+  });
+
+  list.innerHTML = items.map(t => {
+    const used = existing.some(e=>e.includes(t.title.substring(0,12).toLowerCase()));
+    const sc = t.score;
+    const scColor = sc>=90?'#00ff88':sc>=80?'#4285f4':'#fbbf24';
+    return `
+    <div class="trend-card ${used?'used':''}" onclick="${used?'':'pickAndRun(this)'}"
+      data-emoji="${t.emoji}" data-title="${t.title.replace(/"/g,'&quot;')}"
+      data-kw="${t.kw}" data-cat="${t.cat}">
+      ${used?'<div class="used-badge">⚠️ مستخدم</div>':''}
+      <div class="tc-emoji">${t.emoji}</div>
+      <div class="tc-body">
+        <div class="tc-title">${t.title}</div>
+        <div class="tc-meta">
+          <span class="tag tag-gray">${CAT_NAMES[t.cat]||t.cat}</span>
+          ${t.kw.split(',').slice(0,2).map(k=>`<span class="tag tag-gray">${k.trim()}</span>`).join('')}
+        </div>
+        <div class="score-row">
+          <div class="score-label">نجاح</div>
+          <div class="score-track"><div class="score-fill" style="width:${sc}%;background:${scColor};"></div></div>
+          <div class="score-val" style="color:${scColor};font-weight:800;font-size:11px;">${sc}%</div>
+        </div>
+      </div>
+      <div class="tc-arrow">${used?'🚫':'←'}</div>
+    </div>`;
+  }).join('');
+}
+
+function pickAndRun(el) {
+  const topic = {
+    emoji: el.dataset.emoji,
+    title: el.dataset.title,
+    kw: el.dataset.kw,
+    cat: el.dataset.cat
+  };
+  currentTopic = topic;
+  startProduction(topic);
 }
 
 // ══ PIPELINE ══
-function setStep(id, state, detail, prog, time) {
-  const step = document.getElementById(`ps-${id}`);
-  const dot = document.getElementById(`pd-${id}`);
-  const det = document.getElementById(`pd-${id}-detail`);
-  const bar = document.getElementById(`pp-${id}`);
-  const tm = document.getElementById(`pt-${id}`);
-
-  step.className = 'pipe-step ' + state;
-  if(detail) det.textContent = detail;
-  if(prog !== undefined) bar.style.width = prog + '%';
-  if(time) tm.textContent = time;
-  if(state === 'done') dot.textContent = '✓';
-  if(state === 'error') dot.textContent = '✕';
-}
-
-async function startPipeline() {
-  if(isRunning) return;
-  isRunning = true;
+async function startProduction(topic) {
+  if(busy) return;
+  busy = true;
 
   const claudeKey = document.getElementById('claudeKey').value.trim();
+  if(!claudeKey) {
+    toast('❌ أضف Claude API Key في الإعدادات أولاً');
+    busy = false;
+    return;
+  }
 
-  // Reset UI
-  document.getElementById('pipeline').className = 'pipeline show';
-  document.getElementById('resultCard').className = 'result-card';
-  currentAudioUrl = null;
-  document.getElementById('r-audio-section').style.display = 'none';
-  document.getElementById('dlAudio').style.display = 'none';
+  // Show pipeline screen
+  showScreen('pipeline');
+  document.getElementById('pipe-emoji').textContent = topic.emoji;
+  document.getElementById('pipe-title').textContent = topic.title;
+  document.getElementById('pipe-cat').textContent = CAT_NAMES[topic.cat]||topic.cat;
+  document.getElementById('pipe-subtitle').textContent = 'Claude يكتب السكريبت...';
 
-  const btn = document.getElementById('startBtn');
-  btn.disabled = true;
-  document.getElementById('startBtnIcon').innerHTML = '<div class="spin"></div>';
-  document.getElementById('startBtnText').textContent = 'جارٍ الإنتاج...';
-
-  ['topic','script','quality','voice','save'].forEach(id => {
-    setStep(id, '', 'في الانتظار...', 0, '');
-    document.getElementById(`pd-${id}`).textContent = ['topic','script','quality','voice','save'].indexOf(id)+1;
+  // Reset steps
+  ['script','quality','voice','save'].forEach((id,i)=>{
+    setStep(id,'','في الانتظار...',0,'');
+    document.getElementById(`sd-${id}`).textContent = i+1;
   });
 
   const t0 = Date.now();
 
   try {
-    // ── STEP 1: TOPIC ──
-    setStep('topic', 'active', 'يتم اختيار أفضل موضوع...', 30, '');
-    await sleep(700);
-
-    const existingTitles = DB.map(x => x.title.toLowerCase());
-    let topicData = getSmartTopic(selectedCat, existingTitles);
-    setStep('topic', 'active', `✓ تم اختيار: ${topicData.title.substring(0,30)}...`, 80, '');
-
-    currentTopic = topicData;
-    setStep('topic', 'done', `✓ ${topicData.title.substring(0,40)}...`, 100, elapsed(t0));
-
-    // ── STEP 2: SCRIPT ──
+    // ── SCRIPT ──
     const t1 = Date.now();
-    setStep('script', 'active', 'كتابة السكريبت...', 10, '');
+    const ls = LEN[selectedLen];
+    setStep('script','active',`Claude يكتب — ${ls.words} كلمة...`,10,'');
+
+    let prog = 10;
+    const iv = setInterval(()=>{ prog=Math.min(prog+2,88); document.getElementById('sb-script').style.width=prog+'%'; },600);
 
     let script;
-    if(claudeKey) {
-      setStep('script', 'active', 'Claude يكتب السكريبت...', 40, '');
-      script = await callClaude(claudeKey, `اكتب سكريبت يوتيوب احترافي بالعربي عن:
-"${topicData.title}"
-
-المتطلبات:
-- Hook قوي جداً في أول 3 جمل يشد المشاهد فوراً
-- أسلوب تشويقي درامي ومثير طوال الفيديو
-- أرقام وتواريخ وتفاصيل حقيقية
-- طول 900-1200 كلمة (8-10 دقائق)
-- سؤال للتعليق في النهاية
-- دعوة للاشتراك والجرس
-- النص المنطوق فقط بدون تعليمات إخراج`);
-    } else {
-      await sleep(1200);
-      script = buildScript(topicData);
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'x-api-key':claudeKey,
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body:JSON.stringify({
+          model:'claude-haiku-4-5-20251001',
+          max_tokens:ls.tokens,
+          messages:[{role:'user',content:`اكتب سكريبت يوتيوب بالعربي عن: "${topic.title}"
+- Hook صادم في أول 3 جمل يشد المشاهد فوراً
+- أسلوب تشويقي درامي
+- أرقام وتواريخ حقيقية
+- ${ls.words} كلمة (${ls.mins} دقائق)
+- سؤال للتعليق + دعوة للاشتراك والجرس
+- النص المنطوق فقط`}]
+        })
+      });
+      clearInterval(iv);
+      if(!res.ok) {
+        const e = await res.json().catch(()=>({}));
+        throw new Error(e.error?.message||'Claude error '+res.status);
+      }
+      const data = await res.json();
+      script = data.content?.[0]?.text || '';
+      if(!script) throw new Error('لم يأتِ رد من Claude');
+    } catch(e) {
+      clearInterval(iv);
+      throw e;
     }
 
     currentScript = script;
     const words = script.split(/\s+/).length;
-    setStep('script', 'done', `✓ ${words} كلمة — ~${Math.round(words/130)} دقائق`, 100, elapsed(t1));
+    setStep('script','done',`✓ ${words} كلمة — ~${Math.round(words/130)} دقائق`,100,elapsed(t1));
 
-    // ── STEP 3: QUALITY ──
+    // ── QUALITY ──
     const t2 = Date.now();
-    setStep('quality', 'active', 'فحص الجودة...', 20, '');
-    await sleep(600);
+    setStep('quality','active','فحص الجودة والتكرار...',30,'');
+    await sleep(500);
+    const qc = checkQuality(script);
+    const dups = DB.filter(d=>simScore(d.script||'',script)>0.4).length;
+    setStep('quality','done',`✓ جودة ${qc.score}% — ${dups>0?'⚠️ تشابه '+dups:'أصيل ✓'}`,100,elapsed(t2));
 
-    const qc = analyzeQuality(script);
-    currentQuality = qc.score;
-
-    // Check duplicates
-    const dups = DB.filter(d => sim(d.script||'', script) > 0.4);
-    const dupNote = dups.length > 0 ? ` — تشابه مع ${dups.length} محتوى` : ' — أصيل ✓';
-
-    setStep('quality', 'done', `✓ جودة ${qc.score}%${dupNote}`, 100, elapsed(t2));
-
-    // ── STEP 4: VOICE ──
+    // ── VOICE ──
     const t3 = Date.now();
-    const elevenKey = document.getElementById('elevenKey').value.trim();
-
-    if(elevenKey) {
-      setStep('voice', 'active', 'ElevenLabs يولد الصوت...', 20, '');
+    const ek = document.getElementById('elevenKey').value.trim();
+    let audioUrl = null;
+    if(ek) {
+      setStep('voice','active','ElevenLabs يولد الصوت...',20,'');
+      let vp=20;
+      const iv2=setInterval(()=>{vp=Math.min(vp+3,88);document.getElementById('sb-voice').style.width=vp+'%';},400);
       try {
-        const clean = script.replace(/[🎬🔍⚠️💡🚀📝🎙️🔔😱✅❌📊🎣📖🔥📣━]/gu,'').trim();
-        const vRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}`, {
+        const clean=script.replace(/[🎬🔍⚠️💡📝🔔😱✅❌━🔪☠️💀🕵️🔫🏦👻🧪🤖📱🔐🌐🚀⚡🌊👽🔺🗿👁️💰📈💎📉🧬🌍🧠🔭💊⚔️🏰👑🗡️🌙💪🧘🌟🏆]/gu,'').trim();
+        const vr=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}`,{
           method:'POST',
-          headers:{'Content-Type':'application/json','xi-api-key':elevenKey},
-          body:JSON.stringify({
-            text: clean.substring(0,2500),
-            model_id:'eleven_multilingual_v2',
-            voice_settings:{stability:0.4,similarity_boost:0.8,style:0.6,use_speaker_boost:true}
-          })
+          headers:{'Content-Type':'application/json','xi-api-key':ek},
+          body:JSON.stringify({text:clean.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.4,similarity_boost:0.8,style:0.6}})
         });
-        if(!vRes.ok) throw new Error('فشل');
-        const blob = await vRes.blob();
-        currentAudioUrl = URL.createObjectURL(blob);
-        setStep('voice', 'done', '✓ الصوت جاهز!', 100, elapsed(t3));
+        clearInterval(iv2);
+        if(!vr.ok) throw new Error('ElevenLabs error');
+        const blob=await vr.blob();
+        audioUrl=URL.createObjectURL(blob);
+        currentAudioUrl=audioUrl;
+        setStep('voice','done','✓ الصوت جاهز!',100,elapsed(t3));
       } catch(e) {
-        setStep('voice', 'error', '✕ تحقق من مفتاح ElevenLabs', 100, elapsed(t3));
+        clearInterval(iv2);
+        setStep('voice','error','✕ تحقق من مفتاح ElevenLabs',100,elapsed(t3));
       }
     } else {
-      setStep('voice', 'done', 'تم التخطي — أضف ElevenLabs Key للصوت', 100, elapsed(t3));
+      setStep('voice','done','⏭ بدون صوت — أضف ElevenLabs Key',100,elapsed(t3));
     }
 
-    // ── STEP 5: SAVE ──
-    const t4 = Date.now();
-    setStep('save', 'active', 'حفظ في قاعدة البيانات...', 50, '');
-    await sleep(400);
+    // ── SAVE ──
+    const t4=Date.now();
+    setStep('save','active','حفظ في قاعدة البيانات...',50,'');
+    await sleep(300);
 
-    const entry = {
-      id: Date.now(),
-      emoji: topicData.emoji,
-      title: topicData.title,
-      cat: selectedCat,
-      catName: CAT_NAMES[selectedCat] || cat,
-      keywords: topicData.keywords,
-      script: script,
-      quality: qc.score,
-      checks: qc.checks,
-      audioUrl: currentAudioUrl,
-      date: new Date().toLocaleDateString('ar-SA'),
-      dateRaw: Date.now()
+    const entry={
+      id:Date.now(),
+      emoji:topic.emoji,
+      title:topic.title,
+      cat:topic.cat,
+      kw:topic.kw,
+      script,
+      quality:qc.score,
+      checks:qc.checks,
+      audioUrl,
+      date:new Date().toLocaleDateString('ar-SA'),
+      dateRaw:Date.now()
     };
 
     DB.unshift(entry);
-    localStorage.setItem('acai_db', JSON.stringify(DB));
+    localStorage.setItem('acai_v4',JSON.stringify(DB));
+    setStep('save','done',`✓ محفوظ — إجمالي: ${DB.length} فيديو`,100,elapsed(t4));
 
-    setStep('save', 'done', `✓ محفوظ — إجمالي المحتوى: ${DB.length}`, 100, elapsed(t4));
-
-    // ── SHOW RESULT ──
-    await sleep(300);
-    showResult(entry, qc);
-    showImages(entry);
-    renderHistory();
-
-    toast('🎉 تم إنتاج المحتوى بنجاح!');
+    await sleep(400);
+    showResult(entry,qc);
+    updateDbCount();
+    loadImages(topic);
 
   } catch(err) {
-    toast('❌ خطأ: ' + err.message);
+    toast('❌ '+err.message);
+    showScreen('trends');
   }
 
-  // Reset button
-  isRunning = false;
-  btn.disabled = false;
-  document.getElementById('startBtnIcon').textContent = '⚡';
-  document.getElementById('startBtnText').textContent = 'ابدأ محتوى جديد';
+  busy=false;
 }
 
-// ══ CLAUDE API ══
-async function callClaude(key, prompt, json=false) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'x-api-key': key,
-      'anthropic-version':'2023-06-01',
-      'anthropic-dangerous-direct-browser-access':'true'
-    },
-    body: JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:1500,
-      messages:[{role:'user',content:prompt}]
-    })
-  });
-  if(!res.ok) {
-    const err = await res.json().catch(()=>({}));
-    throw new Error(err.error?.message || 'Claude API error');
-  }
-  const data = await res.json();
-  const text = (data.content?.[0]?.text || '').trim();
-  if(json) {
-    // Try multiple JSON extraction methods
-    try { return JSON.parse(text); } catch(e) {}
-    const match = text.match(/\{[\s\S]*?\}/);
-    if(match) { try { return JSON.parse(match[0]); } catch(e) {} }
-    // Build fallback from text
-    console.warn('Claude JSON fallback:', text);
-    return getDemoTopic(selectedCat);
-  }
-  return text;
-}
-
-// ══ QUALITY ══
-function analyzeQuality(script) {
-  const words = script.split(/\s+/).length;
-  const checks = [
-    {l:'طول السكريبت', d:`${words} كلمة`, pass: words>=600, pts:20},
-    {l:'Hook جذاب', d:'أول 200 حرف', pass: script.substring(0,200).length>80, pts:20},
-    {l:'أرقام وتواريخ', d:'تفاصيل حقيقية', pass:/\d{3,}/.test(script), pts:15},
-    {l:'أسلوب درامي', d:'كلمات إثارة', pass:/صادم|مرعب|إثارة|صدمة|حير/.test(script), pts:15},
-    {l:'سؤال للتعليق', d:'يزيد التفاعل', pass:/\؟|ما رأيك|اكتب/.test(script), pts:15},
-    {l:'دعوة للاشتراك', d:'ينمي القناة', pass:/اشترك|الجرس/.test(script), pts:15},
-  ];
-  const score = checks.reduce((a,c)=>a+(c.pass?c.pts:0),0);
-  return {score, checks};
-}
-
-// ══ SHOW RESULT ══
+// ══ RESULT ══
 function showResult(entry, qc) {
-  const card = document.getElementById('resultCard');
-  card.className = 'result-card show';
+  showScreen('result');
 
   document.getElementById('r-emoji').textContent = entry.emoji;
   document.getElementById('r-title').textContent = entry.title;
-  document.getElementById('r-words').textContent = entry.script.split(/\s+/).length + ' كلمة';
-  document.getElementById('r-cat').textContent = CAT_NAMES[entry.cat] || entry.cat;
-  document.getElementById('r-quality-tag').textContent = 'جودة ' + qc.score + '%';
+  document.getElementById('r-tags').innerHTML =
+    `<span class="tag tag-green">${entry.quality}% جودة</span>
+     <span class="tag tag-blue">${entry.script.split(/\s+/).length} كلمة</span>
+     <span class="tag tag-gray">${CAT_NAMES[entry.cat]||entry.cat}</span>`;
 
-  const col = qc.score>=80?'#00e5a0':qc.score>=60?'#7c3aed':qc.score>=40?'#fbbf24':'#ff4444';
-  document.getElementById('r-qnum').textContent = qc.score + '%';
+  const col = entry.quality>=80?'#00ff88':entry.quality>=60?'#4285f4':entry.quality>=40?'#fbbf24':'#ff4444';
+  document.getElementById('r-qnum').textContent = entry.quality+'%';
   document.getElementById('r-qnum').style.color = col;
-  document.getElementById('r-qbar').style.width = qc.score + '%';
-  document.getElementById('r-qbar').style.background = col;
+  const qf=document.getElementById('r-qfill');
+  qf.style.width=entry.quality+'%'; qf.style.background=col;
 
   document.getElementById('r-checks').innerHTML = qc.checks.map(c=>`
-    <div class="check-item">
-      <span class="ci">${c.pass?'✅':'❌'}</span>
-      <span class="cl">${c.l} — ${c.d}</span>
-      <span class="cp" style="color:${c.pass?'#00e5a0':'#ff4444'}">+${c.pts}</span>
+    <div class="check-row">
+      <span class="check-icon">${c.pass?'✅':'❌'}</span>
+      <span class="check-label">${c.l} — ${c.d}</span>
+      <span class="check-pts" style="color:${c.pass?'#00ff88':'#ff4444'}">+${c.pts}</span>
     </div>`).join('');
 
-  document.getElementById('r-script').textContent = entry.script.substring(0,400) + '...';
+  document.getElementById('r-script').textContent = entry.script.substring(0,500)+'...';
+  document.getElementById('r-stats').textContent = `${entry.script.split(/\s+/).length} كلمة — ~${Math.round(entry.script.split(/\s+/).length/130)} دقيقة`;
 
-  if(currentAudioUrl) {
-    document.getElementById('r-audio-section').style.display = 'block';
-    document.getElementById('r-audio').src = currentAudioUrl;
-    const dl = document.getElementById('dlAudio');
-    dl.href = currentAudioUrl;
-    dl.style.display = 'inline-flex';
+  if(entry.audioUrl) {
+    document.getElementById('r-audio-card').style.display='block';
+    document.getElementById('r-audio').src=entry.audioUrl;
+    document.getElementById('r-dl-audio').href=entry.audioUrl;
   }
-
-  card.scrollIntoView({behavior:'smooth', block:'start'});
-
-  // Show video guide
-  document.getElementById('videoGuide').style.display = 'block';
-  const q = encodeURIComponent((currentTopic?.title||'').split('—')[0].trim());
-  document.getElementById('link-google').href = `https://www.google.com/search?q=${q}&tbm=isch`;
-  document.getElementById('suggestedTitle').textContent = `😱 ${currentTopic?.title || ''} — القصة الكاملة التي لم تسمعها من قبل`;
-}
-
-// ══ HISTORY ══
-function renderHistory() {
-  document.getElementById('histCount').textContent = DB.length;
-  const list = document.getElementById('histList');
-
-  if(!DB.length) {
-    list.innerHTML = '<div class="empty-hist">لا يوجد محتوى بعد — اضغط ابدأ!</div>';
-    return;
-  }
-
-  const qCol = q => q>=80?'#00e5a0':q>=60?'#a78bfa':q>=40?'#fbbf24':'#ff4444';
-
-  list.innerHTML = DB.map(x => `
-    <div class="history-item" onclick="openModal(${x.id})">
-      <div class="hi-emoji">${x.emoji}</div>
-      <div class="hi-info">
-        <div class="hi-title">${x.title}</div>
-        <div class="hi-meta">${x.catName||x.cat} · ${x.date}</div>
-      </div>
-      <div class="hi-quality" style="color:${qCol(x.quality)}">${x.quality}%</div>
-      <div class="hi-actions" onclick="event.stopPropagation()">
-        <button class="hi-btn del" onclick="delItem(${x.id})">🗑️</button>
-      </div>
-    </div>`).join('');
-}
-
-// ══ MODAL ══
-function openModal(id) {
-  const x = DB.find(i=>i.id===id);
-  if(!x) return;
-  viewingItem = x;
-
-  document.getElementById('modal-ttl').textContent = x.emoji + ' ' + x.title;
-  document.getElementById('modal-sub').textContent = (x.catName||x.cat) + ' · ' + x.date + ' · جودة ' + x.quality + '%';
-
-  document.getElementById('modal-tags-wrap').innerHTML =
-    (x.keywords||'').split(',').map(k=>`<span class="result-tag rt-purple">${k.trim()}</span>`).join('');
-
-  document.getElementById('modal-script').textContent = x.script || 'لا يوجد سكريبت';
-
-  const aw = document.getElementById('modal-audio-wrap');
-  if(x.audioUrl) {
-    aw.style.display='block';
-    document.getElementById('modal-audio').src = x.audioUrl;
-  } else { aw.style.display='none'; }
-
-  document.getElementById('modalOverlay').className = 'modal-overlay show';
-}
-
-function closeModal(e) {
-  if(e && e.target !== document.getElementById('modalOverlay')) return;
-  document.getElementById('modalOverlay').className = 'modal-overlay';
-}
-
-function copyModalScript() {
-  if(viewingItem) navigator.clipboard.writeText(viewingItem.script).then(()=>toast('📋 تم النسخ'));
-}
-
-function dlModalScript() {
-  if(!viewingItem) return;
-  const blob = new Blob([viewingItem.script],{type:'text/plain;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = viewingItem.title.substring(0,30)+'.txt';
-  a.click();
-}
-
-async function useForVoice() {
-  if(!viewingItem) return;
-  closeModal();
-  const elevenKey = document.getElementById('elevenKey').value.trim();
-  if(!elevenKey) { toast('❌ أضف ElevenLabs Key أولاً'); return; }
-
-  currentScript = viewingItem.script;
-  toast('🎙️ جاري توليد الصوت...');
-
-  try {
-    const clean = viewingItem.script.replace(/[🎬🔍⚠️💡🚀📝🎙️🔔😱✅❌📊━]/gu,'').trim();
-    const res = await fetch('https://api.elevenlabs.io/v1/text-to-speech/pNInz6obpgDQGcFmaJgB',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','xi-api-key':elevenKey},
-      body:JSON.stringify({text:clean.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.4,similarity_boost:0.8}})
-    });
-    if(!res.ok) throw new Error('فشل');
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-
-    // Update in DB
-    const item = DB.find(i=>i.id===viewingItem.id);
-    if(item) { item.audioUrl = url; localStorage.setItem('acai_db',JSON.stringify(DB)); }
-
-    // Show audio
-    document.getElementById('r-audio-section').style.display='block';
-    document.getElementById('r-audio').src=url;
-    document.getElementById('resultCard').className='result-card show';
-    document.getElementById('resultCard').scrollIntoView({behavior:'smooth'});
-    toast('✅ الصوت جاهز!');
-  } catch(e) {
-    toast('❌ فشل توليد الصوت — تحقق من المفتاح');
-  }
-}
-
-// ══ ACTIONS ══
-function copyTitle() {
-  const t = document.getElementById('suggestedTitle').textContent;
-  navigator.clipboard.writeText(t).then(() => toast('📋 تم نسخ العنوان'));
-}
-
-function copyScript() {
-  navigator.clipboard.writeText(currentScript).then(()=>toast('📋 تم النسخ'));
-}
-
-function dlScript() {
-  const blob = new Blob([currentScript],{type:'text/plain;charset=utf-8'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = (currentTopic?.title||'script').substring(0,30)+'.txt';
-  a.click();
-}
-
-function delItem(id) {
-  if(!confirm('حذف؟')) return;
-  DB = DB.filter(x=>x.id!==id);
-  localStorage.setItem('acai_db',JSON.stringify(DB));
-  renderHistory();
-  toast('🗑️ تم الحذف');
-}
-
-// ══ SMART TOPIC DATABASE ══
-function getSmartTopic(cat, existingTitles) {
-  const pools = {
-    crime:[
-      {emoji:'🔪',title:'تيد باندي — المجرم الذي خدع الجميع بوجهه البريء',keywords:'جرائم حقيقية,قاتل متسلسل'},
-      {emoji:'☠️',title:'جاك السفاح — أكبر لغز جنائي في التاريخ لم يُحل',keywords:'جرائم تاريخية,لندن,لغز'},
-      {emoji:'💀',title:'جيفري داهمر — الوحش الذي كان يعيش بيننا',keywords:'داهمر,قاتل متسلسل,أمريكا'},
-      {emoji:'🕵️',title:'الاحتيال الإلكتروني — كيف يسرقون مليار دولار من المنزل',keywords:'احتيال,جرائم مالية'},
-      {emoji:'🔫',title:'مافيا الصقلية — أخطر منظمة إجرامية في التاريخ',keywords:'مافيا,جريمة منظمة'},
-      {emoji:'🏦',title:'سطو القرن — أكبر عملية سرقة بنك في التاريخ',keywords:'سطو,بنك,سرقة'},
-      {emoji:'👻',title:'القاتل الصامت — 10 سنوات يقتل ولا أحد يعلم',keywords:'قاتل,جريمة,صامت'},
-      {emoji:'🧪',title:'السم الكامل — جرائم التسميم الأغرب في التاريخ',keywords:'تسميم,جريمة,غريب'},
-    ],
-    tech:[
-      {emoji:'💻',title:'الذكاء الاصطناعي يستبدل 300 مليون وظيفة — من ينجو؟',keywords:'ذكاء اصطناعي,وظائف,مستقبل'},
-      {emoji:'📱',title:'هاتفك يتجسس عليك — الحقيقة الصادمة',keywords:'خصوصية,هاتف,تجسس'},
-      {emoji:'🔐',title:'أقوى هجوم إلكتروني في التاريخ — كيف اخترقوا حكومات',keywords:'هاكر,أمن إلكتروني'},
-      {emoji:'🌐',title:'الإنترنت المظلم — ما الذي يحدث هناك فعلاً؟',keywords:'dark web,إنترنت مظلم'},
-      {emoji:'🤖',title:'روبوتات 2026 — هل ستسيطر على حياتنا؟',keywords:'روبوت,مستقبل,تقنية'},
-      {emoji:'🚀',title:'SpaceX — كيف غيّر ماسك مستقبل الفضاء',keywords:'spacex,فضاء,ماسك'},
-    ],
-    mystery:[
-      {emoji:'🌊',title:'مادلين ماكان — اللغز الذي حير العالم 19 سنة',keywords:'اختفاء,لغز,محقق'},
-      {emoji:'👽',title:'منطقة 51 — ماذا تخفي أمريكا عن الكائنات الفضائية؟',keywords:'منطقة 51,فضاء,مؤامرة'},
-      {emoji:'🔺',title:'مثلث برمودا — الحقيقة التي لا يريدونك أن تعرفها',keywords:'برمودا,لغز,اختفاء'},
-      {emoji:'🗿',title:'تمثال الغاز — من بناه ولماذا لا يعرف أحد؟',keywords:'لغز,تاريخ,غامض'},
-    ],
-    finance:[
-      {emoji:'💰',title:'كيف ربح شاب 23 سنة مليون دولار من يوتيوب؟',keywords:'ربح,يوتيوب,نجاح'},
-      {emoji:'📈',title:'Bitcoin 2026 — هل يصل لـ 200,000 دولار؟',keywords:'بيتكوين,استثمار,عملات'},
-      {emoji:'💎',title:'5 عادات الأثرياء التي لا يعلمها الفقراء',keywords:'ثروة,عادات,نجاح مالي'},
-      {emoji:'🏦',title:'كيف تصنع أول 100,000 دولار من الصفر',keywords:'استثمار,مال,بداية'},
-    ],
-    science:[
-      {emoji:'🧬',title:'العلماء اكتشفوا كيف يوقفون الشيخوخة — التفاصيل الكاملة',keywords:'علوم,طب,شيخوخة'},
-      {emoji:'🌍',title:'الاحترار العالمي — 10 سنوات قبل الكارثة',keywords:'تغير مناخي,بيئة,مستقبل'},
-      {emoji:'🧠',title:'90% من الدماغ لا نستخدمه — حقيقة أم خرافة؟',keywords:'دماغ,علم,حقائق'},
-      {emoji:'🔭',title:'ثقب أسود يبتلع مجرة كاملة — ماذا حدث؟',keywords:'فضاء,ثقب أسود,كون'},
-    ],
-    history:[
-      {emoji:'⚔️',title:'أسرار الحضارة المصرية لم تُدرَّس في المدارس',keywords:'مصر,تاريخ,حضارة'},
-      {emoji:'🏰',title:'سقوط روما — الدرس الذي يتجاهله الجميع',keywords:'روما,تاريخ,إمبراطورية'},
-      {emoji:'👑',title:'صلاح الدين الأيوبي — القصة الكاملة',keywords:'صلاح الدين,تاريخ,إسلام'},
-      {emoji:'🗡️',title:'المغول — أكثر غزو دموي في تاريخ البشرية',keywords:'مغول,غزو,تاريخ'},
-    ],
-    motivation:[
-      {emoji:'🚀',title:'5 عادات تجعلك في أفضل 1% من الناس',keywords:'تحفيز,نجاح,عادات'},
-      {emoji:'💪',title:'كيف غيّر شاب حياته من الصفر في 12 شهراً',keywords:'تغيير,نجاح,تحفيز'},
-      {emoji:'🧘',title:'سر الإنتاجية الذي يخفيه الناجحون',keywords:'إنتاجية,نجاح,تطوير'},
-      {emoji:'🌟',title:'قانون الجذب — الحقيقة العلمية وراءه',keywords:'قانون الجذب,تحفيز,علم'},
-    ],
-    any:[
-      {emoji:'🎲',title:'أغرب 10 حقائق غيرت فهمنا للعالم تماماً',keywords:'حقائق,معلومات,مثير'},
-      {emoji:'🌀',title:'10 أشياء تحدث في جسمك الآن ولا تعلم عنها',keywords:'جسم,علوم,حقائق'},
-      {emoji:'🔮',title:'تنبؤات العلماء لعام 2050 — ستصدم عقلك',keywords:'مستقبل,علوم,تنبؤات'},
-    ]
-  };
-
-  const catKey = cat === 'any'
-    ? ['crime','tech','mystery','finance','science','history','motivation'][Math.floor(Math.random()*7)]
-    : cat;
-
-  const pool = pools[catKey] || pools.crime;
-  const unused = pool.filter(t => !existingTitles.some(e => e.includes(t.title.substring(0,10).toLowerCase())));
-  const available = unused.length > 0 ? unused : pool;
-  return available[Math.floor(Math.random() * available.length)];
-}
-
-// ══ DEMO DATA ══
-function getDemoTopic(cat) {
-  const topics = {
-    crime: {emoji:'🔪',title:'تيد باندي — المجرم الذي خدع الجميع بوجهه البريء',keywords:'جرائم حقيقية,قاتل متسلسل,أمريكا'},
-    tech: {emoji:'💻',title:'الذكاء الاصطناعي يستبدل 300 مليون وظيفة — من ينجو؟',keywords:'ذكاء اصطناعي,مستقبل,تقنية'},
-    mystery: {emoji:'🌊',title:'مادلين ماكان — اللغز الذي حير العالم 19 سنة',keywords:'اختفاء,لغز,محقق'},
-    finance: {emoji:'💰',title:'كيف ربح شاب مليون دولار من يوتيوب في سنة واحدة',keywords:'ربح,يوتيوب,نجاح'},
-    science: {emoji:'🧬',title:'العلماء اكتشفوا سبب الشيخوخة — ويمكن إيقافها!',keywords:'علوم,طب,اكتشاف'},
-    history: {emoji:'⚔️',title:'أسرار مصر الفرعونية لم تُدرَّس في المدارس',keywords:'مصر,تاريخ,حضارة'},
-    motivation: {emoji:'🚀',title:'5 عادات تجعلك في أفضل 1% من الناس',keywords:'تحفيز,نجاح,عادات'},
-    any: {emoji:'🎲',title:'أغرب 10 حقائق غيرت فهمنا للعالم تماماً',keywords:'حقائق,معلومات,مثير'}
-  };
-  return topics[cat] || topics.crime;
-}
-
-function buildScript(topic) {
-  return `${topic.title.split('—')[0].trim()}...
-هل تعرف ما الذي حدث فعلاً؟
-القصة أكثر صدمة مما تتخيل — استمر معي.
-
-━━━━━━━━━━
-
-في البداية، لم يكن أحد يتوقع ما سيحدث.
-
-عام 2019، بدأت الأحداث بشكل هادئ تماماً. لكن خلف هذا الهدوء كانت تُحاك واحدة من أغرب القصص في التاريخ الحديث.
-
-الأرقام تقول كل شيء: أكثر من 50,000 شخص تأثروا.
-و73% منهم لم يعلموا ما كان يحدث لهم.
-
-━━━━━━━━━━
-
-دعونا نعود للبداية...
-
-كل شيء بدأ في مكان لم يتوقعه أحد. الشخص الرئيسي في هذه القصة كان يبدو للجميع طبيعياً تماماً — يذهب لعمله، يتكلم مع جيرانه، يبتسم لكل من يقابله.
-
-لكن في الداخل؟ كان يخطط لشيء صادم.
-
-━━━━━━━━━━
-
-ثم جاء اليوم الذي تغير فيه كل شيء...
-
-صباح 14 مارس، تلقى المحقق الرئيسي اتصالاً غير متوقع.
-الصوت من الطرف الآخر كان يرتجف: "وجدناه."
-
-ما وجدوه صدم حتى أكثر المحققين خبرة في العالم.
-
-━━━━━━━━━━
-
-اليوم، بعد كل ما شاهدنا...
-
-السؤال الذي يؤرقني: هل كان يمكن تفاديه؟
-وهل هناك أشخاص مثله بيننا الآن؟
-
-اكتب رأيك في التعليقات — أريد أن أعرف ما تفكر فيه!
-
-وإذا أعجبك هذا الفيديو، اشترك في القناة الآن واضغط على الجرس 🔔
-لأن عندنا قصص أكثر إثارة في الطريق إليك!`;
 }
 
 // ══ IMAGES ══
-let currentImgQuery = '';
-let currentImgPage = 1;
+async function loadImages(topic) {
+  const queries={crime:'crime detective mystery dark',tech:'technology ai future digital',mystery:'mystery dark secret',finance:'money finance wealth',science:'science research discovery',history:'ancient history civilization',motivation:'success achievement motivation'};
+  imgQuery=queries[topic.cat]||'dramatic storytelling';
+  imgPage=1;
+  document.getElementById('r-img-card').style.display='block';
+  await fetchImgs();
+}
 
-async function fetchImages(query, page=1) {
-  currentImgQuery = query;
-  currentImgPage = page;
-  const grid = document.getElementById('imagesGrid');
-  if(page===1) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text2);font-size:12px;">⏳ جاري البحث عن صور...</div>';
-
-  // Use Pexels API - free
-  const PEXELS_KEY = 'bLOUhmPi6EbP3POipv1JQCQBdGFSLQWv8jYnFi3cCAf5nXJFRBpgJwp3';
+async function fetchImgs() {
+  const PKEY='bLOUhmPi6EbP3POipv1JQCQBdGFSLQWv8jYnFi3cCAf5nXJFRBpgJwp3';
+  const grid=document.getElementById('r-img-grid');
   try {
-    const res = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=9&page=${page}&orientation=landscape`, {
-      headers: { 'Authorization': PEXELS_KEY }
-    });
-    const data = await res.json();
-    if(data.photos && data.photos.length > 0) {
-      renderImages(data.photos);
-    } else {
-      // Fallback to Unsplash source (no key needed)
-      renderFallbackImages(query);
-    }
-  } catch(e) {
-    renderFallbackImages(query);
-  }
+    const res=await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(imgQuery)}&per_page=9&page=${imgPage}&orientation=landscape`,{headers:{'Authorization':PKEY}});
+    const data=await res.json();
+    if(data.photos?.length) {
+      grid.innerHTML=data.photos.map(p=>`
+        <div class="img-item">
+          <img src="${p.src.medium}" loading="lazy"/>
+          <a class="img-dl" href="${p.src.large}" target="_blank" download>📥</a>
+        </div>`).join('');
+    } else { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#444;font-size:12px;padding:20px;">لم تُوجد صور</div>'; }
+  } catch(e) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#444;font-size:12px;padding:20px;">تعذر تحميل الصور</div>'; }
 }
 
-function renderImages(photos) {
-  const grid = document.getElementById('imagesGrid');
-  grid.innerHTML = photos.map(p => `
-    <div class="img-thumb">
-      <img src="${p.src.medium}" alt="${p.alt||''}" loading="lazy" />
-      <span class="src-badge">Pexels</span>
-      <a class="dl-btn" href="${p.src.large}" download target="_blank">📥 تحميل</a>
-    </div>`).join('');
+function loadMoreImgs() { imgPage++; fetchImgs(); }
+
+// ══ QUALITY ══
+function checkQuality(script) {
+  const words=script.split(/\s+/).length;
+  const checks=[
+    {l:'طول السكريبت',d:`${words} كلمة`,pass:words>=300,pts:20},
+    {l:'Hook جذاب',d:'أول 200 حرف',pass:script.substring(0,200).length>80,pts:20},
+    {l:'أرقام وتواريخ',d:'تفاصيل حقيقية',pass:/\d{3,}/.test(script),pts:15},
+    {l:'أسلوب درامي',d:'كلمات إثارة',pass:/صادم|مرعب|إثارة|صدمة|حير/.test(script),pts:15},
+    {l:'سؤال للتعليق',d:'يزيد التفاعل',pass:/\؟|ما رأيك|اكتب/.test(script),pts:15},
+    {l:'دعوة للاشتراك',d:'ينمي القناة',pass:/اشترك|الجرس/.test(script),pts:15},
+  ];
+  return {score:checks.reduce((a,c)=>a+(c.pass?c.pts:0),0),checks};
 }
 
-function renderFallbackImages(query) {
-  const grid = document.getElementById('imagesGrid');
-  // Use Unsplash source - no key needed
-  const terms = query.split(' ').slice(0,2).join(',');
-  const imgs = Array.from({length:9},(_,i) => `https://source.unsplash.com/400x225/?${encodeURIComponent(terms)}&sig=${Date.now()+i}`);
-  grid.innerHTML = imgs.map(src => `
-    <div class="img-thumb">
-      <img src="${src}" alt="صورة" loading="lazy" />
-      <span class="src-badge">Unsplash</span>
-      <a class="dl-btn" href="${src}" download target="_blank">📥 تحميل</a>
-    </div>`).join('');
+// ══ NAVIGATION ══
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
 }
 
-function loadMoreImages() {
-  fetchImages(currentImgQuery, currentImgPage + 1);
+function goBack() {
+  busy=false;
+  showScreen('trends');
+  renderTrends(currentCat);
+  updateDbCount();
 }
 
-function showImages(topic) {
-  // Extract English search term based on topic category
-  const queries = {
-    crime: 'crime detective mystery dark',
-    tech: 'technology artificial intelligence future',
-    mystery: 'mystery dark secret unknown',
-    finance: 'money finance investment wealth',
-    science: 'science laboratory research discovery',
-    history: 'history ancient civilization archaeology',
-    motivation: 'success motivation achievement',
-    any: 'dramatic storytelling cinematic'
-  };
-  const catQuery = queries[selectedCat] || 'dramatic storytelling';
-  const titleWords = topic.title.split(' ').slice(0,2).join(' ');
-
-  document.getElementById('r-images-section').style.display = 'block';
-  document.getElementById('pexelsLink').href = `https://www.pexels.com/search/${encodeURIComponent(catQuery)}/`;
-  fetchImages(catQuery);
+function updateDbCount() {
+  document.getElementById('dbCount').textContent = `📚 المحتوى المنتج: ${DB.length} فيديو`;
 }
-function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
-function elapsed(t) { return ((Date.now()-t)/1000).toFixed(1)+'s'; }
 
-function sim(a,b) {
-  if(!a||!b) return 0;
+// ══ STEPS ══
+function setStep(id,state,detail,prog,time) {
+  const si=document.getElementById(`si-${id}`);
+  const sd=document.getElementById(`sd-${id}`);
+  const dd=document.getElementById(`dd-${id}`);
+  const sb=document.getElementById(`sb-${id}`);
+  const st=document.getElementById(`st-${id}`);
+  si.className='step-item '+(state||'');
+  if(detail) dd.textContent=detail;
+  if(prog!==undefined) sb.style.width=prog+'%';
+  if(time) st.textContent=time;
+  if(state==='done') sd.textContent='✓';
+  if(state==='error') sd.textContent='✕';
+}
+
+// ══ ACTIONS ══
+function copyScript() { navigator.clipboard.writeText(currentScript).then(()=>toast('📋 تم النسخ')); }
+function dlScript() {
+  const b=new Blob([currentScript],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(b);
+  a.download=(currentTopic?.title||'script').substring(0,30)+'.txt';
+  a.click();
+}
+
+// ══ UTILS ══
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function elapsed(t){return((Date.now()-t)/1000).toFixed(1)+'s';}
+function simScore(a,b){
+  if(!a||!b)return 0;
   const wa=new Set(a.split(/\s+/).filter(w=>w.length>3));
   const wb=new Set(b.split(/\s+/).filter(w=>w.length>3));
-  if(!wa.size||!wb.size) return 0;
-  let c=0; wa.forEach(w=>{ if(wb.has(w)) c++; });
+  if(!wa.size||!wb.size)return 0;
+  let c=0;wa.forEach(w=>{if(wb.has(w))c++;});
   return c/Math.max(wa.size,wb.size);
 }
-
-function toast(msg) {
+function toast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.classList.add('show');
+  t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2800);
 }
 </script>
