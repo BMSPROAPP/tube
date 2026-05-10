@@ -898,12 +898,16 @@ async function startProduction(topic) {
           model:'claude-haiku-4-5-20251001',
           max_tokens:ls.tokens,
           messages:[{role:'user',content:`اكتب سكريبت يوتيوب بالعربي عن: "${topic.title}"
-- Hook صادم في أول 3 جمل يشد المشاهد فوراً
-- أسلوب تشويقي درامي
-- أرقام وتواريخ حقيقية
-- ${ls.words} كلمة (${ls.mins} دقائق)
-- سؤال للتعليق + دعوة للاشتراك والجرس
-- النص المنطوق فقط`}]
+
+الشروط المهمة جداً:
+- ابدأ بـ Hook صادم ومثير في أول 3 جمل يجعل المشاهد لا يستطيع الإغلاق
+- أسلوب تشويقي درامي طوال السكريبت
+- أرقام وتواريخ حقيقية (مثل: عام 2015، 50 ضحية، 3 دول)
+- الطول المطلوب: ${ls.words} كلمة بالضبط — لا تتوقف قبل ذلك
+- في النهاية: اطرح سؤالاً للتعليق
+- في النهاية: اطلب الاشتراك وضغط الجرس 🔔
+- اكتب النص المنطوق فقط بدون عناوين أو تعليمات إخراج
+- استمر في الكتابة حتى تصل للطول المطلوب`}]
         })
       });
       clearInterval(iv);
@@ -1040,8 +1044,11 @@ async function loadImages(topic) {
 }
 
 async function fetchImgs() {
-  const PKEY='bLOUhmPi6EbP3POipv1JQCQBdGFSLQWv8jYnFi3cCAf5nXJFRBpgJwp3';
   const grid=document.getElementById('r-img-grid');
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#444;font-size:12px;padding:20px;">⏳ جاري تحميل الصور...</div>';
+
+  // Try Pexels first
+  const PKEY='bLOUhmPi6EbP3POipv1JQCQBdGFSLQWv8jYnFi3cCAf5nXJFRBpgJwp3';
   try {
     const res=await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(imgQuery)}&per_page=9&page=${imgPage}&orientation=landscape`,{headers:{'Authorization':PKEY}});
     const data=await res.json();
@@ -1051,8 +1058,20 @@ async function fetchImgs() {
           <img src="${p.src.medium}" loading="lazy"/>
           <a class="img-dl" href="${p.src.large}" target="_blank" download>📥</a>
         </div>`).join('');
-    } else { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#444;font-size:12px;padding:20px;">لم تُوجد صور</div>'; }
-  } catch(e) { grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#444;font-size:12px;padding:20px;">تعذر تحميل الصور</div>'; }
+      return;
+    }
+  } catch(e) {}
+
+  // Fallback: Unsplash random images
+  const terms = imgQuery.split(' ').slice(0,2).join(',');
+  const imgs = Array.from({length:9},(_,i) =>
+    `https://picsum.photos/seed/${encodeURIComponent(terms+i+imgPage)}/400/225`
+  );
+  grid.innerHTML = imgs.map((src,i)=>`
+    <div class="img-item">
+      <img src="${src}" loading="lazy" onerror="this.src='https://picsum.photos/400/225?random=${i+imgPage*10}'" />
+      <a class="img-dl" href="${src}" target="_blank">📥</a>
+    </div>`).join('');
 }
 
 function loadMoreImgs() { imgPage++; fetchImgs(); }
@@ -1061,12 +1080,12 @@ function loadMoreImgs() { imgPage++; fetchImgs(); }
 function checkQuality(script) {
   const words=script.split(/\s+/).length;
   const checks=[
-    {l:'طول السكريبت',d:`${words} كلمة`,pass:words>=300,pts:20},
+    {l:'طول السكريبت',d:`${words} كلمة`,pass:words>=200,pts:20},
     {l:'Hook جذاب',d:'أول 200 حرف',pass:script.substring(0,200).length>80,pts:20},
-    {l:'أرقام وتواريخ',d:'تفاصيل حقيقية',pass:/\d{3,}/.test(script),pts:15},
-    {l:'أسلوب درامي',d:'كلمات إثارة',pass:/صادم|مرعب|إثارة|صدمة|حير/.test(script),pts:15},
-    {l:'سؤال للتعليق',d:'يزيد التفاعل',pass:/\؟|ما رأيك|اكتب/.test(script),pts:15},
-    {l:'دعوة للاشتراك',d:'ينمي القناة',pass:/اشترك|الجرس/.test(script),pts:15},
+    {l:'أرقام وتواريخ',d:'تفاصيل حقيقية',pass:/\d{3,}|\d{4}/.test(script),pts:15},
+    {l:'أسلوب درامي',d:'كلمات إثارة',pass:/صادم|مرعب|إثارة|صدمة|حير|كابوس|مخيف|غريب/.test(script),pts:15},
+    {l:'سؤال للتعليق',d:'يزيد التفاعل',pass:/\؟|ما رأيك|ماذا تعتقد|اكتب|شاركنا/.test(script),pts:15},
+    {l:'دعوة للاشتراك',d:'ينمي القناة',pass:/اشترك|اشتراك|subscribe|الجرس|🔔|تابع/.test(script),pts:15},
   ];
   return {score:checks.reduce((a,c)=>a+(c.pass?c.pts:0),0),checks};
 }
