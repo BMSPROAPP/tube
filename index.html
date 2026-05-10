@@ -6,1253 +6,494 @@
 <title>AutoContent</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:#080808; color:#f0f0f0; font-family:'Cairo',sans-serif; min-height:100vh; }
-
-/* SCREENS */
-.screen { display:none; min-height:100vh; flex-direction:column; }
-.screen.active { display:flex; }
-
-/* TOP BAR */
-.topbar {
-  background:#111;
-  border-bottom:1px solid #1e1e1e;
-  padding:14px 18px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  flex-shrink:0;
-}
-.topbar-title { font-size:16px; font-weight:900; color:#fff; }
-.topbar-sub { font-size:11px; color:#555; margin-top:2px; }
-.topbar-right { display:flex; gap:8px; align-items:center; }
-
-/* KEY INPUT */
-.key-input {
-  background:#1a1a1a;
-  border:1px solid #2a2a2a;
-  border-radius:8px;
-  padding:7px 12px;
-  color:#fff;
-  font-family:monospace;
-  font-size:11px;
-  width:140px;
-  outline:none;
-  direction:ltr;
-}
-.key-input:focus { border-color:#00ff88; }
-.key-input.ok { border-color:#1a3a1a; }
-
-.key-dot {
-  width:8px; height:8px;
-  border-radius:50%;
-  background:#333;
-  flex-shrink:0;
-}
-.key-dot.ok { background:#00ff88; box-shadow:0 0 6px #00ff88; }
-
-/* FILTER TABS */
-.filter-bar {
-  background:#0d0d0d;
-  border-bottom:1px solid #1e1e1e;
-  padding:10px 16px;
-  display:flex;
-  gap:8px;
-  overflow-x:auto;
-  flex-shrink:0;
-}
-.filter-bar::-webkit-scrollbar { display:none; }
-
-.ftab {
-  background:#1a1a1a;
-  border:1px solid #222;
-  border-radius:20px;
-  padding:6px 14px;
-  font-family:'Cairo',sans-serif;
-  font-size:12px;
-  font-weight:700;
-  color:#555;
-  cursor:pointer;
-  white-space:nowrap;
-  transition:all 0.2s;
-  flex-shrink:0;
-}
-.ftab:hover { color:#aaa; border-color:#333; }
-.ftab.active { background:rgba(0,255,136,0.08); border-color:#00ff88; color:#00ff88; }
-
-/* TRENDS LIST */
-.trends-list {
-  flex:1;
-  overflow-y:auto;
-  padding:12px 16px;
-}
-
-.trend-card {
-  background:#111;
-  border:1px solid #1e1e1e;
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:10px;
-  cursor:pointer;
-  transition:all 0.2s;
-  display:flex;
-  align-items:flex-start;
-  gap:14px;
-  position:relative;
-}
-.trend-card:hover { border-color:#00ff88; background:#0d1a0d; transform:translateX(-2px); }
-.trend-card.used { opacity:0.4; cursor:not-allowed; }
-.trend-card.used:hover { border-color:#1e1e1e; background:#111; transform:none; }
-
-.tc-emoji { font-size:30px; flex-shrink:0; margin-top:2px; }
-.tc-body { flex:1; min-width:0; }
-.tc-title { font-size:14px; font-weight:700; color:#fff; margin-bottom:8px; line-height:1.4; }
-.tc-meta { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
-
-.tag {
-  font-size:10px; font-weight:700;
-  padding:2px 8px; border-radius:6px;
-}
-.tag-green { background:rgba(0,255,136,0.1); color:#00ff88; }
-.tag-red { background:rgba(255,68,68,0.1); color:#ff4444; }
-.tag-gold { background:rgba(251,191,36,0.1); color:#fbbf24; }
-.tag-gray { background:#1a1a1a; color:#555; }
-.tag-blue { background:rgba(66,133,244,0.1); color:#4285f4; }
-
-.tc-arrow {
-  font-size:18px;
-  color:#333;
-  flex-shrink:0;
-  margin-top:4px;
-  transition:all 0.2s;
-}
-.trend-card:hover .tc-arrow { color:#00ff88; transform:translateX(-4px); }
-
-.used-badge {
-  position:absolute;
-  top:10px;
-  left:10px;
-  background:#2a1a1a;
-  color:#ff4444;
-  font-size:10px;
-  font-weight:700;
-  padding:2px 8px;
-  border-radius:6px;
-}
-
-/* SCORE BAR */
-.score-row { display:flex; align-items:center; gap:8px; margin-top:8px; }
-.score-label { font-size:10px; color:#444; width:50px; flex-shrink:0; }
-.score-track { flex:1; height:3px; background:#1a1a1a; border-radius:2px; overflow:hidden; }
-.score-fill { height:100%; border-radius:2px; }
-.score-val { font-size:10px; font-weight:700; width:28px; }
-
-/* BOTTOM BAR */
-.bottom-bar {
-  background:#111;
-  border-top:1px solid #1e1e1e;
-  padding:12px 16px;
-  flex-shrink:0;
-  text-align:center;
-  font-size:11px;
-  color:#444;
-}
-
-/* PIPELINE SCREEN */
-.pipe-wrap {
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:24px 20px;
-}
-
-.pipe-topic-preview {
-  background:#111;
-  border:1px solid #1e1e1e;
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:24px;
-  width:100%;
-  display:flex;
-  gap:12px;
-  align-items:center;
-}
-.ptp-emoji { font-size:28px; }
-.ptp-title { font-size:13px; font-weight:700; color:#fff; line-height:1.4; }
-.ptp-cat { font-size:11px; color:#555; margin-top:3px; }
-
-.steps-list { width:100%; margin-bottom:24px; }
-
-.step-item {
-  display:flex;
-  align-items:flex-start;
-  gap:14px;
-  padding:14px 16px;
-  background:#111;
-  border:1px solid #1e1e1e;
-  position:relative;
-}
-.step-item:first-child { border-radius:14px 14px 0 0; }
-.step-item:last-child { border-radius:0 0 14px 14px; }
-.step-item:not(:last-child) { border-bottom:none; }
-.step-item.active { background:#0a1a0a; border-color:rgba(0,255,136,0.2); }
-.step-item.done { background:#080d08; }
-.step-item.error { background:#1a0808; border-color:rgba(255,68,68,0.2); }
-
-.step-dot {
-  width:30px; height:30px;
-  border-radius:50%;
-  background:#1a1a1a;
-  border:2px solid #2a2a2a;
-  display:flex; align-items:center; justify-content:center;
-  font-size:12px; font-weight:800;
-  color:#444; flex-shrink:0;
-  transition:all 0.3s;
-}
-.step-item.active .step-dot { background:#00ff88; border-color:#00ff88; color:#000; animation:glow 1.2s infinite; }
-.step-item.done .step-dot { background:#00cc66; border-color:#00cc66; color:#000; }
-.step-item.error .step-dot { background:#ff4444; border-color:#ff4444; color:#fff; }
-@keyframes glow { 0%,100%{box-shadow:0 0 0 0 rgba(0,255,136,0.4)} 50%{box-shadow:0 0 0 8px rgba(0,255,136,0)} }
-
-.step-info { flex:1; }
-.step-title { font-size:13px; font-weight:700; color:#444; margin-bottom:3px; }
-.step-item.active .step-title { color:#00ff88; }
-.step-item.done .step-title { color:#fff; }
-.step-detail { font-size:11px; color:#333; line-height:1.6; }
-.step-item.active .step-detail { color:#888; }
-.step-item.done .step-detail { color:#00cc66; }
-.step-item.error .step-detail { color:#ff4444; }
-
-.step-bar { height:2px; background:#1a1a1a; border-radius:1px; margin-top:8px; overflow:hidden; }
-.step-bar-fill { height:100%; border-radius:1px; background:#00ff88; transition:width 0.4s; width:0%; }
-
-.step-time { font-size:10px; color:#333; flex-shrink:0; font-family:monospace; }
-.step-item.done .step-time { color:#1a4a1a; }
-
-/* RESULT SCREEN */
-.result-scroll { flex:1; overflow-y:auto; padding:16px; }
-.result-scroll::-webkit-scrollbar { width:3px; }
-.result-scroll::-webkit-scrollbar-thumb { background:#1a1a1a; border-radius:2px; }
-
-.result-hero {
-  background:linear-gradient(135deg, rgba(0,255,136,0.06), rgba(0,204,102,0.03));
-  border:1px solid rgba(0,255,136,0.15);
-  border-radius:16px;
-  padding:20px;
-  margin-bottom:14px;
-  display:flex;
-  gap:14px;
-  align-items:flex-start;
-}
-.rh-emoji { font-size:36px; flex-shrink:0; }
-.rh-title { font-size:15px; font-weight:700; color:#fff; margin-bottom:8px; line-height:1.4; }
-.rh-tags { display:flex; gap:6px; flex-wrap:wrap; }
-
-.section-card {
-  background:#111;
-  border:1px solid #1e1e1e;
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:12px;
-}
-.section-label {
-  font-size:10px; color:#555;
-  font-weight:700; letter-spacing:1px;
-  margin-bottom:12px;
-}
-
-.quality-big { display:flex; align-items:center; gap:16px; margin-bottom:12px; }
-.q-num { font-size:48px; font-weight:900; font-family:monospace; line-height:1; }
-.q-track { flex:1; height:6px; background:#1a1a1a; border-radius:3px; overflow:hidden; }
-.q-fill { height:100%; border-radius:3px; transition:width 0.8s; }
-
-.check-list { display:flex; flex-direction:column; gap:8px; }
-.check-row { display:flex; align-items:center; gap:10px; font-size:12px; }
-.check-icon { font-size:14px; }
-.check-label { flex:1; color:#888; }
-.check-pts { font-family:monospace; font-size:11px; font-weight:700; }
-
-.script-preview {
-  background:#0d0d0d;
-  border:1px solid #1a1a1a;
-  border-radius:10px;
-  padding:14px;
-  font-size:12px;
-  line-height:1.9;
-  max-height:200px;
-  overflow-y:auto;
-  color:#aaa;
-  white-space:pre-wrap;
-  direction:rtl;
-}
-.script-preview::-webkit-scrollbar { width:3px; }
-.script-preview::-webkit-scrollbar-thumb { background:#222; border-radius:2px; }
-
-audio { width:100%; border-radius:8px; }
-
-.img-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:10px; }
-.img-item {
-  border-radius:8px; overflow:hidden;
-  aspect-ratio:16/9; background:#1a1a1a;
-  position:relative;
-}
-.img-item img { width:100%; height:100%; object-fit:cover; }
-.img-dl {
-  position:absolute; bottom:3px; left:3px;
-  background:rgba(0,0,0,0.8);
-  border:none; border-radius:5px;
-  padding:3px 7px; font-size:10px;
-  color:#fff; cursor:pointer; opacity:0;
-  transition:opacity 0.2s;
-  text-decoration:none;
-}
-.img-item:hover .img-dl { opacity:1; }
-
-.action-row { display:flex; gap:8px; flex-wrap:wrap; }
-.act {
-  padding:10px 16px;
-  border-radius:10px;
-  border:1px solid #2a2a2a;
-  background:#0d0d0d;
-  color:#888;
-  font-family:'Cairo',sans-serif;
-  font-size:12px; font-weight:700;
-  cursor:pointer; transition:all 0.2s;
-  display:inline-flex; align-items:center; gap:6px;
-  text-decoration:none;
-}
-.act:hover { border-color:#444; color:#fff; }
-.act.green { background:#00ff88; border-color:#00ff88; color:#000; }
-.act.green:hover { background:#00ffaa; }
-
-/* BOTTOM NAV */
-.bottom-nav {
-  background:#111;
-  border-top:1px solid #1e1e1e;
-  padding:12px 16px;
-  flex-shrink:0;
-}
-.main-btn {
-  width:100%;
-  padding:15px;
-  background:#00ff88;
-  color:#000;
-  border:none;
-  border-radius:12px;
-  font-family:'Cairo',sans-serif;
-  font-size:16px;
-  font-weight:900;
-  cursor:pointer;
-  transition:all 0.2s;
-  display:flex; align-items:center; justify-content:center; gap:8px;
-}
-.main-btn:hover { background:#00ffaa; transform:translateY(-1px); }
-.main-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
-.main-btn.gray { background:#1a1a1a; color:#888; border:1px solid #2a2a2a; }
-.main-btn.gray:hover { background:#222; color:#fff; transform:none; }
-
-/* SPINNER */
-.spin { width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:sp 0.7s linear infinite; }
-@keyframes sp{to{transform:rotate(360deg)}}
-
-/* TOAST */
-.toast {
-  position:fixed; bottom:80px; left:50%;
-  transform:translateX(-50%) translateY(40px);
-  background:#1a1a1a; border:1px solid #333;
-  border-radius:10px; padding:10px 18px;
-  font-size:13px; z-index:999; opacity:0;
-  transition:all 0.3s; white-space:nowrap; pointer-events:none;
-}
-.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
-
-/* Settings drawer */
-.settings-btn {
-  background:#1a1a1a; border:1px solid #2a2a2a;
-  border-radius:8px; padding:7px 12px;
-  color:#888; font-family:'Cairo',sans-serif;
-  font-size:12px; font-weight:700;
-  cursor:pointer; transition:all 0.2s;
-}
-.settings-btn:hover { border-color:#444; color:#fff; }
-
-.settings-panel {
-  display:none;
-  background:#111;
-  border-bottom:1px solid #1e1e1e;
-  padding:16px;
-  flex-shrink:0;
-}
-.settings-panel.open { display:block; }
-
-.settings-row { display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap; margin-bottom:12px; }
-.settings-row:last-child { margin-bottom:0; }
-.sf { flex:1; min-width:120px; }
-.sf label { font-size:10px; color:#555; display:block; margin-bottom:5px; font-weight:700; letter-spacing:1px; }
-.sf input, .sf select {
-  width:100%; background:#0d0d0d;
-  border:1px solid #2a2a2a; border-radius:8px;
-  padding:8px 12px; color:#fff;
-  font-family:'Cairo',sans-serif; font-size:12px; outline:none;
-  transition:border-color 0.2s;
-}
-.sf input { direction:ltr; font-family:monospace; font-size:11px; }
-.sf input:focus, .sf select:focus { border-color:#00ff88; }
-
-.len-grid { display:flex; gap:8px; }
-.len-btn {
-  flex:1; padding:8px; text-align:center;
-  background:#0d0d0d; border:1px solid #2a2a2a;
-  border-radius:8px; cursor:pointer; transition:all 0.2s;
-  font-family:'Cairo',sans-serif;
-}
-.len-btn:hover { border-color:#333; }
-.len-btn.active { border-color:#00ff88; background:rgba(0,255,136,0.06); }
-.len-btn .lb-icon { font-size:16px; display:block; margin-bottom:3px; }
-.len-btn .lb-title { font-size:11px; font-weight:700; color:#888; }
-.len-btn.active .lb-title { color:#00ff88; }
-.len-btn .lb-time { font-size:10px; color:#444; }
-.len-btn.active .lb-time { color:#00cc66; }
-
-.voice-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.voice-btn {
-  padding:10px 12px;
-  background:#0d0d0d; border:1px solid #2a2a2a;
-  border-radius:8px; cursor:pointer; transition:all 0.2s;
-  display:flex; align-items:center; gap:8px;
-  font-family:'Cairo',sans-serif;
-}
-.voice-btn:hover { border-color:#333; }
-.voice-btn.active { border-color:#00ff88; background:rgba(0,255,136,0.06); }
-.voice-btn .vi { font-size:18px; }
-.voice-btn .vn { font-size:12px; font-weight:700; color:#888; }
-.voice-btn.active .vn { color:#00ff88; }
-.voice-btn .vd { font-size:10px; color:#444; }
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#080808;color:#f0f0f0;font-family:'Cairo',sans-serif;min-height:100vh;}
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+.topbar{background:#111;border-bottom:1px solid #1e1e1e;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.topbar-title{font-size:16px;font-weight:900;color:#fff;}
+.topbar-sub{font-size:11px;color:#555;margin-top:2px;}
+.sbtn{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:7px 12px;color:#888;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
+.spanel{display:none;background:#111;border-bottom:1px solid #1e1e1e;padding:16px;flex-shrink:0;}
+.spanel.open{display:block;}
+.sf{margin-bottom:12px;}
+.sf label{font-size:10px;color:#555;display:block;margin-bottom:5px;font-weight:700;letter-spacing:1px;}
+.sf input{width:100%;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:8px;padding:9px 12px;color:#fff;font-family:monospace;font-size:11px;outline:none;direction:ltr;}
+.sf input:focus{border-color:#00ff88;}
+.lgrid{display:flex;gap:8px;margin-bottom:12px;}
+.lbtn{flex:1;padding:10px 6px;text-align:center;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:8px;cursor:pointer;font-family:'Cairo',sans-serif;}
+.lbtn.active{border-color:#00ff88;background:rgba(0,255,136,0.06);}
+.lbtn .li{font-size:18px;display:block;margin-bottom:3px;}
+.lbtn .lt{font-size:11px;font-weight:700;color:#888;}
+.lbtn.active .lt{color:#00ff88;}
+.lbtn .ls{font-size:10px;color:#444;}
+.vgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.vbtn{padding:10px 12px;background:#0d0d0d;border:1px solid #2a2a2a;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px;font-family:'Cairo',sans-serif;}
+.vbtn.active{border-color:#00ff88;background:rgba(0,255,136,0.06);}
+.vi{font-size:18px;}
+.vn{font-size:12px;font-weight:700;color:#888;}
+.vbtn.active .vn{color:#00ff88;}
+.vd{font-size:10px;color:#444;}
+.fbar{background:#0d0d0d;border-bottom:1px solid #1e1e1e;padding:10px 16px;display:flex;gap:8px;overflow-x:auto;flex-shrink:0;}
+.fbar::-webkit-scrollbar{display:none;}
+.ftab{background:#1a1a1a;border:1px solid #222;border-radius:20px;padding:6px 14px;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;color:#555;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.ftab.active{background:rgba(0,255,136,0.08);border-color:#00ff88;color:#00ff88;}
+.tlist{flex:1;overflow-y:auto;padding:12px 16px;}
+.tcard{background:#111;border:1px solid #1e1e1e;border-radius:14px;padding:16px;margin-bottom:10px;cursor:pointer;display:flex;align-items:flex-start;gap:14px;position:relative;transition:border-color 0.2s,background 0.2s;}
+.tcard:hover{border-color:#00ff88;background:#0d1a0d;}
+.tcard.used{opacity:0.4;cursor:not-allowed;}
+.tcard.used:hover{border-color:#1e1e1e;background:#111;}
+.te{font-size:28px;flex-shrink:0;margin-top:2px;}
+.tbody{flex:1;min-width:0;}
+.tt{font-size:13px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.4;}
+.tmeta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:#1a1a1a;color:#555;}
+.srow{display:flex;align-items:center;gap:8px;}
+.slbl{font-size:10px;color:#444;width:40px;}
+.strk{flex:1;height:3px;background:#1a1a1a;border-radius:2px;overflow:hidden;}
+.sfil{height:100%;border-radius:2px;}
+.sval{font-size:10px;font-weight:800;width:30px;}
+.tarr{font-size:18px;color:#333;flex-shrink:0;margin-top:4px;}
+.used-badge{position:absolute;top:10px;left:10px;background:#2a1a1a;color:#ff4444;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;}
+.bbar{background:#111;border-top:1px solid #1e1e1e;padding:12px 16px;flex-shrink:0;text-align:center;font-size:11px;color:#444;}
+.pwrap{flex:1;display:flex;flex-direction:column;padding:20px 16px;}
+.tprev{background:#111;border:1px solid #1e1e1e;border-radius:14px;padding:14px;margin-bottom:20px;display:flex;gap:12px;align-items:center;}
+.tpe{font-size:26px;}
+.tpt{font-size:13px;font-weight:700;color:#fff;line-height:1.4;}
+.tpc{font-size:11px;color:#555;margin-top:3px;}
+.swrap{flex:1;}
+.sitem{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:#111;border:1px solid #1e1e1e;position:relative;}
+.sitem:first-child{border-radius:14px 14px 0 0;}
+.sitem:last-child{border-radius:0 0 14px 14px;}
+.sitem:not(:last-child){border-bottom:none;}
+.sitem.active{background:#0a1a0a;border-color:rgba(0,255,136,0.2);}
+.sitem.done{background:#080d08;}
+.sitem.error{background:#1a0808;border-color:rgba(255,68,68,0.2);}
+.sdot{width:28px;height:28px;border-radius:50%;background:#1a1a1a;border:2px solid #2a2a2a;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#444;flex-shrink:0;transition:all 0.3s;}
+.sitem.active .sdot{background:#00ff88;border-color:#00ff88;color:#000;animation:gl 1.2s infinite;}
+.sitem.done .sdot{background:#00cc66;border-color:#00cc66;color:#000;}
+.sitem.error .sdot{background:#ff4444;border-color:#ff4444;color:#fff;}
+@keyframes gl{0%,100%{box-shadow:0 0 0 0 rgba(0,255,136,0.4)}50%{box-shadow:0 0 0 8px rgba(0,255,136,0)}}
+.sinfo{flex:1;}
+.stit{font-size:13px;font-weight:700;color:#444;margin-bottom:3px;}
+.sitem.active .stit{color:#00ff88;}
+.sitem.done .stit{color:#fff;}
+.sdet{font-size:11px;color:#333;line-height:1.6;}
+.sitem.active .sdet{color:#888;}
+.sitem.done .sdet{color:#00cc66;}
+.sitem.error .sdet{color:#ff4444;}
+.sbar{height:2px;background:#1a1a1a;border-radius:1px;margin-top:8px;overflow:hidden;}
+.sbfil{height:100%;border-radius:1px;background:#00ff88;transition:width 0.4s;width:0%;}
+.stim{font-size:10px;color:#333;flex-shrink:0;font-family:monospace;}
+.sitem.done .stim{color:#1a4a1a;}
+.rscroll{flex:1;overflow-y:auto;padding:16px;}
+.rscroll::-webkit-scrollbar{width:3px;}
+.rscroll::-webkit-scrollbar-thumb{background:#1a1a1a;}
+.rhero{background:linear-gradient(135deg,rgba(0,255,136,0.06),rgba(0,204,102,0.03));border:1px solid rgba(0,255,136,0.15);border-radius:16px;padding:18px;margin-bottom:12px;display:flex;gap:12px;align-items:flex-start;}
+.rhe{font-size:34px;flex-shrink:0;}
+.rht{font-size:14px;font-weight:700;color:#fff;margin-bottom:8px;line-height:1.4;}
+.rhtags{display:flex;gap:6px;flex-wrap:wrap;}
+.rtag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;}
+.rtg{background:rgba(0,255,136,0.1);color:#00ff88;}
+.rtb{background:rgba(66,133,244,0.1);color:#4285f4;}
+.rtx{background:#1a1a1a;color:#666;}
+.scard{background:#111;border:1px solid #1e1e1e;border-radius:14px;padding:16px;margin-bottom:12px;}
+.slbl{font-size:10px;color:#555;font-weight:700;letter-spacing:1px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+.qbig{display:flex;align-items:center;gap:14px;margin-bottom:12px;}
+.qnum{font-size:46px;font-weight:900;font-family:monospace;line-height:1;}
+.qtrk{flex:1;height:6px;background:#1a1a1a;border-radius:3px;overflow:hidden;}
+.qfil{height:100%;border-radius:3px;transition:width 0.8s;}
+.cklist{display:flex;flex-direction:column;gap:8px;}
+.ckrow{display:flex;align-items:center;gap:10px;font-size:12px;}
+.ckico{font-size:14px;}
+.cklbl{flex:1;color:#888;}
+.ckpts{font-family:monospace;font-size:11px;font-weight:700;}
+.sprev{background:#0d0d0d;border:1px solid #1a1a1a;border-radius:10px;padding:14px;font-size:12px;line-height:1.9;max-height:200px;overflow-y:auto;color:#aaa;white-space:pre-wrap;direction:rtl;}
+.sprev::-webkit-scrollbar{width:3px;}
+.sprev::-webkit-scrollbar-thumb{background:#222;}
+audio{width:100%;border-radius:8px;}
+.igrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px;}
+.iitem{border-radius:8px;overflow:hidden;aspect-ratio:16/9;background:#1a1a1a;position:relative;}
+.iitem img{width:100%;height:100%;object-fit:cover;}
+.idl{position:absolute;bottom:3px;left:3px;background:rgba(0,0,0,0.8);border:none;border-radius:5px;padding:3px 7px;font-size:10px;color:#fff;cursor:pointer;opacity:0;transition:opacity 0.2s;text-decoration:none;}
+.iitem:hover .idl{opacity:1;}
+.act{padding:9px 14px;border-radius:9px;border:1px solid #2a2a2a;background:#0d0d0d;color:#888;font-family:'Cairo',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;text-decoration:none;}
+.act:hover{border-color:#444;color:#fff;}
+.act.g{background:#00ff88;border-color:#00ff88;color:#000;}
+.bnav{background:#111;border-top:1px solid #1e1e1e;padding:12px 16px;flex-shrink:0;}
+.mbtn{width:100%;padding:15px;background:#00ff88;color:#000;border:none;border-radius:12px;font-family:'Cairo',sans-serif;font-size:16px;font-weight:900;cursor:pointer;}
+.mbtn:hover{background:#00ffaa;}
+.cbtn{background:none;border:1px solid #2a2a2a;border-radius:8px;padding:6px 12px;color:#666;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(40px);background:#1a1a1a;border:1px solid #333;border-radius:10px;padding:10px 18px;font-size:13px;z-index:999;opacity:0;transition:all 0.3s;white-space:nowrap;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
 </style>
 </head>
 <body>
 
-<!-- ══ SCREEN 1: TRENDS ══ -->
-<div class="screen active" id="screen-trends">
-
+<!-- SCREEN 1 -->
+<div class="screen active" id="s-trends">
   <div class="topbar">
-    <div>
-      <div class="topbar-title">🔥 AutoContent</div>
-      <div class="topbar-sub">اختر موضوع للبدء</div>
+    <div><div class="topbar-title">AutoContent</div><div class="topbar-sub">اختر موضوع للبدء</div></div>
+    <button class="sbtn" onclick="toggleS()">الإعدادات</button>
+  </div>
+  <div class="spanel" id="sp">
+    <div class="sf"><label>CLAUDE API KEY</label><input type="password" id="ck" placeholder="sk-ant-..." oninput="saveK()"></div>
+    <div class="sf"><label>ELEVENLABS KEY</label><input type="password" id="ek" placeholder="sk_..." oninput="saveK()"></div>
+    <div style="font-size:10px;color:#555;font-weight:700;letter-spacing:1px;margin-bottom:8px;">طول السكريبت</div>
+    <div class="lgrid">
+      <div class="lbtn" data-l="short" onclick="selL(this)"><span class="li">⚡</span><span class="lt">قصير</span><span class="ls">5د</span></div>
+      <div class="lbtn active" data-l="medium" onclick="selL(this)"><span class="li">⚖️</span><span class="lt">متوسط</span><span class="ls">8د</span></div>
+      <div class="lbtn" data-l="long" onclick="selL(this)"><span class="li">📜</span><span class="lt">طويل</span><span class="ls">12د</span></div>
     </div>
-    <div class="topbar-right">
-      <button class="settings-btn" onclick="toggleSettings()">⚙️ الإعدادات</button>
+    <div style="font-size:10px;color:#555;font-weight:700;letter-spacing:1px;margin-bottom:8px;">الصوت</div>
+    <div class="vgrid">
+      <div class="vbtn active" data-v="pNInz6obpgDQGcFmaJgB" onclick="selV(this)"><span class="vi">🎙️</span><div><div class="vn">Adam</div><div class="vd">رجالي</div></div></div>
+      <div class="vbtn" data-v="EXAVITQu4vr4xnSDxMaL" onclick="selV(this)"><span class="vi">🎤</span><div><div class="vn">Sarah</div><div class="vd">نسائي</div></div></div>
+      <div class="vbtn" data-v="ErXwobaYiN019PkySvjV" onclick="selV(this)"><span class="vi">🎧</span><div><div class="vn">Antoni</div><div class="vd">مهني</div></div></div>
+      <div class="vbtn" data-v="AZnzlk1XvdvUeBnXmlld" onclick="selV(this)"><span class="vi">🌸</span><div><div class="vn">Domi</div><div class="vd">طبيعي</div></div></div>
     </div>
   </div>
-
-  <!-- Settings Panel -->
-  <div class="settings-panel" id="settingsPanel">
-    <div class="settings-row">
-      <div class="sf">
-        <label>CLAUDE API KEY</label>
-        <input type="password" id="claudeKey" placeholder="sk-ant-..." oninput="saveKeys()" />
-      </div>
-      <div class="sf">
-        <label>ELEVENLABS KEY</label>
-        <input type="password" id="elevenKey" placeholder="sk_..." oninput="saveKeys()" />
-      </div>
-    </div>
-
-    <div style="margin-bottom:10px;">
-      <div style="font-size:10px;color:#555;font-weight:700;letter-spacing:1px;margin-bottom:8px;">طول السكريبت</div>
-      <div class="len-grid">
-        <div class="len-btn" data-len="short" onclick="selLen(this)">
-          <span class="lb-icon">⚡</span>
-          <span class="lb-title">قصير</span>
-          <span class="lb-time">~10 ث</span>
-        </div>
-        <div class="len-btn active" data-len="medium" onclick="selLen(this)">
-          <span class="lb-icon">⚖️</span>
-          <span class="lb-title">متوسط</span>
-          <span class="lb-time">~20 ث</span>
-        </div>
-        <div class="len-btn" data-len="long" onclick="selLen(this)">
-          <span class="lb-icon">📜</span>
-          <span class="lb-title">طويل</span>
-          <span class="lb-time">~45 ث</span>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <div style="font-size:10px;color:#555;font-weight:700;letter-spacing:1px;margin-bottom:8px;">الصوت</div>
-      <div class="voice-grid">
-        <div class="voice-btn active" data-vid="pNInz6obpgDQGcFmaJgB" onclick="selVoice(this)">
-          <span class="vi">🎙️</span><div><div class="vn">Adam</div><div class="vd">رجالي درامي</div></div>
-        </div>
-        <div class="voice-btn" data-vid="EXAVITQu4vr4xnSDxMaL" onclick="selVoice(this)">
-          <span class="vi">🎤</span><div><div class="vn">Sarah</div><div class="vd">نسائي ناعم</div></div>
-        </div>
-        <div class="voice-btn" data-vid="ErXwobaYiN019PkySvjV" onclick="selVoice(this)">
-          <span class="vi">🎧</span><div><div class="vn">Antoni</div><div class="vd">رجالي مهني</div></div>
-        </div>
-        <div class="voice-btn" data-vid="AZnzlk1XvdvUeBnXmlld" onclick="selVoice(this)">
-          <span class="vi">🌸</span><div><div class="vn">Domi</div><div class="vd">نسائي طبيعي</div></div>
-        </div>
-      </div>
-    </div>
+  <div class="fbar">
+    <button class="ftab active" data-c="all" onclick="fCat('all',this)">الكل</button>
+    <button class="ftab" data-c="crime" onclick="fCat('crime',this)">جرائم</button>
+    <button class="ftab" data-c="tech" onclick="fCat('tech',this)">تقنية</button>
+    <button class="ftab" data-c="mystery" onclick="fCat('mystery',this)">ألغاز</button>
+    <button class="ftab" data-c="finance" onclick="fCat('finance',this)">مال</button>
+    <button class="ftab" data-c="science" onclick="fCat('science',this)">علوم</button>
+    <button class="ftab" data-c="history" onclick="fCat('history',this)">تاريخ</button>
+    <button class="ftab" data-c="motivation" onclick="fCat('motivation',this)">تحفيز</button>
   </div>
-
-  <!-- Filter tabs -->
-  <div class="filter-bar">
-    <button class="ftab active" data-cat="all" onclick="filterTrends('all',this)">🔥 الكل</button>
-    <button class="ftab" data-cat="crime" onclick="filterTrends('crime',this)">🔪 جرائم</button>
-    <button class="ftab" data-cat="tech" onclick="filterTrends('tech',this)">💻 تقنية</button>
-    <button class="ftab" data-cat="mystery" onclick="filterTrends('mystery',this)">🕵️ ألغاز</button>
-    <button class="ftab" data-cat="finance" onclick="filterTrends('finance',this)">💰 مال</button>
-    <button class="ftab" data-cat="science" onclick="filterTrends('science',this)">🔬 علوم</button>
-    <button class="ftab" data-cat="history" onclick="filterTrends('history',this)">📜 تاريخ</button>
-    <button class="ftab" data-cat="motivation" onclick="filterTrends('motivation',this)">🚀 تحفيز</button>
-  </div>
-
-  <!-- Trends list -->
-  <div class="trends-list" id="trendsList"></div>
-
-  <div class="bottom-bar" id="dbCount">📚 المحتوى المنتج: 0 فيديو</div>
+  <div class="tlist" id="tlist"></div>
+  <div class="bbar" id="cnt">المحتوى المنتج: 0 فيديو</div>
 </div>
 
-<!-- ══ SCREEN 2: PIPELINE ══ -->
-<div class="screen" id="screen-pipeline">
+<!-- SCREEN 2 -->
+<div class="screen" id="s-pipe">
   <div class="topbar">
-    <div>
-      <div class="topbar-title">⚡ جاري الإنتاج</div>
-      <div class="topbar-sub" id="pipe-subtitle">يتم معالجة المحتوى...</div>
-    </div>
-    <button onclick="goBack()" style="background:none;border:1px solid #2a2a2a;border-radius:8px;padding:6px 12px;color:#666;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;">✕ إلغاء</button>
+    <div><div class="topbar-title">جاري الإنتاج</div><div class="topbar-sub" id="psub">يرجى الانتظار...</div></div>
+    <button class="cbtn" onclick="goBack()">إلغاء</button>
   </div>
-
-  <div class="pipe-wrap">
-    <div class="pipe-topic-preview" id="pipeTopicPreview">
-      <div class="ptp-emoji" id="pipe-emoji">🎬</div>
-      <div>
-        <div class="ptp-title" id="pipe-title">—</div>
-        <div class="ptp-cat" id="pipe-cat">—</div>
-      </div>
-    </div>
-
-    <div class="steps-list">
-      <div class="step-item" id="si-script">
-        <div class="step-dot" id="sd-script">1</div>
-        <div class="step-info">
-          <div class="step-title">كتابة السكريبت</div>
-          <div class="step-detail" id="dd-script">في الانتظار...</div>
-          <div class="step-bar"><div class="step-bar-fill" id="sb-script"></div></div>
-        </div>
-        <div class="step-time" id="st-script"></div>
-      </div>
-      <div class="step-item" id="si-quality">
-        <div class="step-dot" id="sd-quality">2</div>
-        <div class="step-info">
-          <div class="step-title">فحص الجودة</div>
-          <div class="step-detail" id="dd-quality">في الانتظار...</div>
-          <div class="step-bar"><div class="step-bar-fill" id="sb-quality"></div></div>
-        </div>
-        <div class="step-time" id="st-quality"></div>
-      </div>
-      <div class="step-item" id="si-voice">
-        <div class="step-dot" id="sd-voice">3</div>
-        <div class="step-info">
-          <div class="step-title">توليد الصوت</div>
-          <div class="step-detail" id="dd-voice">في الانتظار...</div>
-          <div class="step-bar"><div class="step-bar-fill" id="sb-voice"></div></div>
-        </div>
-        <div class="step-time" id="st-voice"></div>
-      </div>
-      <div class="step-item" id="si-save">
-        <div class="step-dot" id="sd-save">4</div>
-        <div class="step-info">
-          <div class="step-title">الحفظ</div>
-          <div class="step-detail" id="dd-save">في الانتظار...</div>
-          <div class="step-bar"><div class="step-bar-fill" id="sb-save"></div></div>
-        </div>
-        <div class="step-time" id="st-save"></div>
-      </div>
+  <div class="pwrap">
+    <div class="tprev"><div class="tpe" id="pe">🎬</div><div><div class="tpt" id="pt"></div><div class="tpc" id="pc"></div></div></div>
+    <div class="swrap">
+      <div class="sitem" id="si1"><div class="sdot" id="sd1">1</div><div class="sinfo"><div class="stit">كتابة السكريبت</div><div class="sdet" id="dd1">في الانتظار...</div><div class="sbar"><div class="sbfil" id="sb1"></div></div></div><div class="stim" id="st1"></div></div>
+      <div class="sitem" id="si2"><div class="sdot" id="sd2">2</div><div class="sinfo"><div class="stit">فحص الجودة</div><div class="sdet" id="dd2">في الانتظار...</div><div class="sbar"><div class="sbfil" id="sb2"></div></div></div><div class="stim" id="st2"></div></div>
+      <div class="sitem" id="si3"><div class="sdot" id="sd3">3</div><div class="sinfo"><div class="stit">توليد الصوت</div><div class="sdet" id="dd3">في الانتظار...</div><div class="sbar"><div class="sbfil" id="sb3"></div></div></div><div class="stim" id="st3"></div></div>
+      <div class="sitem" id="si4"><div class="sdot" id="sd4">4</div><div class="sinfo"><div class="stit">الحفظ</div><div class="sdet" id="dd4">في الانتظار...</div><div class="sbar"><div class="sbfil" id="sb4"></div></div></div><div class="stim" id="st4"></div></div>
     </div>
   </div>
 </div>
 
-<!-- ══ SCREEN 3: RESULT ══ -->
-<div class="screen" id="screen-result">
+<!-- SCREEN 3 -->
+<div class="screen" id="s-result">
   <div class="topbar">
-    <div>
-      <div class="topbar-title">🎉 المحتوى جاهز!</div>
-      <div class="topbar-sub">راجع وحمّل</div>
-    </div>
-    <button onclick="goBack()" style="background:none;border:1px solid #2a2a2a;border-radius:8px;padding:6px 12px;color:#666;cursor:pointer;font-family:'Cairo',sans-serif;font-size:12px;">← رجوع</button>
+    <div><div class="topbar-title">المحتوى جاهز!</div><div class="topbar-sub">راجع وحمّل</div></div>
+    <button class="cbtn" onclick="goBack()">رجوع</button>
   </div>
-
-  <div class="result-scroll">
-
-    <div class="result-hero">
-      <div class="rh-emoji" id="r-emoji">🎬</div>
-      <div>
-        <div class="rh-title" id="r-title"></div>
-        <div class="rh-tags" id="r-tags"></div>
-      </div>
+  <div class="rscroll">
+    <div class="rhero"><div class="rhe" id="re">🎬</div><div><div class="rht" id="rt"></div><div class="rhtags" id="rtags"></div></div></div>
+    <div class="scard">
+      <div class="slabel">QUALITY</div>
+      <div class="qbig"><div class="qnum" id="rq"></div><div class="qtrk"><div class="qfil" id="rqf"></div></div></div>
+      <div class="cklist" id="rcks"></div>
     </div>
-
-    <!-- Quality -->
-    <div class="section-card">
-      <div class="section-label">QUALITY SCORE</div>
-      <div class="quality-big">
-        <div class="q-num" id="r-qnum"></div>
-        <div class="q-track"><div class="q-fill" id="r-qfill"></div></div>
-      </div>
-      <div class="check-list" id="r-checks"></div>
+    <div class="scard">
+      <div class="slabel">SCRIPT<div style="display:flex;gap:6px;"><button class="act" onclick="cpScript()" style="padding:5px 10px;font-size:11px;">نسخ</button><button class="act" onclick="dlScript()" style="padding:5px 10px;font-size:11px;">تحميل</button></div></div>
+      <div class="sprev" id="rscript"></div>
+      <div style="font-size:11px;color:#444;margin-top:8px;" id="rstat"></div>
     </div>
-
-    <!-- Script -->
-    <div class="section-card">
-      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>SCRIPT</span>
-        <div style="display:flex;gap:6px;">
-          <button class="act" onclick="copyScript()" style="padding:5px 10px;font-size:11px;">📋 نسخ</button>
-          <button class="act" onclick="dlScript()" style="padding:5px 10px;font-size:11px;">📥 تحميل</button>
-        </div>
+    <div class="scard">
+      <div class="slabel">الصوت<a class="act" id="rdla" href="#" download="audio.mp3" style="padding:5px 10px;font-size:11px;display:none;">تحميل</a></div>
+      <div id="amsg" style="background:#0d0d0d;border-radius:10px;padding:16px;text-align:center;">
+        <div style="color:#555;font-size:12px;margin-bottom:12px;">أضف مفتاح ElevenLabs للصوت</div>
+        <input type="password" id="ekr" placeholder="sk_..." style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:9px 12px;color:#fff;font-family:monospace;font-size:11px;outline:none;direction:ltr;margin-bottom:10px;">
+        <button id="vbtnEl" onclick="genVoice()" style="width:100%;padding:11px;background:#00ff88;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;color:#000;">توليد الصوت</button>
       </div>
-      <div class="script-preview" id="r-script"></div>
-      <div style="font-size:11px;color:#444;margin-top:8px;" id="r-stats"></div>
+      <audio id="raudio" controls style="width:100%;border-radius:8px;display:none;"></audio>
     </div>
-
-    <!-- Audio -->
-    <div class="section-card" id="r-audio-card">
-      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>🎙️ الصوت</span>
-        <a class="act" id="r-dl-audio" href="#" download="audio.mp3" style="padding:5px 10px;font-size:11px;display:none;">📥 تحميل</a>
-      </div>
-      <div id="r-audio-wrap">
-        <div style="background:#0d0d0d;border-radius:10px;padding:14px;text-align:center;color:#444;font-size:12px;" id="r-audio-placeholder">
-          ⏳ جاري توليد الصوت...
-        </div>
-        <audio id="r-audio" controls style="width:100%;border-radius:8px;display:none;"></audio>
-      </div>
+    <div class="scard">
+      <div class="slabel">صور للفيديو<button class="act" onclick="moreImgs()" style="padding:5px 10px;font-size:11px;">المزيد</button></div>
+      <div class="igrid" id="rimgs"><div style="grid-column:1/-1;text-align:center;color:#444;font-size:12px;padding:20px;">جاري تحميل الصور...</div></div>
     </div>
-
-    <!-- Images -->
-    <div class="section-card" id="r-img-card">
-      <div class="section-label" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>📸 صور للفيديو</span>
-        <button class="act" onclick="loadMoreImgs()" style="padding:5px 10px;font-size:11px;">🔄 المزيد</button>
-      </div>
-      <div class="img-grid" id="r-img-grid">
-        <div style="grid-column:1/-1;text-align:center;color:#444;font-size:12px;padding:20px;">⏳ جاري تحميل الصور...</div>
-      </div>
-    </div>
-
-    <!-- Next steps -->
-    <div class="section-card">
-      <div class="section-label">NEXT STEPS</div>
+    <div class="scard">
+      <div class="slabel">الخطوات التالية</div>
       <div style="display:flex;flex-direction:column;gap:10px;">
-        <a href="https://www.capcut.com" target="_blank" class="act" style="justify-content:flex-start;">✂️ افتح CapCut للمونتاج</a>
-        <a href="https://canva.com" target="_blank" class="act" style="justify-content:flex-start;">🎨 صمم ثامبنيل في Canva</a>
-        <a href="https://youtube.com/upload" target="_blank" class="act" style="justify-content:flex-start;">📤 ارفع على يوتيوب</a>
+        <a href="https://www.capcut.com" target="_blank" class="act" style="justify-content:flex-start;">CapCut للمونتاج</a>
+        <a href="https://canva.com" target="_blank" class="act" style="justify-content:flex-start;">Canva للثامبنيل</a>
+        <a href="https://youtube.com/upload" target="_blank" class="act" style="justify-content:flex-start;">رفع على يوتيوب</a>
       </div>
-      <div style="background:#0d0d0d;border-radius:8px;padding:10px;margin-top:10px;font-size:11px;color:#555;line-height:2;">
-        ⏰ أفضل وقت للنشر: <b style="color:#00ff88;">7 - 10 مساءً</b> بتوقيت السعودية
-      </div>
+      <div style="background:#0d0d0d;border-radius:8px;padding:10px;margin-top:10px;font-size:11px;color:#555;">افضل وقت للنشر: <b style="color:#00ff88;">7-10 مساء</b></div>
     </div>
-
     <div style="height:80px;"></div>
   </div>
-
-  <div class="bottom-nav">
-    <button class="main-btn green" onclick="goBack()">⚡ إنتاج محتوى جديد</button>
-  </div>
+  <div class="bnav"><button class="mbtn" onclick="goBack()">انتج محتوى جديد</button></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ══ DATA ══
-let DB = JSON.parse(localStorage.getItem('acai_v4') || '[]');
-let selectedVoiceId = 'pNInz6obpgDQGcFmaJgB';
-let selectedLen = 'medium';
-let currentCat = 'all';
-let currentScript = '';
-let currentTopic = null;
-let currentAudioUrl = null;
-let imgPage = 1;
-let imgQuery = '';
-let busy = false;
+var DB=JSON.parse(localStorage.getItem('ac5')||'[]');
+var vid='pNInz6obpgDQGcFmaJgB';
+var lk='medium';
+var cc='all';
+var cs='';
+var ct=null;
+var ip=1;
+var iq='';
+var busy=false;
+var rt=[];
 
-const LEN = {
-  short:  {words:'500-600',  mins:'4-5',  tokens:1200},
-  medium: {words:'800-1000', mins:'7-9',  tokens:2000},
-  long:   {words:'1200-1500',mins:'10-13',tokens:3000},
-};
+var LS={short:{w:'500-650',t:1200},medium:{w:'800-1000',t:2000},long:{w:'1100-1400',t:3000}};
+var CN={crime:'جرائم',tech:'تقنية',mystery:'ألغاز',finance:'مال',science:'علوم',history:'تاريخ',motivation:'تحفيز'};
 
-const CAT_NAMES = {crime:'جرائم',tech:'تقنية',mystery:'ألغاز',finance:'مال',science:'علوم',history:'تاريخ',motivation:'تحفيز'};
-
-const TOPICS = {
+var TP={
   crime:[
-    {emoji:'🔪',title:'تيد باندي — المجرم الذي خدع الجميع بوجهه البريء',kw:'جرائم حقيقية,قاتل متسلسل',score:92},
-    {emoji:'☠️',title:'جاك السفاح — أكبر لغز جنائي لم يُحل حتى اليوم',kw:'جرائم تاريخية,لندن',score:88},
-    {emoji:'💀',title:'جيفري داهمر — الوحش الذي كان يعيش بيننا',kw:'داهمر,قاتل متسلسل',score:95},
-    {emoji:'🕵️',title:'الاحتيال الإلكتروني — كيف يسرقون مليار دولار من المنزل',kw:'احتيال,جرائم مالية',score:87},
-    {emoji:'🔫',title:'مافيا الصقلية — أخطر منظمة إجرامية في التاريخ',kw:'مافيا,جريمة منظمة',score:84},
-    {emoji:'🏦',title:'سطو القرن — أكبر عملية سرقة بنك في التاريخ',kw:'سطو,بنك,سرقة',score:90},
-    {emoji:'👻',title:'القاتل الصامت — 10 سنوات يقتل ولا أحد يعلم',kw:'قاتل,جريمة',score:86},
-    {emoji:'🧪',title:'جرائم التسميم — أغرب قضايا القتل في التاريخ',kw:'تسميم,جريمة,غريب',score:82},
+    {e:'🔪',t:'تيد باندي — المجرم الذي خدع الجميع بوجهه البريء',k:'جرائم حقيقية,قاتل متسلسل',s:92},
+    {e:'☠️',t:'جاك السفاح — أكبر لغز جنائي لم يحل حتى اليوم',k:'جرائم تاريخية,لندن',s:88},
+    {e:'💀',t:'جيفري داهمر — الوحش الذي كان يعيش بيننا',k:'داهمر,قاتل متسلسل',s:95},
+    {e:'🕵️',t:'الاحتيال الالكتروني — كيف يسرقون مليار دولار من المنزل',k:'احتيال,جرائم مالية',s:87},
+    {e:'🔫',t:'مافيا الصقلية — اخطر منظمة اجرامية في التاريخ',k:'مافيا,جريمة منظمة',s:84},
+    {e:'🏦',t:'سطو القرن — اكبر عملية سرقة بنك في التاريخ',k:'سطو,بنك,سرقة',s:90},
+    {e:'👻',t:'القاتل الصامت — عشر سنوات يقتل ولا احد يعلم',k:'قاتل,جريمة',s:86},
+    {e:'🧪',t:'جرائم التسميم — اغرب قضايا القتل في التاريخ',k:'تسميم,جريمة,غريب',s:82}
   ],
   tech:[
-    {emoji:'🤖',title:'الذكاء الاصطناعي يستبدل 300 مليون وظيفة — من ينجو؟',kw:'ذكاء اصطناعي,وظائف',score:98},
-    {emoji:'📱',title:'هاتفك يتجسس عليك — الحقيقة الصادمة',kw:'خصوصية,هاتف,تجسس',score:91},
-    {emoji:'🔐',title:'أقوى هجوم إلكتروني في التاريخ — اخترقوا حكومات',kw:'هاكر,أمن إلكتروني',score:89},
-    {emoji:'🌐',title:'الإنترنت المظلم — ما الذي يحدث هناك فعلاً؟',kw:'dark web,إنترنت مظلم',score:86},
-    {emoji:'🚀',title:'SpaceX — كيف غيّر ماسك مستقبل الفضاء للأبد',kw:'spacex,فضاء,ماسك',score:88},
-    {emoji:'⚡',title:'ChatGPT vs Claude — أيهما أذكى في 2026؟',kw:'chatgpt,claude,ذكاء اصطناعي',score:94},
+    {e:'🤖',t:'الذكاء الاصطناعي يستبدل 300 مليون وظيفة — من ينجو؟',k:'ذكاء اصطناعي,وظائف',s:98},
+    {e:'📱',t:'هاتفك يتجسس عليك — الحقيقة الصادمة',k:'خصوصية,هاتف,تجسس',s:91},
+    {e:'🔐',t:'اقوى هجوم الكتروني في التاريخ — اخترقوا حكومات',k:'هاكر,امن الكتروني',s:89},
+    {e:'🌐',t:'الانترنت المظلم — ما الذي يحدث هناك فعلا؟',k:'dark web,انترنت مظلم',s:86},
+    {e:'🚀',t:'SpaceX — كيف غير ماسك مستقبل الفضاء للابد',k:'spacex,فضاء,ماسك',s:88},
+    {e:'⚡',t:'ChatGPT vs Claude — ايهما اذكى في 2026؟',k:'chatgpt,claude,ذكاء اصطناعي',s:94}
   ],
   mystery:[
-    {emoji:'🌊',title:'مادلين ماكان — اللغز الذي حير العالم 19 سنة',kw:'اختفاء,لغز',score:91},
-    {emoji:'👽',title:'منطقة 51 — ماذا تخفي أمريكا عن الكائنات الفضائية؟',kw:'منطقة 51,مؤامرة',score:86},
-    {emoji:'🔺',title:'مثلث برمودا — الحقيقة التي لا يريدونك أن تعرفها',kw:'برمودا,لغز,اختفاء',score:84},
-    {emoji:'🗿',title:'أسرار الأهرامات التي حيرت العلماء لآلاف السنين',kw:'أهرامات,لغز,مصر',score:89},
-    {emoji:'👁️',title:'الماسونية — الحقيقة الكاملة عن الجمعية السرية',kw:'ماسونية,سرية,مؤامرة',score:82},
+    {e:'🌊',t:'مادلين ماكان — اللغز الذي حير العالم 19 سنة',k:'اختفاء,لغز',s:91},
+    {e:'👽',t:'منطقة 51 — ماذا تخفي امريكا عن الكائنات الفضائية؟',k:'منطقة 51,مؤامرة',s:86},
+    {e:'🔺',t:'مثلث برمودا — الحقيقة التي لا يريدونك ان تعرفها',k:'برمودا,لغز,اختفاء',s:84},
+    {e:'🗿',t:'اسرار الاهرامات التي حيرت العلماء لالاف السنين',k:'اهرامات,لغز,مصر',s:89},
+    {e:'👁️',t:'الماسونية — الحقيقة الكاملة عن الجمعية السرية',k:'ماسونية,سرية,مؤامرة',s:82}
   ],
   finance:[
-    {emoji:'💰',title:'كيف ربح شاب 23 سنة مليون دولار من يوتيوب؟',kw:'ربح,يوتيوب,نجاح',score:96},
-    {emoji:'📈',title:'Bitcoin 2026 — هل يصل لـ 200,000 دولار؟',kw:'بيتكوين,استثمار',score:93},
-    {emoji:'💎',title:'5 عادات الأثرياء التي لا يعلمها الفقراء',kw:'ثروة,عادات,نجاح مالي',score:90},
-    {emoji:'🏦',title:'كيف تصنع أول 100,000 دولار من الصفر',kw:'استثمار,مال,بداية',score:88},
-    {emoji:'📉',title:'انهيار 2008 — كيف خسر الملايين كل شيء في يوم',kw:'أزمة مالية,2008',score:85},
+    {e:'💰',t:'كيف ربح شاب 23 سنة مليون دولار من يوتيوب؟',k:'ربح,يوتيوب,نجاح',s:96},
+    {e:'📈',t:'Bitcoin 2026 — هل يصل الى 200,000 دولار؟',k:'بيتكوين,استثمار',s:93},
+    {e:'💎',t:'5 عادات الاثرياء التي لا يعلمها الفقراء',k:'ثروة,عادات,نجاح مالي',s:90},
+    {e:'🏦',t:'كيف تصنع اول 100,000 دولار من الصفر',k:'استثمار,مال,بداية',s:88},
+    {e:'📉',t:'انهيار 2008 — كيف خسر الملايين كل شيء في يوم',k:'ازمة مالية,2008',s:85}
   ],
   science:[
-    {emoji:'🧬',title:'العلماء اكتشفوا كيف يوقفون الشيخوخة — التفاصيل',kw:'علوم,طب,شيخوخة',score:90},
-    {emoji:'🌍',title:'الاحترار العالمي — 10 سنوات قبل الكارثة',kw:'تغير مناخي,بيئة',score:87},
-    {emoji:'🧠',title:'90% من الدماغ لا نستخدمه — حقيقة أم خرافة؟',kw:'دماغ,علم,حقائق',score:85},
-    {emoji:'🔭',title:'ثقب أسود يبتلع مجرة كاملة — ماذا حدث؟',kw:'فضاء,ثقب أسود,كون',score:83},
-    {emoji:'💊',title:'دواء الخلود — هل وجده العلماء فعلاً؟',kw:'طب,علم,اكتشاف',score:88},
+    {e:'🧬',t:'العلماء اكتشفوا كيف يوقفون الشيخوخة — التفاصيل',k:'علوم,طب,شيخوخة',s:90},
+    {e:'🌍',t:'الاحترار العالمي — 10 سنوات قبل الكارثة',k:'تغير مناخي,بيئة',s:87},
+    {e:'🧠',t:'90% من الدماغ لا نستخدمه — حقيقة ام خرافة؟',k:'دماغ,علم,حقائق',s:85},
+    {e:'🔭',t:'ثقب اسود يبتلع مجرة كاملة — ماذا حدث؟',k:'فضاء,ثقب اسود,كون',s:83},
+    {e:'💊',t:'دواء الخلود — هل وجده العلماء فعلا؟',k:'طب,علم,اكتشاف',s:88}
   ],
   history:[
-    {emoji:'⚔️',title:'أسرار الحضارة المصرية لم تُدرَّس في المدارس',kw:'مصر,تاريخ,حضارة',score:88},
-    {emoji:'🏰',title:'سقوط روما — الدرس الذي يتجاهله الجميع',kw:'روما,تاريخ',score:85},
-    {emoji:'👑',title:'صلاح الدين الأيوبي — القصة الكاملة',kw:'صلاح الدين,تاريخ',score:87},
-    {emoji:'🗡️',title:'المغول — أكثر غزو دموي في تاريخ البشرية',kw:'مغول,غزو,تاريخ',score:84},
-    {emoji:'🌙',title:'الدولة العثمانية — كيف حكمت العالم 600 سنة',kw:'عثماني,تاريخ,إسلام',score:86},
+    {e:'⚔️',t:'اسرار الحضارة المصرية لم تدرس في المدارس',k:'مصر,تاريخ,حضارة',s:88},
+    {e:'🏰',t:'سقوط روما — الدرس الذي يتجاهله الجميع',k:'روما,تاريخ',s:85},
+    {e:'👑',t:'صلاح الدين الايوبي — القصة الكاملة',k:'صلاح الدين,تاريخ',s:87},
+    {e:'🗡️',t:'المغول — اكثر غزو دموي في تاريخ البشرية',k:'مغول,غزو,تاريخ',s:84},
+    {e:'🌙',t:'الدولة العثمانية — كيف حكمت العالم 600 سنة',k:'عثماني,تاريخ,اسلام',s:86}
   ],
   motivation:[
-    {emoji:'🚀',title:'5 عادات تجعلك في أفضل 1% من الناس',kw:'تحفيز,نجاح,عادات',score:96},
-    {emoji:'💪',title:'كيف غيّر شاب حياته من الصفر في 12 شهراً',kw:'تغيير,نجاح',score:92},
-    {emoji:'🧘',title:'سر الإنتاجية الذي يخفيه الناجحون',kw:'إنتاجية,نجاح',score:90},
-    {emoji:'🌟',title:'قانون الجذب — الحقيقة العلمية وراءه',kw:'قانون الجذب,تحفيز',score:88},
-    {emoji:'🏆',title:'من لا شيء إلى مليونير — قصص حقيقية مُلهِمة',kw:'نجاح,أموال,تحفيز',score:94},
-  ],
+    {e:'🚀',t:'5 عادات تجعلك في افضل 1% من الناس',k:'تحفيز,نجاح,عادات',s:96},
+    {e:'💪',t:'كيف غير شاب حياته من الصفر في 12 شهرا',k:'تغيير,نجاح',s:92},
+    {e:'🧘',t:'سر الانتاجية الذي يخفيه الناجحون',k:'انتاجية,نجاح',s:90},
+    {e:'🌟',t:'قانون الجذب — الحقيقة العلمية وراءه',k:'قانون الجذب,تحفيز',s:88},
+    {e:'🏆',t:'من لا شيء الى مليونير — قصص حقيقية ملهمة',k:'نجاح,اموال,تحفيز',s:94}
+  ]
 };
 
-// ══ INIT ══
-window.onload = () => {
-  loadKeys();
-  renderTrends('all');
-  updateDbCount();
-};
+window.onload=function(){loadK();renderT('all');updCnt();};
 
-// ══ KEYS ══
-function saveKeys() {
-  localStorage.setItem('acai_v4_ck', document.getElementById('claudeKey').value);
-  localStorage.setItem('acai_v4_ek', document.getElementById('elevenKey').value);
-  updateKeyDots();
-}
+function saveK(){localStorage.setItem('ac5_ck',document.getElementById('ck').value);localStorage.setItem('ac5_ek',document.getElementById('ek').value);}
+function loadK(){var a=localStorage.getItem('ac5_ck')||'';var b=localStorage.getItem('ac5_ek')||'';if(a)document.getElementById('ck').value=a;if(b)document.getElementById('ek').value=b;}
+function toggleS(){var p=document.getElementById('sp');p.classList.toggle('open');}
+function selL(el){document.querySelectorAll('.lbtn').forEach(function(b){b.classList.remove('active');});el.classList.add('active');lk=el.getAttribute('data-l');}
+function selV(el){document.querySelectorAll('.vbtn').forEach(function(b){b.classList.remove('active');});el.classList.add('active');vid=el.getAttribute('data-v');}
+function fCat(c,el){document.querySelectorAll('.ftab').forEach(function(b){b.classList.remove('active');});el.classList.add('active');cc=c;renderT(c);}
 
-function loadKeys() {
-  const ck = localStorage.getItem('acai_v4_ck') || '';
-  const ek = localStorage.getItem('acai_v4_ek') || '';
-  if(ck) document.getElementById('claudeKey').value = ck;
-  if(ek) document.getElementById('elevenKey').value = ek;
-  updateKeyDots();
-}
-
-function updateKeyDots() {
-  // no dots in new design - handled by settings panel
-}
-
-function toggleSettings() {
-  const p = document.getElementById('settingsPanel');
-  p.classList.toggle('open');
-}
-
-// ══ SETTINGS ══
-function selLen(el) {
-  document.querySelectorAll('.len-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  selectedLen = el.dataset.len;
-}
-
-function selVoice(el) {
-  document.querySelectorAll('.voice-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  selectedVoiceId = el.dataset.vid;
-}
-
-// ══ TRENDS ══
-function filterTrends(cat, el) {
-  document.querySelectorAll('.ftab').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  currentCat = cat;
-  renderTrends(cat);
-}
-
-function renderTrends(cat) {
-  const list = document.getElementById('trendsList');
-  const existing = DB.map(x=>x.title.toLowerCase());
-
-  let items = [];
-  if(cat === 'all') {
-    Object.entries(TOPICS).forEach(([c,arr]) => arr.forEach(t=>items.push({...t,cat:c})));
-  } else {
-    items = (TOPICS[cat]||[]).map(t=>({...t,cat}));
+function renderT(cat){
+  var list=document.getElementById('tlist');
+  var ex=DB.map(function(x){return x.title.toLowerCase();});
+  var items=[];
+  if(cat==='all'){Object.keys(TP).forEach(function(c){TP[c].forEach(function(t){items.push({e:t.e,t:t.t,k:t.k,s:t.s,cat:c});});});}
+  else{(TP[cat]||[]).forEach(function(t){items.push({e:t.e,t:t.t,k:t.k,s:t.s,cat:cat});});}
+  items.sort(function(a,b){var au=ex.some(function(e){return e.indexOf(a.t.substring(0,8).toLowerCase())>=0;});var bu=ex.some(function(e){return e.indexOf(b.t.substring(0,8).toLowerCase())>=0;});if(au!==bu)return au?1:-1;return b.s-a.s;});
+  rt=items;
+  var h='';
+  for(var i=0;i<items.length;i++){
+    var t=items[i];
+    var used=ex.some(function(e){return e.indexOf(t.t.substring(0,8).toLowerCase())>=0;});
+    var sc=t.s;
+    var col=sc>=90?'#00ff88':sc>=80?'#4285f4':'#fbbf24';
+    var cn=CN[t.cat]||t.cat;
+    var kw=t.k.split(',').slice(0,2).map(function(k){return '<span class="tag">'+k.trim()+'</span>';}).join('');
+    h+='<div class="tcard'+(used?' used':'')+'" onclick="'+(used?'void(0)':'pick('+i+')')+'">'+
+      (used?'<div class="used-badge">مستخدم</div>':'')+
+      '<div class="te">'+t.e+'</div>'+
+      '<div class="tbody"><div class="tt">'+t.t+'</div>'+
+      '<div class="tmeta"><span class="tag">'+cn+'</span>'+kw+'</div>'+
+      '<div class="srow"><div class="slbl">نجاح</div><div class="strk"><div class="sfil" style="width:'+sc+'%;background:'+col+';"></div></div><div class="sval" style="color:'+col+';">'+sc+'%</div></div>'+
+      '</div><div class="tarr">'+(used?'':'←')+'</div></div>';
   }
-
-  // Sort: unused first, then by score
-  items.sort((a,b)=>{
-    const au = existing.some(e=>e.includes(a.title.substring(0,12).toLowerCase()));
-    const bu = existing.some(e=>e.includes(b.title.substring(0,12).toLowerCase()));
-    if(au !== bu) return au ? 1 : -1;
-    return b.score - a.score;
-  });
-
-  list.innerHTML = items.map(t => {
-    const used = existing.some(e=>e.includes(t.title.substring(0,12).toLowerCase()));
-    const sc = t.score;
-    const scColor = sc>=90?'#00ff88':sc>=80?'#4285f4':'#fbbf24';
-    return `
-    <div class="trend-card ${used?'used':''}" onclick="${used?'':'pickAndRun(this)'}"
-      data-emoji="${t.emoji}" data-title="${t.title.replace(/"/g,'&quot;')}"
-      data-kw="${t.kw}" data-cat="${t.cat}">
-      ${used?'<div class="used-badge">⚠️ مستخدم</div>':''}
-      <div class="tc-emoji">${t.emoji}</div>
-      <div class="tc-body">
-        <div class="tc-title">${t.title}</div>
-        <div class="tc-meta">
-          <span class="tag tag-gray">${CAT_NAMES[t.cat]||t.cat}</span>
-          ${t.kw.split(',').slice(0,2).map(k=>`<span class="tag tag-gray">${k.trim()}</span>`).join('')}
-        </div>
-        <div class="score-row">
-          <div class="score-label">نجاح</div>
-          <div class="score-track"><div class="score-fill" style="width:${sc}%;background:${scColor};"></div></div>
-          <div class="score-val" style="color:${scColor};font-weight:800;font-size:11px;">${sc}%</div>
-        </div>
-      </div>
-      <div class="tc-arrow">${used?'🚫':'←'}</div>
-    </div>`;
-  }).join('');
+  list.innerHTML=h||'<div style="text-align:center;padding:40px;color:#444;">لا توجد مواضيع</div>';
 }
 
-function pickAndRun(el) {
-  const topic = {
-    emoji: el.dataset.emoji,
-    title: el.dataset.title,
-    kw: el.dataset.kw,
-    cat: el.dataset.cat
-  };
-  currentTopic = topic;
-  startProduction(topic);
+function pick(i){var t=rt[i];if(!t)return;ct=t;startP(t);}
+function updCnt(){document.getElementById('cnt').textContent='المحتوى المنتج: '+DB.length+' فيديو';}
+function showSc(n){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});document.getElementById('s-'+n).classList.add('active');}
+function goBack(){busy=false;showSc('trends');renderT(cc);updCnt();}
+
+function setS(n,state,det,prog,tim){
+  var si=document.getElementById('si'+n),sd=document.getElementById('sd'+n),dd=document.getElementById('dd'+n),sb=document.getElementById('sb'+n),st=document.getElementById('st'+n);
+  si.className='sitem'+(state?' '+state:'');
+  if(det)dd.textContent=det;
+  if(prog!==undefined)sb.style.width=prog+'%';
+  if(tim)st.textContent=tim;
+  if(state==='done')sd.textContent='✓';
+  if(state==='error')sd.textContent='✕';
 }
 
-// ══ PIPELINE ══
-async function startProduction(topic) {
-  if(busy) return;
-  busy = true;
+function el(t){return((Date.now()-t)/1000).toFixed(1)+'s';}
 
-  const claudeKey = document.getElementById('claudeKey').value.trim();
-  if(!claudeKey) {
-    toast('❌ أضف Claude API Key في الإعدادات أولاً');
-    busy = false;
-    return;
-  }
+async function startP(topic){
+  if(busy)return;
+  var ckv=document.getElementById('ck').value.trim();
+  if(!ckv){toast('اضف Claude API Key في الاعدادات');return;}
+  busy=true;
+  showSc('pipe');
+  document.getElementById('pe').textContent=topic.e;
+  document.getElementById('pt').textContent=topic.t;
+  document.getElementById('pc').textContent=CN[topic.cat]||topic.cat;
+  for(var n=1;n<=4;n++){setS(n,'','في الانتظار...',0,'');document.getElementById('sd'+n).textContent=n;}
+  var t0=Date.now();
+  var ls=LS[lk];
+  try{
+    var t1=Date.now();
+    setS(1,'active','Claude يكتب...',10,'');
+    var pt=setInterval(function(){var c=parseInt(document.getElementById('sb1').style.width)||10;if(c<88)document.getElementById('sb1').style.width=(c+2)+'%';},800);
+    var prompt='اكتب سكريبت يوتيوب عربي احترافي عن: '+topic.t+'\n\nالقواعد:\n1. ابدا بجملة صادمة\n2. الطول: '+ls.w+' كلمة - لا تتوقف قبل ذلك\n3. اسلوب درامي تشويقي\n4. ارقام وتواريخ حقيقية\n5. سؤال للتعليق قبل النهاية\n6. اخر جملة: اشترك الان واضغط الجرس\n7. النص المنطوق فقط';
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ckv,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:ls.t,messages:[{role:'user',content:prompt}]})});
+    clearInterval(pt);
+    if(!res.ok){var er=await res.json().catch(function(){return{};});throw new Error(er.error?er.error.message:'Claude error '+res.status);}
+    var data=await res.json();
+    var script=data.content&&data.content[0]?data.content[0].text:'';
+    if(!script)throw new Error('لم يات رد من Claude');
+    cs=script;
+    var wc=script.split(/\s+/).length;
+    setS(1,'done','تم - '+wc+' كلمة',100,el(t1));
 
-  // Show pipeline screen
-  showScreen('pipeline');
-  document.getElementById('pipe-emoji').textContent = topic.emoji;
-  document.getElementById('pipe-title').textContent = topic.title;
-  document.getElementById('pipe-cat').textContent = CAT_NAMES[topic.cat]||topic.cat;
-  document.getElementById('pipe-subtitle').textContent = 'Claude يكتب السكريبت...';
+    var t2=Date.now();
+    setS(2,'active','فحص الجودة...',30,'');
+    await slp(500);
+    var qc=chkQ(script);
+    setS(2,'done','جودة '+qc.score+'%',100,el(t2));
 
-  // Reset steps
-  ['script','quality','voice','save'].forEach((id,i)=>{
-    setStep(id,'','في الانتظار...',0,'');
-    document.getElementById(`sd-${id}`).textContent = i+1;
-  });
+    var t3=Date.now();
+    var ekv=document.getElementById('ek').value.trim();
+    var aurl=null;
+    if(ekv){
+      setS(3,'active','ElevenLabs يولد الصوت...',20,'');
+      var vt=setInterval(function(){var c=parseInt(document.getElementById('sb3').style.width)||20;if(c<88)document.getElementById('sb3').style.width=(c+3)+'%';},500);
+      try{
+        var clean=script.replace(/[^\u0000-\u007E\u0600-\u06FF\u0020-\u007E ]/g,'').trim();
+        var vr=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+vid,{method:'POST',headers:{'Content-Type':'application/json','xi-api-key':ekv},body:JSON.stringify({text:clean.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.4,similarity_boost:0.8,style:0.6}})});
+        clearInterval(vt);
+        if(!vr.ok)throw new Error('ElevenLabs error '+vr.status);
+        var blob=await vr.blob();
+        aurl=URL.createObjectURL(blob);
+        setS(3,'done','الصوت جاهز!',100,el(t3));
+      }catch(ve){clearInterval(vt);setS(3,'error','فشل: '+ve.message,100,el(t3));}
+    }else{setS(3,'done','تم التخطي - اضف ElevenLabs Key',100,el(t3));}
 
-  const t0 = Date.now();
-
-  try {
-    // ── SCRIPT ──
-    const t1 = Date.now();
-    const ls = LEN[selectedLen];
-    setStep('script','active',`Claude يكتب — ${ls.words} كلمة...`,10,'');
-
-    let prog = 10;
-    const iv = setInterval(()=>{ prog=Math.min(prog+2,88); document.getElementById('sb-script').style.width=prog+'%'; },600);
-
-    let script;
-    try {
-      const res = await fetch('https://api.anthropic.com/v1/messages',{
-        method:'POST',
-        headers:{
-          'Content-Type':'application/json',
-          'x-api-key':claudeKey,
-          'anthropic-version':'2023-06-01',
-          'anthropic-dangerous-direct-browser-access':'true'
-        },
-        body:JSON.stringify({
-          model:'claude-sonnet-4-20250514',
-          max_tokens:ls.tokens,
-          messages:[{role:'user',content:`أنت كاتب محتوى يوتيوب عربي محترف ومتخصص في المحتوى الدرامي التشويقي.
-
-اكتب سكريبت كامل ومفصل عن:
-"${topic.title}"
-
-**القواعد الإلزامية:**
-١. ابدأ بجملة صادمة لا يستطيع المشاهد بعدها الإغلاق
-٢. الطول: ${ls.words} كلمة — هذا إلزامي، استمر في الكتابة حتى تصل لهذا الطول
-٣. أسلوب درامي تشويقي يبني التشويق تدريجياً
-٤. أرقام وأسماء وتواريخ حقيقية ودقيقة
-٥. قسّم القصة: مقدمة صادمة، خلفية، الأحداث، الذروة، الكشف، الخاتمة
-٦. قبل النهاية بقليل: سؤال يحفز التعليق مثل "ما رأيك؟ هل كان يمكن تفادي هذا؟"
-٧. آخر جملة حرفياً: "اشترك في القناة الآن واضغط على جرس الإشعارات 🔔 لأن عندنا المزيد من القصص المثيرة"
-٨. النص المنطوق فقط بدون أي عناوين أو تعليمات إخراجية
-
-ابدأ الكتابة مباشرة:`}]
-        })
-      });
-      clearInterval(iv);
-      if(!res.ok) {
-        const e = await res.json().catch(()=>({}));
-        throw new Error(e.error?.message||'Claude error '+res.status);
-      }
-      const data = await res.json();
-      script = data.content?.[0]?.text || '';
-      if(!script) throw new Error('لم يأتِ رد من Claude');
-    } catch(e) {
-      clearInterval(iv);
-      throw e;
-    }
-
-    currentScript = script;
-    const words = script.split(/\s+/).length;
-    setStep('script','done',`✓ ${words} كلمة — ~${Math.round(words/130)} دقائق`,100,elapsed(t1));
-
-    // ── QUALITY ──
-    const t2 = Date.now();
-    setStep('quality','active','فحص الجودة والتكرار...',30,'');
-    await sleep(500);
-    const qc = checkQuality(script);
-    const dups = DB.filter(d=>simScore(d.script||'',script)>0.4).length;
-    setStep('quality','done',`✓ جودة ${qc.score}% — ${dups>0?'⚠️ تشابه '+dups:'أصيل ✓'}`,100,elapsed(t2));
-
-    // ── VOICE ──
-    const t3 = Date.now();
-    const ek = document.getElementById('elevenKey').value.trim();
-    let audioUrl = null;
-    if(ek) {
-      setStep('voice','active','ElevenLabs يولد الصوت...',20,'');
-      let vp=20;
-      const iv2=setInterval(()=>{vp=Math.min(vp+3,88);document.getElementById('sb-voice').style.width=vp+'%';},400);
-      try {
-        const clean=script.replace(/[🎬🔍⚠️💡📝🔔😱✅❌━🔪☠️💀🕵️🔫🏦👻🧪🤖📱🔐🌐🚀⚡🌊👽🔺🗿👁️💰📈💎📉🧬🌍🧠🔭💊⚔️🏰👑🗡️🌙💪🧘🌟🏆]/gu,'').trim();
-        const vr=await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}`,{
-          method:'POST',
-          headers:{'Content-Type':'application/json','xi-api-key':ek},
-          body:JSON.stringify({text:clean.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.4,similarity_boost:0.8,style:0.6}})
-        });
-        clearInterval(iv2);
-        if(!vr.ok) throw new Error('ElevenLabs error');
-        const blob=await vr.blob();
-        audioUrl=URL.createObjectURL(blob);
-        currentAudioUrl=audioUrl;
-        setStep('voice','done','✓ الصوت جاهز!',100,elapsed(t3));
-      } catch(e) {
-        clearInterval(iv2);
-        setStep('voice','error','✕ تحقق من مفتاح ElevenLabs',100,elapsed(t3));
-      }
-    } else {
-      setStep('voice','done','⏭ بدون صوت — أضف ElevenLabs Key',100,elapsed(t3));
-    }
-
-    // ── SAVE ──
-    const t4=Date.now();
-    setStep('save','active','حفظ في قاعدة البيانات...',50,'');
-    await sleep(300);
-
-    const entry={
-      id:Date.now(),
-      emoji:topic.emoji,
-      title:topic.title,
-      cat:topic.cat,
-      kw:topic.kw,
-      script,
-      quality:qc.score,
-      checks:qc.checks,
-      audioUrl,
-      date:new Date().toLocaleDateString('ar-SA'),
-      dateRaw:Date.now()
-    };
-
+    var t4=Date.now();
+    setS(4,'active','الحفظ...',50,'');
+    await slp(300);
+    var entry={id:Date.now(),emoji:topic.e,title:topic.t,cat:topic.cat,kw:topic.k,script:script,quality:qc.score,checks:qc.checks,audioUrl:aurl,date:new Date().toLocaleDateString('ar-SA'),dateRaw:Date.now()};
     DB.unshift(entry);
-    localStorage.setItem('acai_v4',JSON.stringify(DB));
-    setStep('save','done',`✓ محفوظ — إجمالي: ${DB.length} فيديو`,100,elapsed(t4));
-
-    await sleep(400);
-    showResult(entry, qc);
-    updateDbCount();
-
-    // Load images async
-    loadImages(topic);
-
-    // Handle audio display
-    if(entry.audioUrl) {
-      showAudio(entry.audioUrl);
-    } else if(ek) {
-      // Voice already failed - show error
-      document.getElementById('r-audio-placeholder').textContent = '❌ فشل توليد الصوت — تحقق من مفتاح ElevenLabs';
-    } else {
-      document.getElementById('r-audio-placeholder').innerHTML = `
-        <div style="text-align:center;padding:10px;">
-          <div style="font-size:13px;color:#555;margin-bottom:12px;">🎙️ أضف مفتاح ElevenLabs للحصول على الصوت</div>
-          <input type="password" id="elevenKeyRetry" placeholder="sk_..." style="width:100%;background:#111;border:1px solid #2a2a2a;border-radius:8px;padding:9px 12px;color:#fff;font-family:monospace;font-size:12px;outline:none;direction:ltr;margin-bottom:10px;" />
-          <button onclick="retryVoiceInline()" style="width:100%;padding:11px;background:#00ff88;border:none;border-radius:8px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;cursor:pointer;color:#000;">🎙️ توليد الصوت</button>
-        </div>`;
-    }
-
-  } catch(err) {
-    toast('❌ '+err.message);
-    showScreen('trends');
-  }
-
+    localStorage.setItem('ac5',JSON.stringify(DB));
+    setS(4,'done','محفوظ - الاجمالي: '+DB.length,100,el(t4));
+    await slp(400);
+    showRes(entry,qc,aurl);
+    ldImgs(topic.cat);
+  }catch(e){toast('خطا: '+e.message);showSc('trends');}
   busy=false;
 }
 
-// ══ RESULT ══
-function showResult(entry, qc) {
-  showScreen('result');
-
-  document.getElementById('r-emoji').textContent = entry.emoji;
-  document.getElementById('r-title').textContent = entry.title;
-  document.getElementById('r-tags').innerHTML =
-    `<span class="tag tag-green">${entry.quality}% جودة</span>
-     <span class="tag tag-blue">${entry.script.split(/\s+/).length} كلمة</span>
-     <span class="tag tag-gray">${CAT_NAMES[entry.cat]||entry.cat}</span>`;
-
-  const col = entry.quality>=80?'#00ff88':entry.quality>=60?'#4285f4':entry.quality>=40?'#fbbf24':'#ff4444';
-  document.getElementById('r-qnum').textContent = entry.quality+'%';
-  document.getElementById('r-qnum').style.color = col;
-  const qf=document.getElementById('r-qfill');
-  qf.style.width=entry.quality+'%'; qf.style.background=col;
-
-  document.getElementById('r-checks').innerHTML = qc.checks.map(c=>`
-    <div class="check-row">
-      <span class="check-icon">${c.pass?'✅':'❌'}</span>
-      <span class="check-label">${c.l} — ${c.d}</span>
-      <span class="check-pts" style="color:${c.pass?'#00ff88':'#ff4444'}">+${c.pts}</span>
-    </div>`).join('');
-
-  document.getElementById('r-script').textContent = entry.script.substring(0,500)+'...';
-  document.getElementById('r-stats').textContent = `${entry.script.split(/\s+/).length} كلمة — ~${Math.round(entry.script.split(/\s+/).length/130)} دقيقة`;
-
-  if(entry.audioUrl) {
-    document.getElementById('r-audio-card').style.display='block';
-    document.getElementById('r-audio').src=entry.audioUrl;
-    document.getElementById('r-dl-audio').href=entry.audioUrl;
-  }
-}
-
-// ══ AUDIO ══
-function showAudio(url) {
-  document.getElementById('r-audio-placeholder').style.display = 'none';
-  const audio = document.getElementById('r-audio');
-  audio.src = url;
-  audio.style.display = 'block';
-  const dl = document.getElementById('r-dl-audio');
-  dl.href = url;
-  dl.style.display = 'inline-flex';
-}
-
-async function retryVoiceInline() {
-  const keyInput = document.getElementById('elevenKeyRetry');
-  const ek = keyInput ? keyInput.value.trim() : document.getElementById('elevenKey').value.trim();
-  if(!ek) { toast('❌ أدخل المفتاح أولاً'); return; }
-
-  // Save key for future use
-  document.getElementById('elevenKey').value = ek;
-  localStorage.setItem('acai_v4_ek', ek);
-
-  document.getElementById('r-audio-placeholder').textContent = '⏳ جاري توليد الصوت...';
-  try {
-    const clean = currentScript.replace(/[🎬🔍⚠️💡📝🔔😱✅❌━]/gu,'').trim();
-    const vr = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','xi-api-key':ek},
-      body:JSON.stringify({
-        text:clean.substring(0,2500),
-        model_id:'eleven_multilingual_v2',
-        voice_settings:{stability:0.4,similarity_boost:0.8,style:0.6}
-      })
-    });
-    if(!vr.ok) {
-      const err = await vr.json().catch(()=>({}));
-      throw new Error(err.detail?.message || 'ElevenLabs error ' + vr.status);
-    }
-    const blob = await vr.blob();
-    const url = URL.createObjectURL(blob);
-    currentAudioUrl = url;
-    showAudio(url);
-    if(DB.length > 0) { DB[0].audioUrl = url; localStorage.setItem('acai_v4', JSON.stringify(DB)); }
-    toast('✅ الصوت جاهز!');
-  } catch(e) {
-    document.getElementById('r-audio-placeholder').textContent = '❌ ' + e.message;
-    toast('❌ فشل: ' + e.message);
-  }
-}
-  const ek = document.getElementById('elevenKey').value.trim();
-  if(!ek) {
-    toggleSettings();
-    toast('أضف ElevenLabs Key في الإعدادات');
-    return;
-  }
-  document.getElementById('r-audio-placeholder').textContent = '⏳ جاري توليد الصوت...';
-  document.getElementById('r-audio-placeholder').style.display = 'block';
-  document.getElementById('r-audio').style.display = 'none';
-
-  try {
-    const clean = currentScript.replace(/[🎬🔍⚠️💡📝🔔😱✅❌━]/gu,'').trim();
-    const vr = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json','xi-api-key':ek},
-      body:JSON.stringify({text:clean.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.4,similarity_boost:0.8,style:0.6}})
-    });
-    if(!vr.ok) throw new Error('ElevenLabs error');
-    const blob = await vr.blob();
-    const url = URL.createObjectURL(blob);
-    currentAudioUrl = url;
-    showAudio(url);
-    // Update in DB
-    if(DB.length > 0) { DB[0].audioUrl = url; localStorage.setItem('acai_v4', JSON.stringify(DB)); }
-    toast('✅ الصوت جاهز!');
-  } catch(e) {
-    document.getElementById('r-audio-placeholder').textContent = '❌ فشل — تحقق من المفتاح';
-    toast('❌ فشل توليد الصوت');
-  }
-}
-async function loadImages(topic) {
-  const queries={crime:'crime detective mystery dark',tech:'technology ai future digital',mystery:'mystery dark secret',finance:'money finance wealth',science:'science research discovery',history:'ancient history civilization',motivation:'success achievement motivation'};
-  imgQuery=queries[topic.cat]||'dramatic storytelling';
-  imgPage=1;
-  document.getElementById('r-img-card').style.display='block';
-  await fetchImgs();
-}
-
-async function fetchImgs() {
-  const grid=document.getElementById('r-img-grid');
-  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#444;font-size:12px;padding:20px;">⏳ جاري تحميل الصور...</div>';
-
-  // Try Pexels first
-  const PKEY='bLOUhmPi6EbP3POipv1JQCQBdGFSLQWv8jYnFi3cCAf5nXJFRBpgJwp3';
-  try {
-    const res=await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(imgQuery)}&per_page=9&page=${imgPage}&orientation=landscape`,{headers:{'Authorization':PKEY}});
-    const data=await res.json();
-    if(data.photos?.length) {
-      grid.innerHTML=data.photos.map(p=>`
-        <div class="img-item">
-          <img src="${p.src.medium}" loading="lazy"/>
-          <a class="img-dl" href="${p.src.large}" target="_blank" download>📥</a>
-        </div>`).join('');
-      return;
-    }
-  } catch(e) {}
-
-  // Fallback: Unsplash random images
-  const terms = imgQuery.split(' ').slice(0,2).join(',');
-  const imgs = Array.from({length:9},(_,i) =>
-    `https://picsum.photos/seed/${encodeURIComponent(terms+i+imgPage)}/400/225`
-  );
-  grid.innerHTML = imgs.map((src,i)=>`
-    <div class="img-item">
-      <img src="${src}" loading="lazy" onerror="this.src='https://picsum.photos/400/225?random=${i+imgPage*10}'" />
-      <a class="img-dl" href="${src}" target="_blank">📥</a>
-    </div>`).join('');
-}
-
-function loadMoreImgs() { imgPage++; fetchImgs(); }
-
-// ══ QUALITY ══
-function checkQuality(script) {
-  const words=script.split(/\s+/).length;
-  const checks=[
-    {l:'طول السكريبت',d:`${words} كلمة`,pass:words>=200,pts:20},
-    {l:'Hook جذاب',d:'أول 200 حرف',pass:script.substring(0,200).length>80,pts:20},
-    {l:'أرقام وتواريخ',d:'تفاصيل حقيقية',pass:/\d{3,}|\d{4}/.test(script),pts:15},
-    {l:'أسلوب درامي',d:'كلمات إثارة',pass:/صادم|مرعب|إثارة|صدمة|حير|كابوس|مخيف|غريب/.test(script),pts:15},
-    {l:'سؤال للتعليق',d:'يزيد التفاعل',pass:/\؟|ما رأيك|ماذا تعتقد|اكتب|شاركنا/.test(script),pts:15},
-    {l:'دعوة للاشتراك',d:'ينمي القناة',pass:/اشترك|اشتراك|subscribe|الجرس|🔔|تابع/.test(script),pts:15},
+function chkQ(s){
+  var w=s.split(/\s+/).length;
+  var cks=[
+    {l:'طول السكريبت',d:w+' كلمة',pass:w>=400,pts:20},
+    {l:'Hook جذاب',d:'اول 200 حرف',pass:s.substring(0,200).length>80,pts:20},
+    {l:'ارقام وتواريخ',d:'تفاصيل حقيقية',pass:/\d{3,}/.test(s),pts:15},
+    {l:'اسلوب درامي',d:'كلمات اثارة',pass:/صادم|مرعب|اثارة|صدمة|حير|كابوس/.test(s),pts:15},
+    {l:'سؤال للتعليق',d:'يزيد التفاعل',pass:/؟|ما رايك|اكتب|شاركنا/.test(s),pts:15},
+    {l:'دعوة للاشتراك',d:'ينمي القناة',pass:/اشترك|الجرس/.test(s),pts:15}
   ];
-  return {score:checks.reduce((a,c)=>a+(c.pass?c.pts:0),0),checks};
+  var score=cks.reduce(function(a,c){return a+(c.pass?c.pts:0);},0);
+  return{score:score,checks:cks};
 }
 
-// ══ NAVIGATION ══
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(`screen-${name}`).classList.add('active');
+function showRes(entry,qc,aurl){
+  showSc('result');
+  document.getElementById('re').textContent=entry.emoji;
+  document.getElementById('rt').textContent=entry.title;
+  var w=entry.script.split(/\s+/).length;
+  document.getElementById('rtags').innerHTML='<span class="rtag rtg">جودة '+entry.quality+'%</span><span class="rtag rtb">'+w+' كلمة</span><span class="rtag rtx">'+(CN[entry.cat]||entry.cat)+'</span>';
+  var col=entry.quality>=80?'#00ff88':entry.quality>=60?'#4285f4':entry.quality>=40?'#fbbf24':'#ff4444';
+  document.getElementById('rq').textContent=entry.quality+'%';
+  document.getElementById('rq').style.color=col;
+  var qf=document.getElementById('rqf');qf.style.width=entry.quality+'%';qf.style.background=col;
+  var ch='';qc.checks.forEach(function(c){ch+='<div class="ckrow"><span class="ckico">'+(c.pass?'✅':'❌')+'</span><span class="cklbl">'+c.l+' — '+c.d+'</span><span class="ckpts" style="color:'+(c.pass?'#00ff88':'#ff4444')+'">+'+c.pts+'</span></div>';});
+  document.getElementById('rcks').innerHTML=ch;
+  document.getElementById('rscript').textContent=entry.script.substring(0,500)+'...';
+  document.getElementById('rstat').textContent=w+' كلمة — ~'+Math.round(w/130)+' دقيقة';
+  if(aurl){document.getElementById('amsg').style.display='none';var a=document.getElementById('raudio');a.src=aurl;a.style.display='block';var dl=document.getElementById('rdla');dl.href=aurl;dl.style.display='inline-flex';}
+  else{var ek2=localStorage.getItem('ac5_ek')||'';if(ek2)document.getElementById('ekr').value=ek2;}
 }
 
-function goBack() {
-  busy=false;
-  showScreen('trends');
-  renderTrends(currentCat);
-  updateDbCount();
+async function genVoice(){
+  var ekv=document.getElementById('ekr').value.trim();
+  if(!ekv){toast('ادخل المفتاح');return;}
+  localStorage.setItem('ac5_ek',ekv);
+  document.getElementById('ek').value=ekv;
+  document.getElementById('vbtnEl').textContent='جاري التوليد...';
+  document.getElementById('vbtnEl').disabled=true;
+  try{
+    var clean=cs.replace(/[^\u0000-\u007E\u0600-\u06FF ]/g,'').trim();
+    var vr=await fetch('https://api.elevenlabs.io/v1/text-to-speech/'+vid,{method:'POST',headers:{'Content-Type':'application/json','xi-api-key':ekv},body:JSON.stringify({text:clean.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.4,similarity_boost:0.8,style:0.6}})});
+    if(!vr.ok){var er=await vr.json().catch(function(){return{};});throw new Error('خطا '+vr.status);}
+    var blob=await vr.blob();var url=URL.createObjectURL(blob);
+    document.getElementById('amsg').style.display='none';var a=document.getElementById('raudio');a.src=url;a.style.display='block';
+    var dl=document.getElementById('rdla');dl.href=url;dl.style.display='inline-flex';
+    if(DB.length>0){DB[0].audioUrl=url;localStorage.setItem('ac5',JSON.stringify(DB));}
+    toast('الصوت جاهز!');
+  }catch(e){document.getElementById('vbtnEl').textContent='توليد الصوت';document.getElementById('vbtnEl').disabled=false;toast('فشل: '+e.message);}
 }
 
-function updateDbCount() {
-  document.getElementById('dbCount').textContent = `📚 المحتوى المنتج: ${DB.length} فيديو`;
+function cpScript(){navigator.clipboard.writeText(cs).then(function(){toast('تم النسخ');});}
+function dlScript(){var b=new Blob([cs],{type:'text/plain;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(ct?ct.t.substring(0,25):'script')+'.txt';a.click();}
+
+async function ldImgs(cat){
+  var q={crime:'crime detective',tech:'technology ai',mystery:'mystery dark',finance:'money finance',science:'science research',history:'ancient history',motivation:'success motivation'};
+  iq=q[cat]||'storytelling';ip=1;await fetchI();
 }
 
-// ══ STEPS ══
-function setStep(id,state,detail,prog,time) {
-  const si=document.getElementById(`si-${id}`);
-  const sd=document.getElementById(`sd-${id}`);
-  const dd=document.getElementById(`dd-${id}`);
-  const sb=document.getElementById(`sb-${id}`);
-  const st=document.getElementById(`st-${id}`);
-  si.className='step-item '+(state||'');
-  if(detail) dd.textContent=detail;
-  if(prog!==undefined) sb.style.width=prog+'%';
-  if(time) st.textContent=time;
-  if(state==='done') sd.textContent='✓';
-  if(state==='error') sd.textContent='✕';
+async function fetchI(){
+  var g=document.getElementById('rimgs');
+  g.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#444;font-size:12px;padding:20px;">جاري التحميل...</div>';
+  var PK='bLOUhmPi6EbP3POipv1JQCQBdGFSLQWv8jYnFi3cCAf5nXJFRBpgJwp3';
+  try{
+    var r=await fetch('https://api.pexels.com/v1/search?query='+encodeURIComponent(iq)+'&per_page=9&page='+ip+'&orientation=landscape',{headers:{Authorization:PK}});
+    var d=await r.json();
+    if(d.photos&&d.photos.length>0){var h='';d.photos.forEach(function(p){h+='<div class="iitem"><img src="'+p.src.medium+'" loading="lazy"><a class="idl" href="'+p.src.large+'" target="_blank" download>تحميل</a></div>';});g.innerHTML=h;return;}
+  }catch(e){}
+  var h='';for(var i=0;i<9;i++){var src='https://picsum.photos/seed/'+encodeURIComponent(iq+i+ip)+'/400/225';h+='<div class="iitem"><img src="'+src+'" loading="lazy"><a class="idl" href="'+src+'" target="_blank">تحميل</a></div>';}
+  g.innerHTML=h;
 }
 
-// ══ ACTIONS ══
-function copyScript() { navigator.clipboard.writeText(currentScript).then(()=>toast('📋 تم النسخ')); }
-function dlScript() {
-  const b=new Blob([currentScript],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(b);
-  a.download=(currentTopic?.title||'script').substring(0,30)+'.txt';
-  a.click();
-}
-
-// ══ UTILS ══
-function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
-function elapsed(t){return((Date.now()-t)/1000).toFixed(1)+'s';}
-function simScore(a,b){
-  if(!a||!b)return 0;
-  const wa=new Set(a.split(/\s+/).filter(w=>w.length>3));
-  const wb=new Set(b.split(/\s+/).filter(w=>w.length>3));
-  if(!wa.size||!wb.size)return 0;
-  let c=0;wa.forEach(w=>{if(wb.has(w))c++;});
-  return c/Math.max(wa.size,wb.size);
-}
-function toast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2800);
-}
+function moreImgs(){ip++;fetchI();}
+function slp(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
 </script>
 </body>
 </html>
