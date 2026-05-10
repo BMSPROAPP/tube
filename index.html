@@ -622,21 +622,28 @@ audio { width:100%; border-radius:8px; }
     </div>
 
     <!-- Audio -->
-    <div class="section-card" id="r-audio-card" style="display:none;">
+    <div class="section-card" id="r-audio-card">
       <div class="section-label" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>AUDIO</span>
-        <a class="act" id="r-dl-audio" href="#" download="audio.mp3" style="padding:5px 10px;font-size:11px;">📥 تحميل</a>
+        <span>🎙️ الصوت</span>
+        <a class="act" id="r-dl-audio" href="#" download="audio.mp3" style="padding:5px 10px;font-size:11px;display:none;">📥 تحميل</a>
       </div>
-      <audio id="r-audio" controls></audio>
+      <div id="r-audio-wrap">
+        <div style="background:#0d0d0d;border-radius:10px;padding:14px;text-align:center;color:#444;font-size:12px;" id="r-audio-placeholder">
+          ⏳ جاري توليد الصوت...
+        </div>
+        <audio id="r-audio" controls style="width:100%;border-radius:8px;display:none;"></audio>
+      </div>
     </div>
 
     <!-- Images -->
-    <div class="section-card" id="r-img-card" style="display:none;">
+    <div class="section-card" id="r-img-card">
       <div class="section-label" style="display:flex;justify-content:space-between;align-items:center;">
-        <span>📸 صور مقترحة</span>
+        <span>📸 صور للفيديو</span>
         <button class="act" onclick="loadMoreImgs()" style="padding:5px 10px;font-size:11px;">🔄 المزيد</button>
       </div>
-      <div class="img-grid" id="r-img-grid"></div>
+      <div class="img-grid" id="r-img-grid">
+        <div style="grid-column:1/-1;text-align:center;color:#444;font-size:12px;padding:20px;">⏳ جاري تحميل الصور...</div>
+      </div>
     </div>
 
     <!-- Next steps -->
@@ -676,9 +683,9 @@ let imgQuery = '';
 let busy = false;
 
 const LEN = {
-  short:  {words:'200-350', mins:'3-4',  tokens:500},
-  medium: {words:'500-650', mins:'5-7',  tokens:900},
-  long:   {words:'900-1100',mins:'8-10', tokens:1500},
+  short:  {words:'400-500',  mins:'4-5',  tokens:800},
+  medium: {words:'700-900',  mins:'6-8',  tokens:1300},
+  long:   {words:'1000-1300',mins:'9-12', tokens:2000},
 };
 
 const CAT_NAMES = {crime:'جرائم',tech:'تقنية',mystery:'ألغاز',finance:'مال',science:'علوم',history:'تاريخ',motivation:'تحفيز'};
@@ -988,9 +995,21 @@ async function startProduction(topic) {
     setStep('save','done',`✓ محفوظ — إجمالي: ${DB.length} فيديو`,100,elapsed(t4));
 
     await sleep(400);
-    showResult(entry,qc);
+    showResult(entry, qc);
     updateDbCount();
+
+    // Load images async
     loadImages(topic);
+
+    // Handle audio display
+    if(entry.audioUrl) {
+      showAudio(entry.audioUrl);
+    } else if(ek) {
+      // Voice already failed - show error
+      document.getElementById('r-audio-placeholder').textContent = '❌ فشل توليد الصوت — تحقق من مفتاح ElevenLabs';
+    } else {
+      document.getElementById('r-audio-placeholder').innerHTML = '⚠️ أضف ElevenLabs Key في الإعدادات للحصول على الصوت<br><br><button onclick="retryVoice()" style="background:#00ff88;border:none;border-radius:8px;padding:8px 16px;font-family:Cairo,sans-serif;font-weight:700;cursor:pointer;font-size:13px;">🎙️ أضف المفتاح وجرب الآن</button>';
+    }
 
   } catch(err) {
     toast('❌ '+err.message);
@@ -1034,7 +1053,48 @@ function showResult(entry, qc) {
   }
 }
 
-// ══ IMAGES ══
+// ══ AUDIO ══
+function showAudio(url) {
+  document.getElementById('r-audio-placeholder').style.display = 'none';
+  const audio = document.getElementById('r-audio');
+  audio.src = url;
+  audio.style.display = 'block';
+  const dl = document.getElementById('r-dl-audio');
+  dl.href = url;
+  dl.style.display = 'inline-flex';
+}
+
+async function retryVoice() {
+  const ek = document.getElementById('elevenKey').value.trim();
+  if(!ek) {
+    toggleSettings();
+    toast('أضف ElevenLabs Key في الإعدادات');
+    return;
+  }
+  document.getElementById('r-audio-placeholder').textContent = '⏳ جاري توليد الصوت...';
+  document.getElementById('r-audio-placeholder').style.display = 'block';
+  document.getElementById('r-audio').style.display = 'none';
+
+  try {
+    const clean = currentScript.replace(/[🎬🔍⚠️💡📝🔔😱✅❌━]/gu,'').trim();
+    const vr = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','xi-api-key':ek},
+      body:JSON.stringify({text:clean.substring(0,2500),model_id:'eleven_multilingual_v2',voice_settings:{stability:0.4,similarity_boost:0.8,style:0.6}})
+    });
+    if(!vr.ok) throw new Error('ElevenLabs error');
+    const blob = await vr.blob();
+    const url = URL.createObjectURL(blob);
+    currentAudioUrl = url;
+    showAudio(url);
+    // Update in DB
+    if(DB.length > 0) { DB[0].audioUrl = url; localStorage.setItem('acai_v4', JSON.stringify(DB)); }
+    toast('✅ الصوت جاهز!');
+  } catch(e) {
+    document.getElementById('r-audio-placeholder').textContent = '❌ فشل — تحقق من المفتاح';
+    toast('❌ فشل توليد الصوت');
+  }
+}
 async function loadImages(topic) {
   const queries={crime:'crime detective mystery dark',tech:'technology ai future digital',mystery:'mystery dark secret',finance:'money finance wealth',science:'science research discovery',history:'ancient history civilization',motivation:'success achievement motivation'};
   imgQuery=queries[topic.cat]||'dramatic storytelling';
